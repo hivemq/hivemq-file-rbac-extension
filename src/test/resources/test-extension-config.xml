@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<extension-configuration>
+
+    <!-- Reload interval for credentials -->
+    <credentials-reload-interval>120</credentials-reload-interval>
+
+    <!-- If the credentials file is using HASHED or PLAIN passwords -->
+    <password-type>HASHED</password-type>
+
+</extension-configuration>
