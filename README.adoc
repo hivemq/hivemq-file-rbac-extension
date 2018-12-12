@@ -7,7 +7,7 @@
 
 == HiveMQ File Role based Access Control Extension
 
-*Type*: Security
+*Extension Type*: Security
 
 *Version*: 4.0.0
 
