@@ -27,8 +27,7 @@ import java.io.File;
 import java.nio.file.Files;
 
 import static com.hivemq.extensions.rbac.configuration.ExtensionConfiguration.EXTENSION_CONFIG_FILE_NAME;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 
 public class ExtensionConfigurationTest {
@@ -92,6 +91,22 @@ public class ExtensionConfigurationTest {
 
         assertNotNull(extensionConfig);
         assertEquals(PasswordType.HASHED, extensionConfig.getPasswordType());
+        assertNull(extensionConfig.getListenerNames());
+    }
+
+    @Test
+    public void test_read_extension_configuration_existing_listener_names() throws Exception {
+
+        final File configFile = new File(temporaryFolder.getRoot(), EXTENSION_CONFIG_FILE_NAME);
+
+        Files.writeString(configFile.toPath(), "<extension-configuration><listener-names><listener-name>listener-1</listener-name><listener-name>listener-2</listener-name></listener-names></extension-configuration>");
+
+        final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(temporaryFolder.getRoot());
+
+        final ExtensionConfig extensionConfig = extensionConfiguration.getExtensionConfig();
+
+        assertNotNull(extensionConfig);
+        assertEquals(2, extensionConfig.getListenerNames().size());
     }
 
 }

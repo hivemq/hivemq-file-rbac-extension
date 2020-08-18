@@ -17,14 +17,14 @@
 
 package com.hivemq.extensions.rbac;
 
+import com.hivemq.extension.sdk.api.client.parameter.*;
+import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.utils.CredentialsValidator;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.annotations.Nullable;
 import com.hivemq.extension.sdk.api.auth.parameter.SimpleAuthInput;
 import com.hivemq.extension.sdk.api.auth.parameter.SimpleAuthOutput;
 import com.hivemq.extension.sdk.api.auth.parameter.TopicPermission;
-import com.hivemq.extension.sdk.api.client.parameter.ClientInformation;
-import com.hivemq.extension.sdk.api.client.parameter.ConnectionInformation;
 import com.hivemq.extension.sdk.api.packets.auth.DefaultAuthorizationBehaviour;
 import com.hivemq.extension.sdk.api.packets.auth.ModifiableDefaultPermissions;
 import com.hivemq.extension.sdk.api.packets.connect.ConnackReasonCode;
@@ -37,6 +37,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,6 +57,9 @@ public class FileAuthAuthenticatorTest {
     private FileAuthAuthenticator fileAuthAuthenticator;
 
     @Mock
+    private ExtensionConfig extensionConfig;
+
+    @Mock
     private SimpleAuthOutput output;
 
     private ModifiableDefaultPermissions permissions;
@@ -63,15 +67,23 @@ public class FileAuthAuthenticatorTest {
     @Before
     public void before() {
         MockitoAnnotations.initMocks(this);
-        fileAuthAuthenticator = new FileAuthAuthenticator(credentialsValidator);
+        fileAuthAuthenticator = new FileAuthAuthenticator(credentialsValidator,extensionConfig);
         permissions = new TestDefaultPermissions();
         when(credentialsValidator.getPermissions(anyString(), anyString(), anyList())).thenReturn(List.of(mock(TopicPermission.class), mock(TopicPermission.class)));
         when(output.getDefaultPermissions()).thenReturn(permissions);
     }
 
     @Test
+    public void test_wrong_listener_name() {
+        when(extensionConfig.getListenerNames()).thenReturn(List.of("listener-3", "listener-2"));
+        fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", "pass1", "listener-1"), output);
+        verify(output).nextExtensionOrDefault();
+    }
+
+    @Test
     public void test_connect_with_empty_username() {
-        fileAuthAuthenticator.onConnect(new TestInput("client1", null, "pass1"), output);
+        when(extensionConfig.getListenerNames()).thenReturn(List.of("listener-3", "listener-2"));
+        fileAuthAuthenticator.onConnect(new TestInput("client1", null, "pass1","listener-2"), output);
         verify(output).failAuthentication(ConnackReasonCode.BAD_USER_NAME_OR_PASSWORD, "Authentication failed because username or password are missing");
     }
 
@@ -109,7 +121,8 @@ public class FileAuthAuthenticatorTest {
     @Test
     public void test_connect_with_invalid_credentials() {
         when(credentialsValidator.getRoles(anyString(), any(ByteBuffer.class))).thenReturn(null);
-        fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", "pass1"), output);
+        when(extensionConfig.getListenerNames()).thenReturn(List.of("listener-3", "listener-2"));
+        fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", "pass1","listener-2"), output);
         verify(output).failAuthentication(ConnackReasonCode.NOT_AUTHORIZED, "Authentication failed because of invalid credentials");
     }
 
@@ -134,11 +147,20 @@ public class FileAuthAuthenticatorTest {
         private final @NotNull String clientId;
         private final @Nullable String userName;
         private final @Nullable String password;
+        private final @Nullable String listenerName;
 
         private TestInput(final @NotNull String clientId, final @Nullable String userName, final @Nullable String password) {
             this.clientId = clientId;
             this.userName = userName;
             this.password = password;
+            this.listenerName = null;
+        }
+
+        private TestInput(final @NotNull String clientId, final @Nullable String userName, final @Nullable String password, final @Nullable String listenerName ) {
+            this.clientId = clientId;
+            this.userName = userName;
+            this.password = password;
+            this.listenerName = listenerName;
         }
 
         @Override
@@ -148,12 +170,71 @@ public class FileAuthAuthenticatorTest {
 
         @Override
         public @NotNull ConnectionInformation getConnectionInformation() {
-            return null;
+            return new TestConnectionInformation(listenerName);
         }
 
         @Override
         public @NotNull ClientInformation getClientInformation() {
             return () -> clientId;
+        }
+    }
+
+    private class TestConnectionInformation implements ConnectionInformation {
+
+        private final @Nullable String listenerName;
+
+        TestConnectionInformation(String listenerName) {
+            this.listenerName = listenerName;
+        }
+
+        @Override
+        public @NotNull MqttVersion getMqttVersion() {
+            return null;
+        }
+
+        @Override
+        public @NotNull Optional<InetAddress> getInetAddress() {
+            return Optional.empty();
+        }
+
+        @Override
+        public @NotNull Optional<Listener> getListener() {
+            return Optional.of(new Listener() {
+                @Override
+                public int getPort() {
+                    return 0;
+                }
+
+                @Override
+                public @NotNull String getBindAddress() {
+                    return null;
+                }
+
+                @Override
+                public @NotNull ListenerType getListenerType() {
+                    return null;
+                }
+
+                @Override
+                public @NotNull String getName() {
+                    return listenerName;
+                }
+            });
+        }
+
+        @Override
+        public @NotNull Optional<ProxyInformation> getProxyInformation() {
+            return Optional.empty();
+        }
+
+        @Override
+        public @NotNull ConnectionAttributeStore getConnectionAttributeStore() {
+            return null;
+        }
+
+        @Override
+        public @NotNull Optional<TlsInformation> getTlsInformation() {
+            return Optional.empty();
         }
     }
 

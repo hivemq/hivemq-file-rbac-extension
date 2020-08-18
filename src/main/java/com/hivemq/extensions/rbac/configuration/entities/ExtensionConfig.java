@@ -18,8 +18,10 @@
 package com.hivemq.extensions.rbac.configuration.entities;
 
 import com.hivemq.extension.sdk.api.annotations.NotNull;
+import com.hivemq.extension.sdk.api.annotations.Nullable;
 
 import javax.xml.bind.annotation.*;
+import java.util.List;
 
 
 @XmlRootElement(name = "extension-configuration")
@@ -29,16 +31,22 @@ public class ExtensionConfig {
 
     @XmlElement(name = "credentials-reload-interval", required = false, defaultValue = "60")
     private int reloadInterval = 60;
-
+    @Nullable
+    @XmlElementWrapper(name = "listener-names")
+    @XmlElement(name = "listener-name")
+    private List<String> listenerNames;
+    
     @NotNull
     @XmlElement(name = "password-type", required = false, defaultValue = "HASHED")
     private PasswordType passwordType = PasswordType.HASHED;
+    
 
     public ExtensionConfig() {
     }
 
-    public ExtensionConfig(final int reloadInterval, final @NotNull PasswordType passwordType) {
+    public ExtensionConfig(final int reloadInterval, final List<String> listenerNames, final @NotNull PasswordType passwordType) {
         this.reloadInterval = reloadInterval;
+        this.listenerNames = listenerNames;
         this.passwordType = passwordType;
     }
 
@@ -48,6 +56,14 @@ public class ExtensionConfig {
 
     public void setReloadInterval(final int reloadInterval) {
         this.reloadInterval = reloadInterval;
+    }
+
+    public List<String> getListenerNames() {
+        return listenerNames;
+    }
+
+    public void setListenerNames(List<String> listenerNames) {
+        this.listenerNames = listenerNames;
     }
 
     @NotNull
@@ -64,6 +80,7 @@ public class ExtensionConfig {
     public String toString() {
         return "ExtensionConfiguration{" +
                 "reloadInterval=" + reloadInterval +
+                ", listenerNames=" + listenerNames +
                 ", passwordType=" + passwordType +
                 '}';
     }

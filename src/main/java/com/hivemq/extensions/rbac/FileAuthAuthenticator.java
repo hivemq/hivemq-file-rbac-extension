@@ -17,6 +17,8 @@
 
 package com.hivemq.extensions.rbac;
 
+import com.hivemq.extension.sdk.api.client.parameter.Listener;
+import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.utils.CredentialsValidator;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.auth.SimpleAuthenticator;
@@ -32,15 +34,27 @@ import java.util.Optional;
 
 public class FileAuthAuthenticator implements SimpleAuthenticator {
 
-    private final @NotNull
-    CredentialsValidator credentialsValidator;
+    private final @NotNull CredentialsValidator credentialsValidator;
 
-    FileAuthAuthenticator(final @NotNull CredentialsValidator credentialsValidator) {
+    private final @NotNull ExtensionConfig extensionConfig;
+
+    FileAuthAuthenticator(final @NotNull CredentialsValidator credentialsValidator, final @NotNull ExtensionConfig extensionConfig) {
         this.credentialsValidator = credentialsValidator;
+        this.extensionConfig = extensionConfig;
     }
 
     @Override
     public void onConnect(@NotNull final SimpleAuthInput simpleAuthInput, @NotNull final SimpleAuthOutput simpleAuthOutput) {
+        final List<String> listenerNames = extensionConfig.getListenerNames();
+        final Optional<Listener> connectedListenerOptional = simpleAuthInput.getConnectionInformation().getListener();
+
+        if( listenerNames != null && !listenerNames.isEmpty() && connectedListenerOptional.isPresent()) {
+            final String connectedListenerName = connectedListenerOptional.get().getName();
+            if(!listenerNames.contains(connectedListenerName)) {
+                    simpleAuthOutput.nextExtensionOrDefault();
+                    return;
+                }
+        }
 
         final Optional<String> userNameOptional = simpleAuthInput.getConnectPacket().getUserName();
         final Optional<ByteBuffer> passwordOptional = simpleAuthInput.getConnectPacket().getPassword();
