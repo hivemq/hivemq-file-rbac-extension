@@ -18,6 +18,6 @@
     <id>${artifactId}</id>
     <name>${extension.name}</name>
     <version>${version}</version>
-    <priority>10000</priority>
-    <author>dc-square GmbH</author>
+    <priority>1000</priority>
+    <author>HiveMQ GmbH</author>
 </hivemq-extension>
