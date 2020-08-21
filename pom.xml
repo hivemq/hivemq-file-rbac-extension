@@ -21,7 +21,7 @@
 
     <groupId>com.hivemq.extension</groupId>
     <artifactId>hivemq-file-rbac-extension</artifactId>
-    <version>4.0.1</version>
+    <version>4.4.0</version>
 
     <description>HiveMQ File Role Based Access Control Extension</description>
 
@@ -36,7 +36,7 @@
         <dependency>
             <groupId>com.hivemq</groupId>
             <artifactId>hivemq-extension-sdk</artifactId>
-            <version>4.0.0</version>
+            <version>4.4.0</version>
         </dependency>
 
         <dependency>
@@ -241,6 +241,31 @@
                                         <icons>font</icons>
                                         <toc2/>
                                     </attributes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>RunWithHiveMQ</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.hivemq</groupId>
+                        <artifactId>hivemq-maven-plugin</artifactId>
+                        <version>4.0.2</version>
+                        <executions>
+                            <execution>
+                                <id>hivemq</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>hivemq</goal>
+                                </goals>
+                                <configuration>
+                                    <hiveMQDir>YOUR_HIVEMQ_FOLDER</hiveMQDir>
+                                    <debugMode>SERVER</debugMode>
                                 </configuration>
                             </execution>
                         </executions>

@@ -19,5 +19,5 @@
     <name>${extension.name}</name>
     <version>${version}</version>
     <priority>1000</priority>
-    <author>dc-square GmbH</author>
+    <author>HiveMQ GmbH</author>
 </hivemq-extension>

@@ -17,6 +17,7 @@
 
 package com.hivemq.extensions.rbac;
 
+import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.utils.CredentialsValidator;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.annotations.Nullable;
@@ -28,8 +29,8 @@ public class FileAuthenticatorProvider implements AuthenticatorProvider {
 
     private final @NotNull FileAuthAuthenticator authenticator;
 
-    FileAuthenticatorProvider(@NotNull final CredentialsValidator credentialsValidator) {
-        this.authenticator = new FileAuthAuthenticator(credentialsValidator);
+    FileAuthenticatorProvider(@NotNull final CredentialsValidator credentialsValidator, @NotNull final ExtensionConfig extensionConfig) {
+        this.authenticator = new FileAuthAuthenticator(credentialsValidator,extensionConfig);
     }
 
     @Override

@@ -17,10 +17,13 @@
 
 package com.hivemq.extensions.rbac;
 
+import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.utils.CredentialsValidator;
 import com.hivemq.extension.sdk.api.auth.Authenticator;
 import com.hivemq.extension.sdk.api.auth.parameter.AuthenticatorProviderInput;
 import org.junit.Test;
+
+import java.security.cert.Extension;
 
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
@@ -31,7 +34,7 @@ public class FileAuthenticatorProviderTest {
     @Test
     public void test_return_same_authenticator() {
 
-        final FileAuthenticatorProvider fileAuthenticatorProvider = new FileAuthenticatorProvider(mock(CredentialsValidator.class));
+        final FileAuthenticatorProvider fileAuthenticatorProvider = new FileAuthenticatorProvider(mock(CredentialsValidator.class),mock(ExtensionConfig.class));
 
         final Authenticator authenticator1 = fileAuthenticatorProvider.getAuthenticator(mock(AuthenticatorProviderInput.class));
         final Authenticator authenticator2 = fileAuthenticatorProvider.getAuthenticator(mock(AuthenticatorProviderInput.class));

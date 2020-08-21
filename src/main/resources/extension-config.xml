@@ -4,6 +4,12 @@
     <!-- Reload interval for credentials in seconds -->
     <credentials-reload-interval>60</credentials-reload-interval>
 
+    <!-- Optional list of names of listeners this extension is used for
+    <listener-names>
+        <listener-name>my-listener</listener-name>
+        <listener-name>my-listener-2</listener-name>
+    </listener-names> -->
+
     <!-- If the credentials file is using HASHED or PLAIN passwords -->
     <password-type>HASHED</password-type>
 

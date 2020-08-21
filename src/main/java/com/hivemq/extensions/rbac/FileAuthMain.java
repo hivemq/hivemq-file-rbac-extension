@@ -17,6 +17,7 @@
 
 package com.hivemq.extensions.rbac;
 
+import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.utils.CredentialsValidator;
 import com.hivemq.extension.sdk.api.ExtensionMain;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
@@ -54,7 +55,9 @@ public class FileAuthMain implements ExtensionMain {
                     extensionConfiguration.getExtensionConfig(), Services.metricRegistry());
             credentialsValidator.init();
 
-            Services.securityRegistry().setAuthenticatorProvider(new FileAuthenticatorProvider(credentialsValidator));
+            final ExtensionConfig extensionConfig = extensionConfiguration.getExtensionConfig();
+
+            Services.securityRegistry().setAuthenticatorProvider(new FileAuthenticatorProvider(credentialsValidator,extensionConfig));
 
         } catch (Exception e) {
             log.error("Exception thrown at extension start: ", e);

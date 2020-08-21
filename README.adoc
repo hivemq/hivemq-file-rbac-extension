@@ -4,12 +4,13 @@
 :hivemq-blog-tools: http://www.hivemq.com/mqtt-toolbox
 :maven-documentation-profile-link: http://maven.apache.org/guides/introduction/introduction-to-profiles.html
 :hivemq-support: http://www.hivemq.com/support/
+:hivemq-listener: https://www.hivemq.com/docs/hivemq/4.4/user-guide/listeners.html#tcp-listener
 
 == HiveMQ File Role based Access Control Extension
 
 *Extension Type*: Security
 
-*Version*: 4.0.0
+*Version*: 4.4.0
 
 *License*: Apache License 2.0
 
@@ -31,6 +32,7 @@ The extension provides fine grained control on a topic level to limit clients to
 * Runtime reload for Credentials and Roles
 * Support for Hashed or Plain-text passwords
 * Tooling to generate salted password hashes
+* Option to define a set of listeners the extension is used for
 
 === Installation
 
@@ -210,6 +212,12 @@ The credentials configuration includes the following settings.
     <!-- Reload interval for credentials in seconds -->
     <credentials-reload-interval>60</credentials-reload-interval>
 
+    <!-- Optional list of names of listeners this extension is used for
+    <listener-names>
+        <listener-name>my-listener</listener-name>
+        <listener-name>my-listener-2</listener-name>
+    </listener-names> -->
+
     <!-- If the credentials file is using HASHED or PLAIN passwords -->
     <password-type>HASHED</password-type>
 
@@ -221,8 +229,11 @@ The credentials configuration includes the following settings.
 |===
 |Configuration |Default |Description
 |`credentials-reload-interval` |`60` |Regular interval in seconds, in which the `credentials.xml` configuration file is checked for changes and reloaded.
+|`listener-names` |`null` |List of names of listeners, this extension will be used for. See {hivemq-listener}[HiveMQ config details^].
 |`password-type` |`HASHED` |How passwords are stored in the `credentials.xml` configuration file. Can either bei `PLAIN` for plain text passwords, or `HASHED` for a salted password hash.
 |===
+
+NOTE: The `listener-names` feature requires the use of at least HiveMQ 4.1 / HiveMQ CE 2020.1
 
 ==== Need help?
 
