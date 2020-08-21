@@ -39,10 +39,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
@@ -75,14 +72,14 @@ public class FileAuthAuthenticatorTest {
 
     @Test
     public void test_wrong_listener_name() {
-        when(extensionConfig.getListenerNames()).thenReturn(List.of("listener-3", "listener-2"));
+        when(extensionConfig.getListenerNames()).thenReturn(Set.of("listener-3", "listener-2"));
         fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", "pass1", "listener-1"), output);
         verify(output).nextExtensionOrDefault();
     }
 
     @Test
     public void test_connect_with_empty_username() {
-        when(extensionConfig.getListenerNames()).thenReturn(List.of("listener-3", "listener-2"));
+        when(extensionConfig.getListenerNames()).thenReturn(Set.of("listener-3", "listener-2"));
         fileAuthAuthenticator.onConnect(new TestInput("client1", null, "pass1","listener-2"), output);
         verify(output).failAuthentication(ConnackReasonCode.BAD_USER_NAME_OR_PASSWORD, "Authentication failed because username or password are missing");
     }
@@ -121,7 +118,7 @@ public class FileAuthAuthenticatorTest {
     @Test
     public void test_connect_with_invalid_credentials() {
         when(credentialsValidator.getRoles(anyString(), any(ByteBuffer.class))).thenReturn(null);
-        when(extensionConfig.getListenerNames()).thenReturn(List.of("listener-3", "listener-2"));
+        when(extensionConfig.getListenerNames()).thenReturn(Set.of("listener-3", "listener-2"));
         fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", "pass1","listener-2"), output);
         verify(output).failAuthentication(ConnackReasonCode.NOT_AUTHORIZED, "Authentication failed because of invalid credentials");
     }

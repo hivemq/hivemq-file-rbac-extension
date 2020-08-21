@@ -264,7 +264,7 @@
                                     <goal>hivemq</goal>
                                 </goals>
                                 <configuration>
-                                    <hiveMQDir>/Users/fraschbi/HMQ/hivemq-4.4.0</hiveMQDir>
+                                    <hiveMQDir>YOUR_HIVEMQ_FOLDER</hiveMQDir>
                                     <debugMode>SERVER</debugMode>
                                 </configuration>
                             </execution>

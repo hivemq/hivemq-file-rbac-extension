@@ -233,6 +233,8 @@ The credentials configuration includes the following settings.
 |`password-type` |`HASHED` |How passwords are stored in the `credentials.xml` configuration file. Can either bei `PLAIN` for plain text passwords, or `HASHED` for a salted password hash.
 |===
 
+NOTE: The `listener-names` feature requires the use of at least HiveMQ 4.1 / HiveMQ CE 2020.1
+
 ==== Need help?
 
 If you encounter any problems, we are happy to help. The best place to get in contact is our {hivemq-support}[support^].

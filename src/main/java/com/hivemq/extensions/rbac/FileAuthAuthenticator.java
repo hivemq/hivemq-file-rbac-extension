@@ -31,6 +31,7 @@ import com.hivemq.extension.sdk.api.packets.connect.ConnackReasonCode;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public class FileAuthAuthenticator implements SimpleAuthenticator {
 
@@ -45,7 +46,7 @@ public class FileAuthAuthenticator implements SimpleAuthenticator {
 
     @Override
     public void onConnect(@NotNull final SimpleAuthInput simpleAuthInput, @NotNull final SimpleAuthOutput simpleAuthOutput) {
-        final List<String> listenerNames = extensionConfig.getListenerNames();
+        final Set<String> listenerNames = extensionConfig.getListenerNames();
         final Optional<Listener> connectedListenerOptional = simpleAuthInput.getConnectionInformation().getListener();
 
         if( listenerNames != null && !listenerNames.isEmpty() && connectedListenerOptional.isPresent()) {

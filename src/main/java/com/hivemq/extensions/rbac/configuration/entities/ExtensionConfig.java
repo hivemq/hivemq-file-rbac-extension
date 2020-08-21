@@ -22,6 +22,7 @@ import com.hivemq.extension.sdk.api.annotations.Nullable;
 
 import javax.xml.bind.annotation.*;
 import java.util.List;
+import java.util.Set;
 
 
 @XmlRootElement(name = "extension-configuration")
@@ -34,7 +35,7 @@ public class ExtensionConfig {
     @Nullable
     @XmlElementWrapper(name = "listener-names")
     @XmlElement(name = "listener-name")
-    private List<String> listenerNames;
+    private Set<String> listenerNames;
     
     @NotNull
     @XmlElement(name = "password-type", required = false, defaultValue = "HASHED")
@@ -44,7 +45,7 @@ public class ExtensionConfig {
     public ExtensionConfig() {
     }
 
-    public ExtensionConfig(final int reloadInterval, final List<String> listenerNames, final @NotNull PasswordType passwordType) {
+    public ExtensionConfig(final int reloadInterval, final Set<String> listenerNames, final @NotNull PasswordType passwordType) {
         this.reloadInterval = reloadInterval;
         this.listenerNames = listenerNames;
         this.passwordType = passwordType;
@@ -58,11 +59,11 @@ public class ExtensionConfig {
         this.reloadInterval = reloadInterval;
     }
 
-    public List<String> getListenerNames() {
+    public Set<String> getListenerNames() {
         return listenerNames;
     }
 
-    public void setListenerNames(List<String> listenerNames) {
+    public void setListenerNames(Set<String> listenerNames) {
         this.listenerNames = listenerNames;
     }
 
