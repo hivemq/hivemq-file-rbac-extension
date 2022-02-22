@@ -17,14 +17,12 @@
 
 package com.hivemq.extensions.rbac;
 
-import com.hivemq.extension.sdk.api.client.parameter.*;
-import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
-import com.hivemq.extensions.rbac.utils.CredentialsValidator;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.annotations.Nullable;
 import com.hivemq.extension.sdk.api.auth.parameter.SimpleAuthInput;
 import com.hivemq.extension.sdk.api.auth.parameter.SimpleAuthOutput;
 import com.hivemq.extension.sdk.api.auth.parameter.TopicPermission;
+import com.hivemq.extension.sdk.api.client.parameter.*;
 import com.hivemq.extension.sdk.api.packets.auth.DefaultAuthorizationBehaviour;
 import com.hivemq.extension.sdk.api.packets.auth.ModifiableDefaultPermissions;
 import com.hivemq.extension.sdk.api.packets.connect.ConnackReasonCode;
@@ -32,6 +30,8 @@ import com.hivemq.extension.sdk.api.packets.connect.ConnectPacket;
 import com.hivemq.extension.sdk.api.packets.connect.WillPublishPacket;
 import com.hivemq.extension.sdk.api.packets.general.MqttVersion;
 import com.hivemq.extension.sdk.api.packets.general.UserProperties;
+import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
+import com.hivemq.extensions.rbac.utils.CredentialsValidator;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -64,7 +64,7 @@ public class FileAuthAuthenticatorTest {
     @Before
     public void before() {
         MockitoAnnotations.initMocks(this);
-        fileAuthAuthenticator = new FileAuthAuthenticator(credentialsValidator,extensionConfig);
+        fileAuthAuthenticator = new FileAuthAuthenticator(credentialsValidator, extensionConfig);
         permissions = new TestDefaultPermissions();
         when(credentialsValidator.getPermissions(anyString(), anyString(), anyList())).thenReturn(List.of(mock(TopicPermission.class), mock(TopicPermission.class)));
         when(output.getDefaultPermissions()).thenReturn(permissions);
@@ -80,8 +80,16 @@ public class FileAuthAuthenticatorTest {
     @Test
     public void test_connect_with_empty_username() {
         when(extensionConfig.getListenerNames()).thenReturn(Set.of("listener-3", "listener-2"));
-        fileAuthAuthenticator.onConnect(new TestInput("client1", null, "pass1","listener-2"), output);
+        fileAuthAuthenticator.onConnect(new TestInput("client1", null, "pass1", "listener-2"), output);
         verify(output).failAuthentication(ConnackReasonCode.BAD_USER_NAME_OR_PASSWORD, "Authentication failed because username or password are missing");
+    }
+
+    @Test
+    public void test_connect_with_empty_username_but_nextExtensionOrDefault() {
+        when(extensionConfig.isNextExtensionInsteadOfFail()).thenReturn(true);
+        when(extensionConfig.getListenerNames()).thenReturn(Set.of("listener-3", "listener-2"));
+        fileAuthAuthenticator.onConnect(new TestInput("client1", null, "pass1", "listener-2"), output);
+        verify(output).nextExtensionOrDefault();
     }
 
     @Test
@@ -91,9 +99,23 @@ public class FileAuthAuthenticatorTest {
     }
 
     @Test
+    public void test_connect_with_empty_password_but_nextExtensionOrDefault() {
+        when(extensionConfig.isNextExtensionInsteadOfFail()).thenReturn(true);
+        fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", null), output);
+        verify(output).nextExtensionOrDefault();
+    }
+
+    @Test
     public void test_connect_with_wildcard_username() {
         fileAuthAuthenticator.onConnect(new TestInput("client1", "client/#", "pass1"), output);
         verify(output).failAuthentication(ConnackReasonCode.BAD_USER_NAME_OR_PASSWORD, "The characters '#' and '+' are not allowed in the username");
+    }
+
+    @Test
+    public void test_connect_with_wildcard_username_but_nextExtensionOrDefault() {
+        when(extensionConfig.isNextExtensionInsteadOfFail()).thenReturn(true);
+        fileAuthAuthenticator.onConnect(new TestInput("client1", "client/#", "pass1"), output);
+        verify(output).nextExtensionOrDefault();
     }
 
     @Test
@@ -103,9 +125,23 @@ public class FileAuthAuthenticatorTest {
     }
 
     @Test
+    public void test_connect_with_wildcard_plus_username_but_nextExtensionOrDefault() {
+        when(extensionConfig.isNextExtensionInsteadOfFail()).thenReturn(true);
+        fileAuthAuthenticator.onConnect(new TestInput("client1", "+/client", "pass1"), output);
+        verify(output).nextExtensionOrDefault();
+    }
+
+    @Test
     public void test_connect_with_wildcard_clientid() {
         fileAuthAuthenticator.onConnect(new TestInput("client/#", "user1", "pass1"), output);
         verify(output).failAuthentication(ConnackReasonCode.CLIENT_IDENTIFIER_NOT_VALID, "The characters '#' and '+' are not allowed in the client identifier");
+    }
+
+    @Test
+    public void test_connect_with_wildcard_clientid_but_nextExtensionOrDefault() {
+        when(extensionConfig.isNextExtensionInsteadOfFail()).thenReturn(true);
+        fileAuthAuthenticator.onConnect(new TestInput("client/#", "user1", "pass1"), output);
+        verify(output).nextExtensionOrDefault();
     }
 
     @Test
@@ -114,13 +150,28 @@ public class FileAuthAuthenticatorTest {
         verify(output).failAuthentication(ConnackReasonCode.CLIENT_IDENTIFIER_NOT_VALID, "The characters '#' and '+' are not allowed in the client identifier");
     }
 
+    @Test
+    public void test_connect_with_wildcard_plus_clientid_but_nextExtensionOrDefault() {
+        when(extensionConfig.isNextExtensionInsteadOfFail()).thenReturn(true);
+        fileAuthAuthenticator.onConnect(new TestInput("+/client", "user1", "pass1"), output);
+        verify(output).nextExtensionOrDefault();
+    }
 
     @Test
     public void test_connect_with_invalid_credentials() {
         when(credentialsValidator.getRoles(anyString(), any(ByteBuffer.class))).thenReturn(null);
         when(extensionConfig.getListenerNames()).thenReturn(Set.of("listener-3", "listener-2"));
-        fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", "pass1","listener-2"), output);
+        fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", "pass1", "listener-2"), output);
         verify(output).failAuthentication(ConnackReasonCode.NOT_AUTHORIZED, "Authentication failed because of invalid credentials");
+    }
+
+    @Test
+    public void test_connect_with_invalid_credentials_but_nextExtensionOrDefault() {
+        when(extensionConfig.isNextExtensionInsteadOfFail()).thenReturn(true);
+        when(credentialsValidator.getRoles(anyString(), any(ByteBuffer.class))).thenReturn(null);
+        when(extensionConfig.getListenerNames()).thenReturn(Set.of("listener-3", "listener-2"));
+        fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", "pass1", "listener-2"), output);
+        verify(output).nextExtensionOrDefault();
     }
 
     @Test
@@ -128,6 +179,14 @@ public class FileAuthAuthenticatorTest {
         when(credentialsValidator.getRoles(anyString(), any(ByteBuffer.class))).thenReturn(List.of());
         fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", "pass1"), output);
         verify(output).failAuthentication(ConnackReasonCode.NOT_AUTHORIZED, "Authentication failed because of invalid credentials");
+    }
+
+    @Test
+    public void test_connect_with_valid_credentials_empty_roles_but_nextExtensionOrDefault() {
+        when(extensionConfig.isNextExtensionInsteadOfFail()).thenReturn(true);
+        when(credentialsValidator.getRoles(anyString(), any(ByteBuffer.class))).thenReturn(List.of());
+        fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", "pass1"), output);
+        verify(output).nextExtensionOrDefault();
     }
 
     @Test
@@ -153,7 +212,7 @@ public class FileAuthAuthenticatorTest {
             this.listenerName = null;
         }
 
-        private TestInput(final @NotNull String clientId, final @Nullable String userName, final @Nullable String password, final @Nullable String listenerName ) {
+        private TestInput(final @NotNull String clientId, final @Nullable String userName, final @Nullable String password, final @Nullable String listenerName) {
             this.clientId = clientId;
             this.userName = userName;
             this.password = password;
