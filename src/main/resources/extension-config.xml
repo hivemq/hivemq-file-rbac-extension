@@ -13,4 +13,11 @@
     <!-- If the credentials file is using HASHED or PLAIN passwords -->
     <password-type>HASHED</password-type>
 
+    <!-- Use this option to toggle the behaviour in case authentication by this extension failed.
+         false (default) -> client don't get authenticated
+         true            -> instead of failing the authentication we delegate the decision to the next extension with an
+                            authentication implemented (with lower priority), in case no other extension exists we fail
+                            the authentication -->
+    <!--next-extension-instead-of-fail>true</next-extension-instead-of-fail-->
+
 </extension-configuration>

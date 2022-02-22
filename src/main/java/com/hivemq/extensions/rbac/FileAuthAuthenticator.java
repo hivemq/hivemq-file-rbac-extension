@@ -17,16 +17,16 @@
 
 package com.hivemq.extensions.rbac;
 
-import com.hivemq.extension.sdk.api.client.parameter.Listener;
-import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
-import com.hivemq.extensions.rbac.utils.CredentialsValidator;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.auth.SimpleAuthenticator;
 import com.hivemq.extension.sdk.api.auth.parameter.SimpleAuthInput;
 import com.hivemq.extension.sdk.api.auth.parameter.SimpleAuthOutput;
 import com.hivemq.extension.sdk.api.auth.parameter.TopicPermission;
+import com.hivemq.extension.sdk.api.client.parameter.Listener;
 import com.hivemq.extension.sdk.api.packets.auth.DefaultAuthorizationBehaviour;
 import com.hivemq.extension.sdk.api.packets.connect.ConnackReasonCode;
+import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
+import com.hivemq.extensions.rbac.utils.CredentialsValidator;
 
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -46,15 +46,16 @@ public class FileAuthAuthenticator implements SimpleAuthenticator {
 
     @Override
     public void onConnect(@NotNull final SimpleAuthInput simpleAuthInput, @NotNull final SimpleAuthOutput simpleAuthOutput) {
+        final boolean nextExtensionInsteadOfFail = extensionConfig.isNextExtensionInsteadOfFail();
         final Set<String> listenerNames = extensionConfig.getListenerNames();
         final Optional<Listener> connectedListenerOptional = simpleAuthInput.getConnectionInformation().getListener();
 
-        if( listenerNames != null && !listenerNames.isEmpty() && connectedListenerOptional.isPresent()) {
+        if (listenerNames != null && !listenerNames.isEmpty() && connectedListenerOptional.isPresent()) {
             final String connectedListenerName = connectedListenerOptional.get().getName();
-            if(!listenerNames.contains(connectedListenerName)) {
-                    simpleAuthOutput.nextExtensionOrDefault();
-                    return;
-                }
+            if (!listenerNames.contains(connectedListenerName)) {
+                simpleAuthOutput.nextExtensionOrDefault();
+                return;
+            }
         }
 
         final Optional<String> userNameOptional = simpleAuthInput.getConnectPacket().getUserName();
@@ -64,6 +65,10 @@ public class FileAuthAuthenticator implements SimpleAuthenticator {
         //check if username and password are present
         if (!userNameOptional.isPresent() || !passwordOptional.isPresent()) {
             //client is not authenticated
+            if (nextExtensionInsteadOfFail) {
+                simpleAuthOutput.nextExtensionOrDefault();
+                return;
+            }
             simpleAuthOutput.failAuthentication(ConnackReasonCode.BAD_USER_NAME_OR_PASSWORD, "Authentication failed because username or password are missing");
             return;
         }
@@ -72,6 +77,10 @@ public class FileAuthAuthenticator implements SimpleAuthenticator {
         //prevent clientIds with MQTT wildcard characters
         if (clientId.contains("#") || clientId.contains("+")) {
             //client is not authenticated
+            if (nextExtensionInsteadOfFail) {
+                simpleAuthOutput.nextExtensionOrDefault();
+                return;
+            }
             simpleAuthOutput.failAuthentication(ConnackReasonCode.CLIENT_IDENTIFIER_NOT_VALID, "The characters '#' and '+' are not allowed in the client identifier");
             return;
         }
@@ -79,6 +88,10 @@ public class FileAuthAuthenticator implements SimpleAuthenticator {
         //prevent usernames with MQTT wildcard characters
         if (userName.contains("#") || userName.contains("+")) {
             //client is not authenticated
+            if (nextExtensionInsteadOfFail) {
+                simpleAuthOutput.nextExtensionOrDefault();
+                return;
+            }
             simpleAuthOutput.failAuthentication(ConnackReasonCode.BAD_USER_NAME_OR_PASSWORD, "The characters '#' and '+' are not allowed in the username");
             return;
         }
@@ -89,6 +102,10 @@ public class FileAuthAuthenticator implements SimpleAuthenticator {
 
         if (roles == null || roles.isEmpty()) {
             //username/password combination is unknown or has invalid roles
+            if (nextExtensionInsteadOfFail) {
+                simpleAuthOutput.nextExtensionOrDefault();
+                return;
+            }
             simpleAuthOutput.failAuthentication(ConnackReasonCode.NOT_AUTHORIZED, "Authentication failed because of invalid credentials");
             return;
         }

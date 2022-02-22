@@ -21,7 +21,6 @@ import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.annotations.Nullable;
 
 import javax.xml.bind.annotation.*;
-import java.util.List;
 import java.util.Set;
 
 
@@ -30,25 +29,32 @@ import java.util.Set;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ExtensionConfig {
 
-    @XmlElement(name = "credentials-reload-interval", required = false, defaultValue = "60")
+    @XmlElement(name = "credentials-reload-interval", defaultValue = "60")
     private int reloadInterval = 60;
+
     @Nullable
     @XmlElementWrapper(name = "listener-names")
     @XmlElement(name = "listener-name")
     private Set<String> listenerNames;
-    
+
     @NotNull
-    @XmlElement(name = "password-type", required = false, defaultValue = "HASHED")
+    @XmlElement(name = "password-type", defaultValue = "HASHED")
     private PasswordType passwordType = PasswordType.HASHED;
-    
+
+    @XmlElement(name = "next-extension-instead-of-fail", defaultValue = "false")
+    private boolean nextExtensionInsteadOfFail = false;
 
     public ExtensionConfig() {
     }
 
-    public ExtensionConfig(final int reloadInterval, final Set<String> listenerNames, final @NotNull PasswordType passwordType) {
+    public ExtensionConfig(final int reloadInterval,
+                           final Set<String> listenerNames,
+                           final @NotNull PasswordType passwordType,
+                           final boolean nextExtensionInsteadOfFail) {
         this.reloadInterval = reloadInterval;
         this.listenerNames = listenerNames;
         this.passwordType = passwordType;
+        this.nextExtensionInsteadOfFail = nextExtensionInsteadOfFail;
     }
 
     public int getReloadInterval() {
@@ -76,13 +82,21 @@ public class ExtensionConfig {
         this.passwordType = passwordType;
     }
 
-    @NotNull
+    public boolean isNextExtensionInsteadOfFail() {
+        return nextExtensionInsteadOfFail;
+    }
+
+    public void setNextExtensionInsteadOfFail(boolean nextExtensionInsteadOfFail) {
+        this.nextExtensionInsteadOfFail = nextExtensionInsteadOfFail;
+    }
+
     @Override
     public String toString() {
-        return "ExtensionConfiguration{" +
+        return "ExtensionConfig{" +
                 "reloadInterval=" + reloadInterval +
                 ", listenerNames=" + listenerNames +
                 ", passwordType=" + passwordType +
+                ", nextExtensionInsteadOfFail=" + nextExtensionInsteadOfFail +
                 '}';
     }
 }
