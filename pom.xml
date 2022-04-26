@@ -21,7 +21,7 @@
 
     <groupId>com.hivemq.extension</groupId>
     <artifactId>hivemq-file-rbac-extension</artifactId>
-    <version>4.4.0</version>
+    <version>4.5.0-SNAPSHOT</version>
 
     <description>HiveMQ File Role Based Access Control Extension</description>
 
