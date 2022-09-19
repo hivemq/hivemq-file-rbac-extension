@@ -65,7 +65,7 @@ public class ExtensionConfig {
         this.reloadInterval = reloadInterval;
     }
 
-    public Set<String> getListenerNames() {
+    public @Nullable Set<String> getListenerNames() {
         return listenerNames;
     }
 
@@ -73,8 +73,7 @@ public class ExtensionConfig {
         this.listenerNames = listenerNames;
     }
 
-    @NotNull
-    public PasswordType getPasswordType() {
+    public @NotNull PasswordType getPasswordType() {
         return passwordType;
     }
 
@@ -84,10 +83,6 @@ public class ExtensionConfig {
 
     public boolean isNextExtensionInsteadOfFail() {
         return nextExtensionInsteadOfFail;
-    }
-
-    public void setNextExtensionInsteadOfFail(boolean nextExtensionInsteadOfFail) {
-        this.nextExtensionInsteadOfFail = nextExtensionInsteadOfFail;
     }
 
     @Override
