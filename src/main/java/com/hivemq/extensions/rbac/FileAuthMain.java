@@ -37,7 +37,9 @@ public class FileAuthMain implements ExtensionMain {
     private static final @NotNull Logger log = LoggerFactory.getLogger(FileAuthMain.class);
 
     @Override
-    public void extensionStart(final @NotNull ExtensionStartInput extensionStartInput, final @NotNull ExtensionStartOutput extensionStartOutput) {
+    public void extensionStart(
+            final @NotNull ExtensionStartInput extensionStartInput,
+            final @NotNull ExtensionStartOutput extensionStartOutput) {
 
         log.info("Starting File RBAC extension.");
 
@@ -46,17 +48,20 @@ public class FileAuthMain implements ExtensionMain {
 
             final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(extensionHomeFolder);
 
-            final Configuration configuration = new Configuration(extensionHomeFolder, Services.extensionExecutorService(),
+            final Configuration configuration = new Configuration(extensionHomeFolder,
+                    Services.extensionExecutorService(),
                     extensionConfiguration.getExtensionConfig());
             configuration.init();
 
             final CredentialsValidator credentialsValidator = new CredentialsValidator(configuration,
-                    extensionConfiguration.getExtensionConfig(), Services.metricRegistry());
+                    extensionConfiguration.getExtensionConfig(),
+                    Services.metricRegistry());
             credentialsValidator.init();
 
             final ExtensionConfig extensionConfig = extensionConfiguration.getExtensionConfig();
 
-            Services.securityRegistry().setAuthenticatorProvider(new FileAuthenticatorProvider(credentialsValidator,extensionConfig));
+            Services.securityRegistry()
+                    .setAuthenticatorProvider(new FileAuthenticatorProvider(credentialsValidator, extensionConfig));
 
         } catch (Exception e) {
             log.error("Exception thrown at extension start: ", e);
@@ -65,7 +70,9 @@ public class FileAuthMain implements ExtensionMain {
     }
 
     @Override
-    public void extensionStop(final @NotNull ExtensionStopInput extensionStopInput, final @NotNull ExtensionStopOutput extensionStopOutput) {
+    public void extensionStop(
+            final @NotNull ExtensionStopInput extensionStopInput,
+            final @NotNull ExtensionStopOutput extensionStopOutput) {
         log.info("Stopping File RBAC extension.");
     }
 

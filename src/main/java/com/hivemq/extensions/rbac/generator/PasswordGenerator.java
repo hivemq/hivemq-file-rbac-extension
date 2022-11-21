@@ -30,11 +30,14 @@ import java.util.Base64;
 public class PasswordGenerator {
 
     @Nullable
-    @Parameter(names = {"--password", "-p"}, required = true, description = "The password to create a hashed representation from")
+    @Parameter(names = {"--password", "-p"},
+               required = true,
+               description = "The password to create a hashed representation from")
     private String password;
 
     @Nullable
-    @Parameter(names = {"--salt", "-s"}, description = "The salt to use for hashing (optional). If no salt is specified, a random salt is used")
+    @Parameter(names = {"--salt", "-s"},
+               description = "The salt to use for hashing (optional). If no salt is specified, a random salt is used")
     private String salt;
 
     @Nullable
@@ -51,9 +54,7 @@ public class PasswordGenerator {
 
         try {
             final PasswordGenerator generator = new PasswordGenerator();
-            final JCommander jCommander = JCommander.newBuilder()
-                    .addObject(generator)
-                    .build();
+            final JCommander jCommander = JCommander.newBuilder().addObject(generator).build();
             jCommander.parse(args);
 
             if (generator.help) {

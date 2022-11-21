@@ -23,11 +23,20 @@ import com.hivemq.extension.sdk.api.annotations.ThreadSafe;
 import com.hivemq.extension.sdk.api.auth.parameter.TopicPermission;
 import com.hivemq.extension.sdk.api.services.builder.Builders;
 import com.hivemq.extensions.rbac.configuration.Configuration;
-import com.hivemq.extensions.rbac.configuration.entities.*;
+import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
+import com.hivemq.extensions.rbac.configuration.entities.FileAuthConfig;
+import com.hivemq.extensions.rbac.configuration.entities.PasswordType;
+import com.hivemq.extensions.rbac.configuration.entities.Permission;
+import com.hivemq.extensions.rbac.configuration.entities.Role;
+import com.hivemq.extensions.rbac.configuration.entities.User;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -41,14 +50,16 @@ public class CredentialsValidator {
 
     private final ReadWriteLock usersLock = new ReentrantReadWriteLock();
     private final ReadWriteLock rolesLock = new ReentrantReadWriteLock();
-    private final @NotNull
-    ExtensionConfig extensionConfig;
+    private final @NotNull ExtensionConfig extensionConfig;
     private final @NotNull CredentialsHasher credentialsHasher;
 
     private @NotNull Map<String, User> users = new ConcurrentHashMap<>();
     private @NotNull Map<String, Role> roles = new ConcurrentHashMap<>();
 
-    public CredentialsValidator(@NotNull final Configuration configuration, @NotNull final ExtensionConfig extensionConfig, @NotNull final MetricRegistry metricRegistry) {
+    public CredentialsValidator(
+            @NotNull final Configuration configuration,
+            @NotNull final ExtensionConfig extensionConfig,
+            @NotNull final MetricRegistry metricRegistry) {
         this.configuration = configuration;
         this.extensionConfig = extensionConfig;
         this.credentialsHasher = new CredentialsHasher(metricRegistry);
@@ -117,7 +128,8 @@ public class CredentialsValidator {
     }
 
     @NotNull
-    public List<TopicPermission> getPermissions(final @NotNull String clientId, final @NotNull String userName, final @NotNull List<String> clientRoles) {
+    public List<TopicPermission> getPermissions(
+            final @NotNull String clientId, final @NotNull String userName, final @NotNull List<String> clientRoles) {
 
         if (clientRoles.isEmpty()) {
             return Collections.emptyList();
@@ -175,7 +187,8 @@ public class CredentialsValidator {
         }
     }
 
-    private TopicPermission toTopicPermission(@NotNull final String clientId, @NotNull final String userName, @NotNull final Permission permission) {
+    private TopicPermission toTopicPermission(
+            @NotNull final String clientId, @NotNull final String userName, @NotNull final Permission permission) {
         return Builders.topicPermission()
                 .topicFilter(getTopicFilter(clientId, userName, permission))
                 .activity(permission.getActivity())
@@ -187,7 +200,8 @@ public class CredentialsValidator {
                 .build();
     }
 
-    private String getTopicFilter(@NotNull final String clientId, @NotNull final String userName, final Permission permission) {
+    private String getTopicFilter(
+            @NotNull final String clientId, @NotNull final String userName, final Permission permission) {
         final String configTopic = permission.getTopic();
         return Substitution.substitute(configTopic, clientId, userName);
     }

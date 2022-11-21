@@ -40,14 +40,12 @@ public class CredentialsHasher {
     public CredentialsHasher(final @NotNull MetricRegistry metricRegistry) {
         this.metricRegistry = metricRegistry;
 
-        credentialHashCache = Caffeine.newBuilder().
-                recordStats().
-                expireAfterWrite(30, TimeUnit.SECONDS).
-                maximumSize(1000).
-                build();
+        credentialHashCache =
+                Caffeine.newBuilder().recordStats().expireAfterWrite(30, TimeUnit.SECONDS).maximumSize(1000).build();
     }
 
-    public boolean checkCredentials(@NotNull final String base64Password, @NotNull final String saltPasswordFromConfig) {
+    public boolean checkCredentials(
+            @NotNull final String base64Password, @NotNull final String saltPasswordFromConfig) {
 
         final String[] saltPw = saltPasswordFromConfig.split(":");
         if (saltPw.length != 3) {

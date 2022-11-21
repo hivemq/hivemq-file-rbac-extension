@@ -17,7 +17,12 @@
 package com.hivemq.extensions.rbac.configuration;
 
 import com.hivemq.extension.sdk.api.annotations.NotNull;
-import com.hivemq.extensions.rbac.configuration.entities.*;
+import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
+import com.hivemq.extensions.rbac.configuration.entities.FileAuthConfig;
+import com.hivemq.extensions.rbac.configuration.entities.PasswordType;
+import com.hivemq.extensions.rbac.configuration.entities.Permission;
+import com.hivemq.extensions.rbac.configuration.entities.Role;
+import com.hivemq.extensions.rbac.configuration.entities.User;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -27,7 +32,8 @@ import java.util.Set;
 public class ConfigCredentialsValidator {
 
     @NotNull
-    public static ValidationResult validateConfig(@NotNull final ExtensionConfig extensionConfig, @NotNull final FileAuthConfig config) {
+    public static ValidationResult validateConfig(
+            @NotNull final ExtensionConfig extensionConfig, @NotNull final FileAuthConfig config) {
 
         final List<String> errors = new ArrayList<>();
         boolean validationSuccessful = true;
@@ -99,7 +105,9 @@ public class ConfigCredentialsValidator {
                 }
 
                 if (permission.getSharedSubscription() == null) {
-                    errors.add("Invalid value for Shared Subscription in Permission for role with id '" + role.getId() + "'");
+                    errors.add("Invalid value for Shared Subscription in Permission for role with id '" +
+                            role.getId() +
+                            "'");
                     validationSuccessful = false;
                 }
             }

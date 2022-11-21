@@ -18,7 +18,12 @@ package com.hivemq.extensions.rbac.configuration;
 
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extensions.rbac.configuration.ConfigCredentialsValidator.ValidationResult;
-import com.hivemq.extensions.rbac.configuration.entities.*;
+import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
+import com.hivemq.extensions.rbac.configuration.entities.FileAuthConfig;
+import com.hivemq.extensions.rbac.configuration.entities.PasswordType;
+import com.hivemq.extensions.rbac.configuration.entities.Permission;
+import com.hivemq.extensions.rbac.configuration.entities.Role;
+import com.hivemq.extensions.rbac.configuration.entities.User;
 import org.junit.Test;
 
 import java.util.List;
@@ -124,10 +129,8 @@ public class ConfigCredentialsValidatorTest {
     public void test_duplicate_id() {
 
         final FileAuthConfig config = new FileAuthConfig();
-        config.setRoles(List.of(
-                new Role("1", List.of(new Permission("topic"))),
-                new Role("1", List.of(new Permission("topic")))
-        ));
+        config.setRoles(List.of(new Role("1", List.of(new Permission("topic"))),
+                new Role("1", List.of(new Permission("topic")))));
 
         config.setUsers(List.of(new User("a", "b", List.of("1"))));
 
@@ -143,10 +146,7 @@ public class ConfigCredentialsValidatorTest {
     public void test_no_permissions() {
 
         final FileAuthConfig config = new FileAuthConfig();
-        config.setRoles(List.of(
-                new Role("1", List.of(new Permission("topic"))),
-                new Role("2", List.of())
-        ));
+        config.setRoles(List.of(new Role("1", List.of(new Permission("topic"))), new Role("2", List.of())));
 
         config.setUsers(List.of(new User("a", "b", List.of("1"))));
 
@@ -162,10 +162,7 @@ public class ConfigCredentialsValidatorTest {
     public void test_null_permissions() {
 
         final FileAuthConfig config = new FileAuthConfig();
-        config.setRoles(List.of(
-                new Role("1", List.of(new Permission("topic"))),
-                new Role("2", null)
-        ));
+        config.setRoles(List.of(new Role("1", List.of(new Permission("topic"))), new Role("2", null)));
 
         config.setUsers(List.of(new User("a", "b", List.of("1"))));
 
@@ -181,9 +178,7 @@ public class ConfigCredentialsValidatorTest {
     public void test_permission_no_topic() {
 
         final FileAuthConfig config = new FileAuthConfig();
-        config.setRoles(List.of(
-                new Role("1", List.of(new Permission(null)))
-        ));
+        config.setRoles(List.of(new Role("1", List.of(new Permission(null)))));
 
         config.setUsers(List.of(new User("a", "b", List.of("1"))));
 
@@ -201,9 +196,7 @@ public class ConfigCredentialsValidatorTest {
         final FileAuthConfig config = new FileAuthConfig();
         final Permission permission = new Permission("abc");
         permission.setActivity(null);
-        config.setRoles(List.of(
-                new Role("1", List.of(permission))
-        ));
+        config.setRoles(List.of(new Role("1", List.of(permission))));
 
         config.setUsers(List.of(new User("a", "b", List.of("1"))));
 
@@ -221,9 +214,7 @@ public class ConfigCredentialsValidatorTest {
         final FileAuthConfig config = new FileAuthConfig();
         final Permission permission = new Permission("abc");
         permission.setQos(null);
-        config.setRoles(List.of(
-                new Role("1", List.of(permission))
-        ));
+        config.setRoles(List.of(new Role("1", List.of(permission))));
 
         config.setUsers(List.of(new User("a", "b", List.of("1"))));
 
@@ -241,9 +232,7 @@ public class ConfigCredentialsValidatorTest {
         final FileAuthConfig config = new FileAuthConfig();
         final Permission permission = new Permission("abc");
         permission.setRetain(null);
-        config.setRoles(List.of(
-                new Role("1", List.of(permission))
-        ));
+        config.setRoles(List.of(new Role("1", List.of(permission))));
 
         config.setUsers(List.of(new User("a", "b", List.of("1"))));
 
@@ -261,9 +250,7 @@ public class ConfigCredentialsValidatorTest {
         final FileAuthConfig config = new FileAuthConfig();
         final Permission permission = new Permission("abc");
         permission.setSharedGroup(null);
-        config.setRoles(List.of(
-                new Role("1", List.of(permission))
-        ));
+        config.setRoles(List.of(new Role("1", List.of(permission))));
 
         config.setUsers(List.of(new User("a", "b", List.of("1"))));
 
@@ -281,9 +268,7 @@ public class ConfigCredentialsValidatorTest {
         final FileAuthConfig config = new FileAuthConfig();
         final Permission permission = new Permission("abc");
         permission.setSharedSubscription(null);
-        config.setRoles(List.of(
-                new Role("1", List.of(permission))
-        ));
+        config.setRoles(List.of(new Role("1", List.of(permission))));
 
         config.setUsers(List.of(new User("a", "b", List.of("1"))));
 
@@ -333,10 +318,7 @@ public class ConfigCredentialsValidatorTest {
         final FileAuthConfig config = new FileAuthConfig();
         config.setRoles(List.of(new Role("1", List.of(new Permission("topic")))));
 
-        config.setUsers(List.of(
-                new User("user1", "pass1", List.of("1")),
-                new User("user1", "pass2", List.of("2"))
-        ));
+        config.setUsers(List.of(new User("user1", "pass1", List.of("1")), new User("user1", "pass2", List.of("2"))));
 
         final ExtensionConfig extensionConfig = new ExtensionConfig();
         final ValidationResult result = ConfigCredentialsValidator.validateConfig(extensionConfig, config);
@@ -351,9 +333,7 @@ public class ConfigCredentialsValidatorTest {
         final FileAuthConfig config = new FileAuthConfig();
         config.setRoles(List.of(new Role("1", List.of(new Permission("topic")))));
 
-        config.setUsers(List.of(
-                new User("user1", "pass1:pass2", List.of("1"))
-        ));
+        config.setUsers(List.of(new User("user1", "pass1:pass2", List.of("1"))));
 
         final ExtensionConfig extensionConfig = new ExtensionConfig();
         extensionConfig.setPasswordType(PasswordType.HASHED);
@@ -369,9 +349,7 @@ public class ConfigCredentialsValidatorTest {
         final FileAuthConfig config = new FileAuthConfig();
         config.setRoles(List.of(new Role("1", List.of(new Permission("topic")))));
 
-        config.setUsers(List.of(
-                new User("user1", "pass1pass2", List.of("1"))
-        ));
+        config.setUsers(List.of(new User("user1", "pass1pass2", List.of("1"))));
 
         final ExtensionConfig extensionConfig = new ExtensionConfig();
         extensionConfig.setPasswordType(PasswordType.HASHED);
@@ -388,9 +366,7 @@ public class ConfigCredentialsValidatorTest {
         final FileAuthConfig config = new FileAuthConfig();
         config.setRoles(List.of(new Role("1", List.of(new Permission("topic")))));
 
-        config.setUsers(List.of(
-                new User("user1", "pass1", null)
-        ));
+        config.setUsers(List.of(new User("user1", "pass1", null)));
 
         final ExtensionConfig extensionConfig = new ExtensionConfig();
         extensionConfig.setPasswordType(PasswordType.PLAIN);
@@ -407,9 +383,7 @@ public class ConfigCredentialsValidatorTest {
         final FileAuthConfig config = new FileAuthConfig();
         config.setRoles(List.of(new Role("1", List.of(new Permission("topic")))));
 
-        config.setUsers(List.of(
-                new User("user1", "pass1", List.of())
-        ));
+        config.setUsers(List.of(new User("user1", "pass1", List.of())));
 
         final ExtensionConfig extensionConfig = new ExtensionConfig();
         extensionConfig.setPasswordType(PasswordType.PLAIN);
@@ -426,9 +400,7 @@ public class ConfigCredentialsValidatorTest {
         final FileAuthConfig config = new FileAuthConfig();
         config.setRoles(List.of(new Role("1", List.of(new Permission("topic")))));
 
-        config.setUsers(List.of(
-                new User("user1", "pass1", List.of(""))
-        ));
+        config.setUsers(List.of(new User("user1", "pass1", List.of(""))));
 
         final ExtensionConfig extensionConfig = new ExtensionConfig();
         extensionConfig.setPasswordType(PasswordType.PLAIN);
@@ -445,9 +417,7 @@ public class ConfigCredentialsValidatorTest {
         final FileAuthConfig config = new FileAuthConfig();
         config.setRoles(List.of(new Role("1", List.of(new Permission("topic")))));
 
-        config.setUsers(List.of(
-                new User("user1", "pass1", List.of("2"))
-        ));
+        config.setUsers(List.of(new User("user1", "pass1", List.of("2"))));
 
         final ExtensionConfig extensionConfig = new ExtensionConfig();
         extensionConfig.setPasswordType(PasswordType.PLAIN);

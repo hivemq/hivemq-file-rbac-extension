@@ -61,7 +61,13 @@ public class Permission {
         this.topic = topic;
     }
 
-    public Permission(@NotNull final String topic, @NotNull final TopicPermission.MqttActivity activity, @NotNull final TopicPermission.Qos qos, @NotNull final TopicPermission.Retain retain, @NotNull final TopicPermission.SharedSubscription sharedSubscription, @NotNull final String sharedGroup) {
+    public Permission(
+            @NotNull final String topic,
+            @NotNull final TopicPermission.MqttActivity activity,
+            @NotNull final TopicPermission.Qos qos,
+            @NotNull final TopicPermission.Retain retain,
+            @NotNull final TopicPermission.SharedSubscription sharedSubscription,
+            @NotNull final String sharedGroup) {
         this.topic = topic;
         this.activity = activity;
         this.qos = qos;
@@ -128,12 +134,20 @@ public class Permission {
     @Override
     public String toString() {
         return "Permission{" +
-                "topic='" + topic + '\'' +
-                ", activity=" + activity +
-                ", qos=" + qos +
-                ", retain=" + retain +
-                ", sharedSubscription=" + sharedSubscription +
-                ", sharedGroup='" + sharedGroup + '\'' +
+                "topic='" +
+                topic +
+                '\'' +
+                ", activity=" +
+                activity +
+                ", qos=" +
+                qos +
+                ", retain=" +
+                retain +
+                ", sharedSubscription=" +
+                sharedSubscription +
+                ", sharedGroup='" +
+                sharedGroup +
+                '\'' +
                 '}';
     }
 }

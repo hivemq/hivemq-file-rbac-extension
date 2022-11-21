@@ -26,7 +26,8 @@ import java.util.Base64;
 public class Hashing {
 
     @NotNull
-    public static byte[] createHash(@NotNull final String base64Password, @NotNull final String base64Salt, final int iterations) {
+    public static byte[] createHash(
+            @NotNull final String base64Password, @NotNull final String base64Salt, final int iterations) {
         final byte[] password = Base64.getDecoder().decode(base64Password);
         final byte[] salt = Base64.getDecoder().decode(base64Salt);
         final PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA512Digest());

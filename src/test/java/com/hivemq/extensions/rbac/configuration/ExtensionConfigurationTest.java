@@ -26,7 +26,9 @@ import java.io.File;
 import java.nio.file.Files;
 
 import static com.hivemq.extensions.rbac.configuration.ExtensionConfiguration.EXTENSION_CONFIG_FILE_NAME;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 
 public class ExtensionConfigurationTest {
@@ -39,7 +41,8 @@ public class ExtensionConfigurationTest {
 
         final File configFile = new File(temporaryFolder.getRoot(), EXTENSION_CONFIG_FILE_NAME);
 
-        Files.writeString(configFile.toPath(), "<extension-configuration><credentials-reload-interval>999</credentials-reload-interval></extension-configuration>");
+        Files.writeString(configFile.toPath(),
+                "<extension-configuration><credentials-reload-interval>999</credentials-reload-interval></extension-configuration>");
 
         final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(temporaryFolder.getRoot());
 
@@ -67,7 +70,8 @@ public class ExtensionConfigurationTest {
 
         final File configFile = new File(temporaryFolder.getRoot(), EXTENSION_CONFIG_FILE_NAME);
 
-        Files.writeString(configFile.toPath(), "<extension-configuration><credentials-reload-interval>-1</credentials-reload-interval></extension-configuration>");
+        Files.writeString(configFile.toPath(),
+                "<extension-configuration><credentials-reload-interval>-1</credentials-reload-interval></extension-configuration>");
 
         final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(temporaryFolder.getRoot());
 
@@ -82,7 +86,8 @@ public class ExtensionConfigurationTest {
 
         final File configFile = new File(temporaryFolder.getRoot(), EXTENSION_CONFIG_FILE_NAME);
 
-        Files.writeString(configFile.toPath(), "<extension-configuration><password-type>ABC</password-type></extension-configuration>");
+        Files.writeString(configFile.toPath(),
+                "<extension-configuration><password-type>ABC</password-type></extension-configuration>");
 
         final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(temporaryFolder.getRoot());
 
@@ -98,7 +103,8 @@ public class ExtensionConfigurationTest {
 
         final File configFile = new File(temporaryFolder.getRoot(), EXTENSION_CONFIG_FILE_NAME);
 
-        Files.writeString(configFile.toPath(), "<extension-configuration><listener-names><listener-name>listener-1</listener-name><listener-name>listener-2</listener-name></listener-names></extension-configuration>");
+        Files.writeString(configFile.toPath(),
+                "<extension-configuration><listener-names><listener-name>listener-1</listener-name><listener-name>listener-2</listener-name></listener-names></extension-configuration>");
 
         final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(temporaryFolder.getRoot());
 

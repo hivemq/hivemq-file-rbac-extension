@@ -26,7 +26,9 @@ import org.junit.Test;
 import java.util.Base64;
 
 import static com.hivemq.extensions.rbac.utils.CredentialsHasher.HASH_CACHE_HITRATE;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 public class CredentialsHasherTest {

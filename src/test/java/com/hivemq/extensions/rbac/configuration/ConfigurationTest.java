@@ -35,7 +35,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 
 public class ConfigurationTest {
@@ -50,8 +52,8 @@ public class ConfigurationTest {
         final ExtensionConfig extensionConfig = new ExtensionConfig();
         extensionConfig.setReloadInterval(1);
         final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-        final Configuration configuration = new Configuration(temporaryFolder.getRoot(), scheduledExecutorService,
-                extensionConfig);
+        final Configuration configuration =
+                new Configuration(temporaryFolder.getRoot(), scheduledExecutorService, extensionConfig);
 
         configuration.init();
 
@@ -81,8 +83,8 @@ public class ConfigurationTest {
         final ExtensionConfig extensionConfig = new ExtensionConfig();
         extensionConfig.setReloadInterval(1);
         final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-        final Configuration configuration = new Configuration(temporaryFolder.getRoot(), scheduledExecutorService,
-                extensionConfig);
+        final Configuration configuration =
+                new Configuration(temporaryFolder.getRoot(), scheduledExecutorService, extensionConfig);
 
         //Create a new file
         createCredentialsConfig();
@@ -114,8 +116,8 @@ public class ConfigurationTest {
         final ExtensionConfig extensionConfig = new ExtensionConfig();
         extensionConfig.setReloadInterval(1);
         final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-        final Configuration configuration = new Configuration(temporaryFolder.getRoot(), scheduledExecutorService,
-                extensionConfig);
+        final Configuration configuration =
+                new Configuration(temporaryFolder.getRoot(), scheduledExecutorService, extensionConfig);
 
         createCredentialsConfig();
 
