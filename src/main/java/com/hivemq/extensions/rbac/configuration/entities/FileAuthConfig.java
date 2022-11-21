@@ -19,7 +19,12 @@ package com.hivemq.extensions.rbac.configuration.entities;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.annotations.Nullable;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 import java.util.List;
 
 
@@ -67,9 +72,6 @@ public class FileAuthConfig {
     @NotNull
     @Override
     public String toString() {
-        return "Config{" +
-                "users=" + users +
-                ", roles=" + roles +
-                '}';
+        return "Config{" + "users=" + users + ", roles=" + roles + '}';
     }
 }

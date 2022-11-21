@@ -19,7 +19,12 @@ package com.hivemq.extensions.rbac.configuration.entities;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.annotations.Nullable;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 import java.util.Set;
 
 
@@ -46,10 +51,11 @@ public class ExtensionConfig {
     public ExtensionConfig() {
     }
 
-    public ExtensionConfig(final int reloadInterval,
-                           final Set<String> listenerNames,
-                           final @NotNull PasswordType passwordType,
-                           final boolean nextExtensionInsteadOfFail) {
+    public ExtensionConfig(
+            final int reloadInterval,
+            final Set<String> listenerNames,
+            final @NotNull PasswordType passwordType,
+            final boolean nextExtensionInsteadOfFail) {
         this.reloadInterval = reloadInterval;
         this.listenerNames = listenerNames;
         this.passwordType = passwordType;
@@ -87,10 +93,14 @@ public class ExtensionConfig {
     @Override
     public String toString() {
         return "ExtensionConfig{" +
-                "reloadInterval=" + reloadInterval +
-                ", listenerNames=" + listenerNames +
-                ", passwordType=" + passwordType +
-                ", nextExtensionInsteadOfFail=" + nextExtensionInsteadOfFail +
+                "reloadInterval=" +
+                reloadInterval +
+                ", listenerNames=" +
+                listenerNames +
+                ", passwordType=" +
+                passwordType +
+                ", nextExtensionInsteadOfFail=" +
+                nextExtensionInsteadOfFail +
                 '}';
     }
 }

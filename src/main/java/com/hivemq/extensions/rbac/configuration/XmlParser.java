@@ -58,10 +58,13 @@ public class XmlParser {
      * @param file   the file where the XML should be written to
      * @throws NotMarshallableException if the XML cannot be marshalled
      */
-    public void marshal(@NotNull final FileAuthConfig config, @NotNull final File file) throws NotMarshallableException {
+    public void marshal(@NotNull final FileAuthConfig config, @NotNull final File file)
+            throws NotMarshallableException {
 
         if (file.isDirectory()) {
-            throw new NotMarshallableException("Could not write config to file " + file.getAbsolutePath() + " because it's a directory");
+            throw new NotMarshallableException("Could not write config to file " +
+                    file.getAbsolutePath() +
+                    " because it's a directory");
         }
 
         if (file.exists()) {
@@ -69,7 +72,9 @@ public class XmlParser {
         }
 
         if (file.canWrite()) {
-            throw new NotMarshallableException("Could not write config to file " + file.getAbsolutePath() + " because it's not writable");
+            throw new NotMarshallableException("Could not write config to file " +
+                    file.getAbsolutePath() +
+                    " because it's not writable");
         }
 
         try {

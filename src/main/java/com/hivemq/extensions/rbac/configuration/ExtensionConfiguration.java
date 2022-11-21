@@ -26,12 +26,10 @@ import java.io.IOException;
 
 public class ExtensionConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(ConfigParser.class);
     public static final String EXTENSION_CONFIG_FILE_NAME = "extension-config.xml";
-
+    private static final Logger log = LoggerFactory.getLogger(ConfigParser.class);
     private final @NotNull XmlParser xmlParser = new XmlParser();
-    private final @NotNull
-    ExtensionConfig extensionConfig;
+    private final @NotNull ExtensionConfig extensionConfig;
 
     public ExtensionConfiguration(final @NotNull File extensionHomeFolder) {
         final @NotNull File extensionHomeFolder1 = extensionHomeFolder;
@@ -57,7 +55,8 @@ public class ExtensionConfiguration {
         }
 
         if (!file.canRead()) {
-            log.warn("Unable to read file auth extension configuration file {}, using defaults", file.getAbsolutePath());
+            log.warn("Unable to read file auth extension configuration file {}, using defaults",
+                    file.getAbsolutePath());
             return defaultConfig;
         }
 
@@ -65,8 +64,9 @@ public class ExtensionConfiguration {
             final ExtensionConfig newExtensionConfig = xmlParser.unmarshalExtensionConfig(file);
 
             if (newExtensionConfig.getReloadInterval() < 1) {
-                log.warn("Credentials reload interval for file auth extension must be greater than 0, using default interval " +
-                        defaultConfig.getReloadInterval());
+                log.warn(
+                        "Credentials reload interval for file auth extension must be greater than 0, using default interval " +
+                                defaultConfig.getReloadInterval());
                 newExtensionConfig.setReloadInterval(defaultConfig.getReloadInterval());
             }
 
@@ -80,7 +80,8 @@ public class ExtensionConfiguration {
             return newExtensionConfig;
 
         } catch (IOException e) {
-            log.warn("Could not read file auth extension configuration file, reason: {}, using defaults", e.getMessage());
+            log.warn("Could not read file auth extension configuration file, reason: {}, using defaults",
+                    e.getMessage());
             return defaultConfig;
         }
 

@@ -28,7 +28,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -39,9 +43,8 @@ import static java.util.Collections.unmodifiableList;
 @ThreadSafe
 public class Configuration {
 
-    private static final Logger log = LoggerFactory.getLogger(Configuration.class);
     static final String CONFIG_NAME = "credentials.xml";
-
+    private static final Logger log = LoggerFactory.getLogger(Configuration.class);
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     // COWAL is perfect here because the callbacks are not expected to change regularly
@@ -57,9 +60,10 @@ public class Configuration {
     private @Nullable FileAuthConfig config;
 
 
-    public Configuration(@NotNull final File extensionHomeFolder,
-                         @NotNull final ScheduledExecutorService extensionExecutorService,
-                         @NotNull final ExtensionConfig extensionConfig) {
+    public Configuration(
+            @NotNull final File extensionHomeFolder,
+            @NotNull final ScheduledExecutorService extensionExecutorService,
+            @NotNull final ExtensionConfig extensionConfig) {
 
         configParser = new ConfigParser(extensionConfig);
         this.extensionHomeFolder = extensionHomeFolder;
@@ -68,9 +72,12 @@ public class Configuration {
                 unmodifiableList(callbacks) /* We don't want the task to modify the callbacks!*/,
                 newCallbacks,
                 configParser,
-                new ConfigArchiver(extensionHomeFolder, new XmlParser()), this);
-        extensionExecutorService.scheduleWithFixedDelay(reloadableTask, extensionConfig.getReloadInterval(),
-                extensionConfig.getReloadInterval(), TimeUnit.SECONDS);
+                new ConfigArchiver(extensionHomeFolder, new XmlParser()),
+                this);
+        extensionExecutorService.scheduleWithFixedDelay(reloadableTask,
+                extensionConfig.getReloadInterval(),
+                extensionConfig.getReloadInterval(),
+                TimeUnit.SECONDS);
     }
 
     public void init() {
@@ -114,6 +121,10 @@ public class Configuration {
         newCallbacks.add(callback);
     }
 
+    @NotNull
+    private static File getConfigFile(final @NotNull File extensionHomeFolder) {
+        return new File(extensionHomeFolder, CONFIG_NAME);
+    }
 
     /**
      * A callback that gets triggered every time the config file changes.
@@ -148,13 +159,14 @@ public class Configuration {
         private @Nullable FileAuthConfig oldConfig;
         private long lastReadTimestamp = 0;
 
-        ReloadConfigFileTask(@NotNull final File extensionHomeFolder,
-                             @NotNull final ExecutorService callbackExecutor,
-                             @NotNull final List<ReloadCallback> callbacks,
-                             @NotNull final Queue<ReloadCallback> newCallbacks,
-                             @NotNull final ConfigParser configParser,
-                             @NotNull final ConfigArchiver configArchiver,
-                             @NotNull final Configuration configuration) {
+        ReloadConfigFileTask(
+                @NotNull final File extensionHomeFolder,
+                @NotNull final ExecutorService callbackExecutor,
+                @NotNull final List<ReloadCallback> callbacks,
+                @NotNull final Queue<ReloadCallback> newCallbacks,
+                @NotNull final ConfigParser configParser,
+                @NotNull final ConfigArchiver configArchiver,
+                @NotNull final Configuration configuration) {
 
             this.callbacks = callbacks;
             this.newCallbacks = newCallbacks;
@@ -172,17 +184,22 @@ public class Configuration {
         public void run() {
 
             if (!configFile.exists()) {
-                log.debug("No credentials file for file auth extension {} available, not reloading configuration for now", configFile.getAbsolutePath());
+                log.debug(
+                        "No credentials file for file auth extension {} available, not reloading configuration for now",
+                        configFile.getAbsolutePath());
                 return;
             }
 
             final long lastModification = configFile.lastModified();
             if (configuration.getCurrentConfig() != null && lastReadTimestamp >= lastModification) {
-                log.trace("Checked for changes for file {}. No changes since {}", configFile.getAbsolutePath(), lastModification);
+                log.trace("Checked for changes for file {}. No changes since {}",
+                        configFile.getAbsolutePath(),
+                        lastModification);
                 return;
             }
 
-            log.debug("Credentials for file auth extension changed, checking new credentials file.", configFile.getAbsolutePath());
+            log.debug("Credentials for file auth extension changed, checking new credentials file.",
+                    configFile.getAbsolutePath());
             final FileAuthConfig newConfig = configParser.read(configFile);
 
             lastReadTimestamp = System.currentTimeMillis();
@@ -205,11 +222,6 @@ public class Configuration {
                 callback.onReload(oldConfig, newConfig);
             }
         }
-    }
-
-    @NotNull
-    private static File getConfigFile(final @NotNull File extensionHomeFolder) {
-        return new File(extensionHomeFolder, CONFIG_NAME);
     }
 
 }

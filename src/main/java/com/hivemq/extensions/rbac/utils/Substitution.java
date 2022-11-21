@@ -43,7 +43,8 @@ public class Substitution {
      * @return substituted string
      */
     @NotNull
-    public static String substitute(@NotNull final String topic, @NotNull final String clientId, @NotNull final String username) {
+    public static String substitute(
+            @NotNull final String topic, @NotNull final String clientId, @NotNull final String username) {
 
         final StringSubstitutor strSubstitutor = new StringSubstitutor(new StringLookup() {
             @Nullable

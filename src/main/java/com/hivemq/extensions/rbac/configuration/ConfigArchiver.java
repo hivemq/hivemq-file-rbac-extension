@@ -37,8 +37,8 @@ public class ConfigArchiver {
     private final @NotNull File archiveFolder;
     private final @NotNull XmlParser xmlParser;
 
-    ConfigArchiver(@NotNull final File extensionHomeFolder,
-                   @NotNull final XmlParser xmlParser) {
+    ConfigArchiver(
+            @NotNull final File extensionHomeFolder, @NotNull final XmlParser xmlParser) {
 
         this.xmlParser = xmlParser;
         archiveFolder = new File(extensionHomeFolder, "credentials-archive");

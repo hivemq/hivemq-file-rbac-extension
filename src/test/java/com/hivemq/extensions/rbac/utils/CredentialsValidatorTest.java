@@ -42,7 +42,9 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 
@@ -53,9 +55,66 @@ import static org.powermock.api.mockito.PowerMockito.when;
 public class CredentialsValidatorTest {
 
 
+    public static final String ROLES = "    <roles>\n" +
+            "        <role>\n" +
+            "            <id>role1</id>\n" +
+            "            <permissions>\n" +
+            "                <permission>\n" +
+            "                    <topic>data/${{clientid}}/personal</topic>\n" +
+            "                </permission>\n" +
+            "            </permissions>\n" +
+            "        </role>\n" +
+            "        <role>\n" +
+            "            <id>role2</id>\n" +
+            "            <permissions>\n" +
+            "                <permission>\n" +
+            "                    <topic>${{username}}/#</topic>\n" +
+            "                </permission>\n" +
+            "            </permissions>\n" +
+            "        </role>\n" +
+            "    </roles>\n";
+    private static final String HASHED_CREDENTIALS = "<file-rbac>" +
+            "   <users>\n" +
+            "        <user>\n" +
+            "            <name>user1</name>\n" +
+            "            <password>c2FsdA==:100:MAK8JjJQh/c4uYbwkAm33TRXCbeuBC+meeK9ww3Mu4KTv08+8ywTKgF24MNHotOESjDmsutrEk+38PaZVX2TFA==</password>\n" +
+            "            <roles>\n" +
+            "                <id>role1</id>\n" +
+            "            </roles>\n" +
+            "        </user>\n" +
+            "        <user>\n" +
+            "            <name>user2</name>\n" +
+            "            <password>c2FsdA==:100:99RGrFfo+l2fQ+KTeSdM/5SZBAJlxj25jzwfAfNeqCe4+9ejGBSEue1w005Uq3+aoZKn89JXNQU8hgHKneu0Dw==</password>\n" +
+            "            <roles>\n" +
+            "                <id>role1</id>\n" +
+            "                <id>role2</id>\n" +
+            "            </roles>\n" +
+            "        </user>\n" +
+            "    </users>\n" +
+            ROLES +
+            "</file-rbac>";
+    private static final String PLAIN_CREDENTIALS = "<file-rbac>" +
+            "   <users>\n" +
+            "        <user>\n" +
+            "            <name>user1</name>\n" +
+            "            <password>pass1</password>\n" +
+            "            <roles>\n" +
+            "                <id>role1</id>\n" +
+            "            </roles>\n" +
+            "        </user>\n" +
+            "        <user>\n" +
+            "            <name>user2</name>\n" +
+            "            <password>pass2</password>\n" +
+            "            <roles>\n" +
+            "                <id>role1</id>\n" +
+            "                <id>role2</id>\n" +
+            "            </roles>\n" +
+            "        </user>\n" +
+            "    </users>\n" +
+            ROLES +
+            "</file-rbac>";
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
     private CredentialsValidator validator;
     private ScheduledExecutorService scheduledExecutorService;
     private ExtensionConfig extensionConfig;
@@ -111,7 +170,8 @@ public class CredentialsValidatorTest {
         assertEquals(1, permissions2.size());
         assertEquals("user2/#", permissions2.get(0).getTopicFilter());
 
-        final List<TopicPermission> permissions3 = validator.getPermissions("client3", "user3", List.of("role1", "role2"));
+        final List<TopicPermission> permissions3 =
+                validator.getPermissions("client3", "user3", List.of("role1", "role2"));
         assertEquals(2, permissions3.size());
         assertEquals("data/client3/personal", permissions3.get(0).getTopicFilter());
         assertEquals("user3/#", permissions3.get(1).getTopicFilter());
@@ -145,7 +205,7 @@ public class CredentialsValidatorTest {
         extensionConfig = new ExtensionConfig();
         if (hashed) {
             extensionConfig.setPasswordType(PasswordType.HASHED);
-        }else{
+        } else {
             extensionConfig.setPasswordType(PasswordType.PLAIN);
         }
         homeFolder = temporaryFolder.getRoot();
@@ -158,67 +218,6 @@ public class CredentialsValidatorTest {
         validator = new CredentialsValidator(configuration, extensionConfig, new MetricRegistry());
         validator.init();
     }
-
-    public static final String ROLES = "    <roles>\n" +
-            "        <role>\n" +
-            "            <id>role1</id>\n" +
-            "            <permissions>\n" +
-            "                <permission>\n" +
-            "                    <topic>data/${{clientid}}/personal</topic>\n" +
-            "                </permission>\n" +
-            "            </permissions>\n" +
-            "        </role>\n" +
-            "        <role>\n" +
-            "            <id>role2</id>\n" +
-            "            <permissions>\n" +
-            "                <permission>\n" +
-            "                    <topic>${{username}}/#</topic>\n" +
-            "                </permission>\n" +
-            "            </permissions>\n" +
-            "        </role>\n" +
-            "    </roles>\n";
-
-    private static final String HASHED_CREDENTIALS = "<file-rbac>" +
-            "   <users>\n" +
-            "        <user>\n" +
-            "            <name>user1</name>\n" +
-            "            <password>c2FsdA==:100:MAK8JjJQh/c4uYbwkAm33TRXCbeuBC+meeK9ww3Mu4KTv08+8ywTKgF24MNHotOESjDmsutrEk+38PaZVX2TFA==</password>\n" +
-            "            <roles>\n" +
-            "                <id>role1</id>\n" +
-            "            </roles>\n" +
-            "        </user>\n" +
-            "        <user>\n" +
-            "            <name>user2</name>\n" +
-            "            <password>c2FsdA==:100:99RGrFfo+l2fQ+KTeSdM/5SZBAJlxj25jzwfAfNeqCe4+9ejGBSEue1w005Uq3+aoZKn89JXNQU8hgHKneu0Dw==</password>\n" +
-            "            <roles>\n" +
-            "                <id>role1</id>\n" +
-            "                <id>role2</id>\n" +
-            "            </roles>\n" +
-            "        </user>\n" +
-            "    </users>\n" +
-            ROLES +
-            "</file-rbac>";
-
-    private static final String PLAIN_CREDENTIALS = "<file-rbac>" +
-            "   <users>\n" +
-            "        <user>\n" +
-            "            <name>user1</name>\n" +
-            "            <password>pass1</password>\n" +
-            "            <roles>\n" +
-            "                <id>role1</id>\n" +
-            "            </roles>\n" +
-            "        </user>\n" +
-            "        <user>\n" +
-            "            <name>user2</name>\n" +
-            "            <password>pass2</password>\n" +
-            "            <roles>\n" +
-            "                <id>role1</id>\n" +
-            "                <id>role2</id>\n" +
-            "            </roles>\n" +
-            "        </user>\n" +
-            "    </users>\n" +
-            ROLES +
-            "</file-rbac>";
 
     public static class TestTopicPermissionBuilder implements TopicPermissionBuilder {
 

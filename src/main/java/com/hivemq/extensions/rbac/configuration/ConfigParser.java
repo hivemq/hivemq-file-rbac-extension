@@ -31,8 +31,7 @@ public class ConfigParser {
     private static final Logger log = LoggerFactory.getLogger(ConfigParser.class);
 
     private final @NotNull XmlParser xmlParser = new XmlParser();
-    private final @NotNull
-    ExtensionConfig extensionConfig;
+    private final @NotNull ExtensionConfig extensionConfig;
 
     public ConfigParser(@NotNull final ExtensionConfig extensionConfig) {
 
@@ -54,7 +53,8 @@ public class ConfigParser {
         try {
             final FileAuthConfig config = xmlParser.unmarshalFileAuthConfig(file);
 
-            final ConfigCredentialsValidator.ValidationResult validationResult = ConfigCredentialsValidator.validateConfig(extensionConfig, config);
+            final ConfigCredentialsValidator.ValidationResult validationResult =
+                    ConfigCredentialsValidator.validateConfig(extensionConfig, config);
             if (validationResult.isValidationSuccessful()) {
                 return config;
             }

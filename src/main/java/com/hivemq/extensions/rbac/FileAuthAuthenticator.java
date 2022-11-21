@@ -38,13 +38,15 @@ public class FileAuthAuthenticator implements SimpleAuthenticator {
 
     private final @NotNull ExtensionConfig extensionConfig;
 
-    FileAuthAuthenticator(final @NotNull CredentialsValidator credentialsValidator, final @NotNull ExtensionConfig extensionConfig) {
+    FileAuthAuthenticator(
+            final @NotNull CredentialsValidator credentialsValidator, final @NotNull ExtensionConfig extensionConfig) {
         this.credentialsValidator = credentialsValidator;
         this.extensionConfig = extensionConfig;
     }
 
     @Override
-    public void onConnect(@NotNull final SimpleAuthInput simpleAuthInput, @NotNull final SimpleAuthOutput simpleAuthOutput) {
+    public void onConnect(
+            @NotNull final SimpleAuthInput simpleAuthInput, @NotNull final SimpleAuthOutput simpleAuthOutput) {
         final boolean nextExtensionInsteadOfFail = extensionConfig.isNextExtensionInsteadOfFail();
         final Set<String> listenerNames = extensionConfig.getListenerNames();
         final Optional<Listener> connectedListenerOptional = simpleAuthInput.getConnectionInformation().getListener();
@@ -68,7 +70,8 @@ public class FileAuthAuthenticator implements SimpleAuthenticator {
                 simpleAuthOutput.nextExtensionOrDefault();
                 return;
             }
-            simpleAuthOutput.failAuthentication(ConnackReasonCode.BAD_USER_NAME_OR_PASSWORD, "Authentication failed because username or password are missing");
+            simpleAuthOutput.failAuthentication(ConnackReasonCode.BAD_USER_NAME_OR_PASSWORD,
+                    "Authentication failed because username or password are missing");
             return;
         }
         final String userName = userNameOptional.get();
@@ -80,7 +83,8 @@ public class FileAuthAuthenticator implements SimpleAuthenticator {
                 simpleAuthOutput.nextExtensionOrDefault();
                 return;
             }
-            simpleAuthOutput.failAuthentication(ConnackReasonCode.CLIENT_IDENTIFIER_NOT_VALID, "The characters '#' and '+' are not allowed in the client identifier");
+            simpleAuthOutput.failAuthentication(ConnackReasonCode.CLIENT_IDENTIFIER_NOT_VALID,
+                    "The characters '#' and '+' are not allowed in the client identifier");
             return;
         }
 
@@ -91,7 +95,8 @@ public class FileAuthAuthenticator implements SimpleAuthenticator {
                 simpleAuthOutput.nextExtensionOrDefault();
                 return;
             }
-            simpleAuthOutput.failAuthentication(ConnackReasonCode.BAD_USER_NAME_OR_PASSWORD, "The characters '#' and '+' are not allowed in the username");
+            simpleAuthOutput.failAuthentication(ConnackReasonCode.BAD_USER_NAME_OR_PASSWORD,
+                    "The characters '#' and '+' are not allowed in the username");
             return;
         }
 
@@ -105,7 +110,8 @@ public class FileAuthAuthenticator implements SimpleAuthenticator {
                 simpleAuthOutput.nextExtensionOrDefault();
                 return;
             }
-            simpleAuthOutput.failAuthentication(ConnackReasonCode.NOT_AUTHORIZED, "Authentication failed because of invalid credentials");
+            simpleAuthOutput.failAuthentication(ConnackReasonCode.NOT_AUTHORIZED,
+                    "Authentication failed because of invalid credentials");
             return;
         }
 

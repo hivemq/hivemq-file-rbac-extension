@@ -31,10 +31,13 @@ public class FileAuthenticatorProviderTest {
     @Test
     public void test_return_same_authenticator() {
 
-        final FileAuthenticatorProvider fileAuthenticatorProvider = new FileAuthenticatorProvider(mock(CredentialsValidator.class),mock(ExtensionConfig.class));
+        final FileAuthenticatorProvider fileAuthenticatorProvider =
+                new FileAuthenticatorProvider(mock(CredentialsValidator.class), mock(ExtensionConfig.class));
 
-        final Authenticator authenticator1 = fileAuthenticatorProvider.getAuthenticator(mock(AuthenticatorProviderInput.class));
-        final Authenticator authenticator2 = fileAuthenticatorProvider.getAuthenticator(mock(AuthenticatorProviderInput.class));
+        final Authenticator authenticator1 =
+                fileAuthenticatorProvider.getAuthenticator(mock(AuthenticatorProviderInput.class));
+        final Authenticator authenticator2 =
+                fileAuthenticatorProvider.getAuthenticator(mock(AuthenticatorProviderInput.class));
 
         assertSame(authenticator1, authenticator2);
     }

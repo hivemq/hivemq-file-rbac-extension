@@ -28,8 +28,9 @@ public class FileAuthenticatorProvider implements AuthenticatorProvider {
 
     private final @NotNull FileAuthAuthenticator authenticator;
 
-    FileAuthenticatorProvider(@NotNull final CredentialsValidator credentialsValidator, @NotNull final ExtensionConfig extensionConfig) {
-        this.authenticator = new FileAuthAuthenticator(credentialsValidator,extensionConfig);
+    FileAuthenticatorProvider(
+            @NotNull final CredentialsValidator credentialsValidator, @NotNull final ExtensionConfig extensionConfig) {
+        this.authenticator = new FileAuthAuthenticator(credentialsValidator, extensionConfig);
     }
 
     @Override
