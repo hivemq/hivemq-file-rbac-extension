@@ -58,6 +58,10 @@ tasks.withType<Test>().configureEach {
     useJUnit()
 }
 
+tasks.processTestResources {
+    from("src/hivemq-extension/")
+}
+
 /* ******************** checks ******************** */
 
 license {
