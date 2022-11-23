@@ -21,7 +21,8 @@ The File Authentication and Authorization Extension implements Access Control ba
 This extension implements the configuration for authentication and authorization rules via XML-file.
 These mechanism are important to protect a MQTT deployment, and the data which is exchanged, from unwanted access.
 
-The extension provides fine grained control on a topic level to limit clients to specific topics and specific actions (publish or subscribe).Substitution rules for clientId and username allow for dynamic roles to be applied to multiple clients, while still limiting each client to "their own" topics.
+The extension provides fine grained control on a topic level to limit clients to specific topics and specific actions (publish or subscribe).
+Substitution rules for clientId and username allow for dynamic roles to be applied to multiple clients, while still limiting each client to "their own" topics.
 
 === Features
 
