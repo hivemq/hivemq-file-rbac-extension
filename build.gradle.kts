@@ -16,6 +16,12 @@ hivemqExtension {
     sdkVersion.set("${property("hivemq-extension-sdk.version")}")
 }
 
+tasks.hivemqExtensionJar {
+    manifest {
+        attributes["Main-Class"] = "com.hivemq.extensions.rbac.generator.PasswordGenerator"
+    }
+}
+
 dependencies {
     hivemqProvided("ch.qos.logback:logback-classic:${property("logback.version")}")
 
