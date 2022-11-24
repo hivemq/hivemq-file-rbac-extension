@@ -36,11 +36,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static java.util.Collections.unmodifiableList;
 
-
 @ThreadSafe
-public class Configuration {
+public class CredentialsConfiguration {
 
-    private static final @NotNull Logger LOG = LoggerFactory.getLogger(Configuration.class);
+    private static final @NotNull Logger LOG = LoggerFactory.getLogger(CredentialsConfiguration.class);
     static final @NotNull String CONFIG_NAME = "credentials.xml";
     private final @NotNull ReadWriteLock lock = new ReentrantReadWriteLock();
 
@@ -56,7 +55,7 @@ public class Configuration {
     private @Nullable FileAuthConfig config;
 
 
-    public Configuration(
+    public CredentialsConfiguration(
             final @NotNull File extensionHomeFolder,
             final @NotNull ScheduledExecutorService extensionExecutorService,
             final @NotNull ExtensionConfig extensionConfig) {
@@ -136,7 +135,7 @@ public class Configuration {
         private final @NotNull ConfigArchiver configArchiver;
         private final @NotNull ConfigParser configParser;
         private final @NotNull File configFile;
-        private final @NotNull Configuration configuration;
+        private final @NotNull CredentialsConfiguration credentialsConfiguration;
         private final @NotNull List<ReloadCallback> callbacks;
         private @Nullable FileAuthConfig oldConfig;
         private long lastReadTimestamp;
@@ -146,12 +145,12 @@ public class Configuration {
                 final @NotNull List<ReloadCallback> callbacks,
                 final @NotNull ConfigParser configParser,
                 final @NotNull ConfigArchiver configArchiver,
-                final @NotNull Configuration configuration) {
+                final @NotNull CredentialsConfiguration credentialsConfiguration) {
             this.callbacks = callbacks;
             this.configParser = configParser;
             this.configArchiver = configArchiver;
             configFile = getConfigFile(extensionHomeFolder);
-            this.configuration = configuration;
+            this.credentialsConfiguration = credentialsConfiguration;
             lastReadTimestamp = System.currentTimeMillis();
             oldConfig = configParser.read(configFile);
         }
@@ -166,7 +165,7 @@ public class Configuration {
             }
 
             final long lastModification = configFile.lastModified();
-            if (configuration.getCurrentConfig() != null && lastReadTimestamp >= lastModification) {
+            if (credentialsConfiguration.getCurrentConfig() != null && lastReadTimestamp >= lastModification) {
                 LOG.trace("Checked for changes for file {}. No changes since {}",
                         configFile.getAbsolutePath(),
                         lastModification);

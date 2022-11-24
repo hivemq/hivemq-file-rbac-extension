@@ -22,7 +22,7 @@ import com.hivemq.extension.sdk.api.annotations.Nullable;
 import com.hivemq.extension.sdk.api.annotations.ThreadSafe;
 import com.hivemq.extension.sdk.api.auth.parameter.TopicPermission;
 import com.hivemq.extension.sdk.api.services.builder.Builders;
-import com.hivemq.extensions.rbac.configuration.Configuration;
+import com.hivemq.extensions.rbac.configuration.CredentialsConfiguration;
 import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.configuration.entities.FileAuthConfig;
 import com.hivemq.extensions.rbac.configuration.entities.PasswordType;
@@ -37,16 +37,16 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 @ThreadSafe
-@SuppressWarnings("ConstantConditions")
 public class CredentialsValidator {
 
-    private final @NotNull Configuration configuration;
+    private final @NotNull CredentialsConfiguration credentialsConfiguration;
     private final @NotNull ExtensionConfig extensionConfig;
     private final @NotNull CredentialsHasher credentialsHasher;
     private final @NotNull ReadWriteLock usersLock = new ReentrantReadWriteLock();
@@ -55,22 +55,22 @@ public class CredentialsValidator {
     private @NotNull Map<String, Role> roles = new ConcurrentHashMap<>();
 
     public CredentialsValidator(
-            final @NotNull Configuration configuration,
+            final @NotNull CredentialsConfiguration credentialsConfiguration,
             final @NotNull ExtensionConfig extensionConfig,
             final @NotNull MetricRegistry metricRegistry) {
-        this.configuration = configuration;
+        this.credentialsConfiguration = credentialsConfiguration;
         this.extensionConfig = extensionConfig;
         this.credentialsHasher = new CredentialsHasher(metricRegistry);
     }
 
     public void init() {
-        final FileAuthConfig currentConfig = configuration.getCurrentConfig();
+        final FileAuthConfig currentConfig = credentialsConfiguration.getCurrentConfig();
         if (currentConfig != null) {
             updateUsersMap(currentConfig);
             updateRolesMap(currentConfig);
         }
 
-        configuration.addReloadCallback((oldConfig, newConfig) -> {
+        credentialsConfiguration.addReloadCallback((oldConfig, newConfig) -> {
             updateUsersMap(newConfig);
             updateRolesMap(newConfig);
         });
@@ -96,7 +96,7 @@ public class CredentialsValidator {
             readLock.unlock();
         }
 
-        if (user == null) {
+        if (user == null || user.getPassword() == null) {
             return null;
         }
 
@@ -124,7 +124,7 @@ public class CredentialsValidator {
         final ArrayList<TopicPermission> topicPermissions = new ArrayList<>();
         for (final String clientRole : clientRoles) {
             final Role role = roles.get(clientRole);
-            for (final Permission permission : role.getPermissions()) {
+            for (final Permission permission : Objects.requireNonNull(role.getPermissions())) {
                 topicPermissions.add(toTopicPermission(clientId, userName, permission));
             }
         }
@@ -140,9 +140,10 @@ public class CredentialsValidator {
 
     private void updateUsersMap(final @NotNull FileAuthConfig config) {
         final List<User> newUsers = config.getUsers();
-        final ConcurrentHashMap<String, User> newUsersMap = new ConcurrentHashMap<>(newUsers.size());
+        final ConcurrentHashMap<String, User> newUsersMap =
+                new ConcurrentHashMap<>(Objects.requireNonNull(newUsers).size());
         for (final User newUser : newUsers) {
-            newUsersMap.put(newUser.getName(), newUser);
+            newUsersMap.put(Objects.requireNonNull(newUser.getName()), newUser);
         }
 
         final Lock writeLock = usersLock.writeLock();
@@ -156,9 +157,10 @@ public class CredentialsValidator {
 
     private void updateRolesMap(final @NotNull FileAuthConfig config) {
         final List<Role> newRoles = config.getRoles();
-        final ConcurrentHashMap<String, Role> newRolesMap = new ConcurrentHashMap<>(newRoles.size());
+        final ConcurrentHashMap<String, Role> newRolesMap =
+                new ConcurrentHashMap<>(Objects.requireNonNull(newRoles).size());
         for (final Role newRole : newRoles) {
-            newRolesMap.put(newRole.getId(), newRole);
+            newRolesMap.put(Objects.requireNonNull(newRole.getId()), newRole);
         }
 
         final Lock writeLock = rolesLock.writeLock();
@@ -174,18 +176,18 @@ public class CredentialsValidator {
             final @NotNull String clientId, final @NotNull String userName, final @NotNull Permission permission) {
         return Builders.topicPermission()
                 .topicFilter(getTopicFilter(clientId, userName, permission))
-                .activity(permission.getActivity())
+                .activity(Objects.requireNonNull(permission.getActivity()))
                 .type(TopicPermission.PermissionType.ALLOW)
-                .retain(permission.getRetain())
-                .qos(permission.getQos())
-                .sharedSubscription(permission.getSharedSubscription())
-                .sharedGroup(permission.getSharedGroup())
+                .retain(Objects.requireNonNull(permission.getRetain()))
+                .qos(Objects.requireNonNull(permission.getQos()))
+                .sharedSubscription(Objects.requireNonNull(permission.getSharedSubscription()))
+                .sharedGroup(Objects.requireNonNull(permission.getSharedGroup()))
                 .build();
     }
 
     private @NotNull String getTopicFilter(
             final @NotNull String clientId, final @NotNull String userName, final @NotNull Permission permission) {
         final String configTopic = permission.getTopic();
-        return Substitution.substitute(configTopic, clientId, userName);
+        return Substitution.substitute(Objects.requireNonNull(configTopic), clientId, userName);
     }
 }

@@ -21,7 +21,7 @@ import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.auth.parameter.TopicPermission;
 import com.hivemq.extension.sdk.api.services.builder.Builders;
 import com.hivemq.extension.sdk.api.services.builder.TopicPermissionBuilder;
-import com.hivemq.extensions.rbac.configuration.Configuration;
+import com.hivemq.extensions.rbac.configuration.CredentialsConfiguration;
 import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.configuration.entities.PasswordType;
 import org.junit.jupiter.api.AfterEach;
@@ -189,11 +189,11 @@ class CredentialsValidatorTest {
             extensionConfig.setPasswordType(PasswordType.PLAIN);
         }
         Files.writeString(new File(extensionFolder, "credentials.xml").toPath(), credentials);
-        final Configuration configuration =
-                new Configuration(extensionFolder, scheduledExecutorService, extensionConfig);
-        configuration.init();
+        final CredentialsConfiguration credentialsConfiguration =
+                new CredentialsConfiguration(extensionFolder, scheduledExecutorService, extensionConfig);
+        credentialsConfiguration.init();
         final CredentialsValidator validator =
-                new CredentialsValidator(configuration, extensionConfig, new MetricRegistry());
+                new CredentialsValidator(credentialsConfiguration, extensionConfig, new MetricRegistry());
         validator.init();
         return validator;
     }
