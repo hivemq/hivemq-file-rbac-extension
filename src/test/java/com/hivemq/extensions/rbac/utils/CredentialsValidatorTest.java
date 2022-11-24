@@ -24,16 +24,11 @@ import com.hivemq.extension.sdk.api.services.builder.TopicPermissionBuilder;
 import com.hivemq.extensions.rbac.configuration.Configuration;
 import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.configuration.entities.PasswordType;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.mockito.MockitoAnnotations;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.MockedStatic;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -42,20 +37,16 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
+class CredentialsValidatorTest {
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({Builders.class})
-@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "org.w3c.*"})
-public class CredentialsValidatorTest {
-
-
-    public static final String ROLES = "    <roles>\n" +
+    private static final @NotNull String ROLES = "    <roles>\n" +
             "        <role>\n" +
             "            <id>role1</id>\n" +
             "            <permissions>\n" +
@@ -73,7 +64,7 @@ public class CredentialsValidatorTest {
             "            </permissions>\n" +
             "        </role>\n" +
             "    </roles>\n";
-    private static final String HASHED_CREDENTIALS = "<file-rbac>" +
+    private static final @NotNull String HASHED_CREDENTIALS = "<file-rbac>" +
             "   <users>\n" +
             "        <user>\n" +
             "            <name>user1</name>\n" +
@@ -93,7 +84,7 @@ public class CredentialsValidatorTest {
             "    </users>\n" +
             ROLES +
             "</file-rbac>";
-    private static final String PLAIN_CREDENTIALS = "<file-rbac>" +
+    private static final @NotNull String PLAIN_CREDENTIALS = "<file-rbac>" +
             "   <users>\n" +
             "        <user>\n" +
             "            <name>user1</name>\n" +
@@ -113,118 +104,106 @@ public class CredentialsValidatorTest {
             "    </users>\n" +
             ROLES +
             "</file-rbac>";
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
-    private CredentialsValidator validator;
-    private ScheduledExecutorService scheduledExecutorService;
-    private ExtensionConfig extensionConfig;
-    private File homeFolder;
+    private @NotNull CredentialsValidator validator;
+    private @NotNull ScheduledExecutorService scheduledExecutorService;
+    private @NotNull File extensionFolder;
 
-    @Before
-    public void before() throws Exception {
-        MockitoAnnotations.initMocks(this);
-        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-        initValidator(PLAIN_CREDENTIALS, false);
-
-        mockStatic(Builders.class);
-        when(Builders.topicPermission()).thenReturn(new TestTopicPermissionBuilder());
+    @BeforeEach
+    void setUp(@TempDir final @NotNull File extensionFolder) throws Exception {
+        this.extensionFolder = extensionFolder;
+        this.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+        this.validator = initValidator(PLAIN_CREDENTIALS, false);
     }
 
-    @After
+    @AfterEach
     public void after() {
         scheduledExecutorService.shutdown();
     }
 
     @Test
-    public void test_valid_roles_plain() throws Exception {
+    void test_valid_roles_plain() {
         final List<String> roles = validator.getRoles("user1", ByteBuffer.wrap("pass1".getBytes()));
+        assertNotNull(roles);
         assertEquals("role1", roles.get(0));
-
         final List<String> roles2 = validator.getRoles("user2", ByteBuffer.wrap("pass2".getBytes()));
+        assertNotNull(roles2);
         assertEquals("role1", roles2.get(0));
         assertEquals("role2", roles2.get(1));
     }
 
     @Test
-    public void test_valid_roles_hashed() throws Exception {
-
-        initValidator(HASHED_CREDENTIALS, true);
-
+    void test_valid_roles_hashed() throws Exception {
+        this.validator = initValidator(HASHED_CREDENTIALS, true);
         final List<String> roles = validator.getRoles("user1", ByteBuffer.wrap("pass1".getBytes()));
         assertNotNull(roles);
         assertEquals("role1", roles.get(0));
-
         final List<String> roles2 = validator.getRoles("user2", ByteBuffer.wrap("pass2".getBytes()));
-        assertNotNull(roles);
+        assertNotNull(roles2);
         assertEquals("role1", roles2.get(0));
         assertEquals("role2", roles2.get(1));
     }
 
     @Test
-    public void test_permissions() throws Exception {
-        final List<TopicPermission> permissions = validator.getPermissions("client1", "user1", List.of("role1"));
-        assertEquals(1, permissions.size());
-        assertEquals("data/client1/personal", permissions.get(0).getTopicFilter());
-
-        final List<TopicPermission> permissions2 = validator.getPermissions("client2", "user2", List.of("role2"));
-        assertEquals(1, permissions2.size());
-        assertEquals("user2/#", permissions2.get(0).getTopicFilter());
-
-        final List<TopicPermission> permissions3 =
-                validator.getPermissions("client3", "user3", List.of("role1", "role2"));
-        assertEquals(2, permissions3.size());
-        assertEquals("data/client3/personal", permissions3.get(0).getTopicFilter());
-        assertEquals("user3/#", permissions3.get(1).getTopicFilter());
+    void test_permissions() {
+        try (final MockedStatic<Builders> ignored = mockStatic(Builders.class)) {
+            when(Builders.topicPermission()).thenReturn(new TestTopicPermissionBuilder());
+            final List<TopicPermission> permissions = validator.getPermissions("client1", "user1", List.of("role1"));
+            assertEquals(1, permissions.size());
+            assertEquals("data/client1/personal", permissions.get(0).getTopicFilter());
+            final List<TopicPermission> permissions2 = validator.getPermissions("client2", "user2", List.of("role2"));
+            assertEquals(1, permissions2.size());
+            assertEquals("user2/#", permissions2.get(0).getTopicFilter());
+            final List<TopicPermission> permissions3 =
+                    validator.getPermissions("client3", "user3", List.of("role1", "role2"));
+            assertEquals(2, permissions3.size());
+            assertEquals("data/client3/personal", permissions3.get(0).getTopicFilter());
+            assertEquals("user3/#", permissions3.get(1).getTopicFilter());
+        }
     }
 
     @Test
-    public void test_invalid_roles() throws Exception {
+    void test_invalid_roles() {
         final List<String> roles = validator.getRoles("user1", ByteBuffer.wrap("pass2".getBytes()));
         assertNull(roles);
-
         final List<String> roles2 = validator.getRoles("user2", ByteBuffer.wrap("pass1".getBytes()));
         assertNull(roles2);
-
         final List<String> roles3 = validator.getRoles("user3", ByteBuffer.wrap("pass3".getBytes()));
         assertNull(roles3);
     }
 
     @Test
-    public void test_invalid_config() throws Exception {
-
-        initValidator("", false);
-
+    void test_invalid_config() throws Exception {
+        this.validator = initValidator("", false);
         final List<String> roles = validator.getRoles("user1", ByteBuffer.wrap("pass1".getBytes()));
         assertNull(roles);
-
         final List<String> roles2 = validator.getRoles("user2", ByteBuffer.wrap("pass2".getBytes()));
         assertNull(roles2);
     }
 
-    private void initValidator(@NotNull final String credentials, final boolean hashed) throws Exception {
-        extensionConfig = new ExtensionConfig();
+    private @NotNull CredentialsValidator initValidator(final @NotNull String credentials, final boolean hashed)
+            throws Exception {
+        final ExtensionConfig extensionConfig = new ExtensionConfig();
         if (hashed) {
             extensionConfig.setPasswordType(PasswordType.HASHED);
         } else {
             extensionConfig.setPasswordType(PasswordType.PLAIN);
         }
-        homeFolder = temporaryFolder.getRoot();
-
-        Files.writeString(new File(homeFolder, "credentials.xml").toPath(), credentials);
-
-        final Configuration configuration = new Configuration(homeFolder, scheduledExecutorService, extensionConfig);
+        Files.writeString(new File(extensionFolder, "credentials.xml").toPath(), credentials);
+        final Configuration configuration =
+                new Configuration(extensionFolder, scheduledExecutorService, extensionConfig);
         configuration.init();
-
-        validator = new CredentialsValidator(configuration, extensionConfig, new MetricRegistry());
+        final CredentialsValidator validator =
+                new CredentialsValidator(configuration, extensionConfig, new MetricRegistry());
         validator.init();
+        return validator;
     }
 
-    public static class TestTopicPermissionBuilder implements TopicPermissionBuilder {
+    private static class TestTopicPermissionBuilder implements TopicPermissionBuilder {
 
-        private String topicFilter = null;
+        private @NotNull String topicFilter = "invalidFilter";
 
         @Override
-        public @NotNull TopicPermissionBuilder topicFilter(@NotNull final String topicFilter) {
+        public @NotNull TopicPermissionBuilder topicFilter(final @NotNull String topicFilter) {
             this.topicFilter = topicFilter;
             return this;
         }
@@ -255,7 +234,7 @@ public class CredentialsValidatorTest {
         }
 
         @Override
-        public @NotNull TopicPermissionBuilder sharedGroup(@NotNull final String sharedGroup) {
+        public @NotNull TopicPermissionBuilder sharedGroup(final @NotNull String sharedGroup) {
             return this;
         }
 
@@ -266,11 +245,11 @@ public class CredentialsValidatorTest {
 
     }
 
-    public static class TestTopicPermission implements TopicPermission {
+    private static class TestTopicPermission implements TopicPermission {
 
-        private final String topicFilter;
+        private final @NotNull String topicFilter;
 
-        public TestTopicPermission(@NotNull final String topicFilter) {
+        public TestTopicPermission(final @NotNull String topicFilter) {
             this.topicFilter = topicFilter;
         }
 
@@ -281,33 +260,32 @@ public class CredentialsValidatorTest {
 
         @Override
         public @NotNull PermissionType getType() {
-            return null;
+            return mock(PermissionType.class);
         }
 
         @Override
         public @NotNull Qos getQos() {
-            return null;
+            return mock(Qos.class);
         }
 
         @Override
         public @NotNull MqttActivity getActivity() {
-            return null;
+            return mock(MqttActivity.class);
         }
 
         @Override
         public @NotNull Retain getPublishRetain() {
-            return null;
+            return mock(Retain.class);
         }
 
         @Override
         public @NotNull SharedSubscription getSharedSubscription() {
-            return null;
+            return mock(SharedSubscription.class);
         }
 
         @Override
         public @NotNull String getSharedGroup() {
-            return null;
+            return mock(String.class);
         }
     }
-
 }

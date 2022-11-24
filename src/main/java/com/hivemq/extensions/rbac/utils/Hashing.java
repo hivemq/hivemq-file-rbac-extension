@@ -25,13 +25,12 @@ import java.util.Base64;
 
 public class Hashing {
 
-    @NotNull
-    public static byte[] createHash(
-            @NotNull final String base64Password, @NotNull final String base64Salt, final int iterations) {
+    public static byte @NotNull [] createHash(
+            final @NotNull String base64Password, final @NotNull String base64Salt, final int iterations) {
         final byte[] password = Base64.getDecoder().decode(base64Password);
         final byte[] salt = Base64.getDecoder().decode(base64Salt);
-        final PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA512Digest());
-        gen.init(password, salt, iterations);
-        return ((KeyParameter) gen.generateDerivedParameters(512)).getKey();
+        final PKCS5S2ParametersGenerator generator = new PKCS5S2ParametersGenerator(new SHA512Digest());
+        generator.init(password, salt, iterations);
+        return ((KeyParameter) generator.generateDerivedParameters(512)).getKey();
     }
 }

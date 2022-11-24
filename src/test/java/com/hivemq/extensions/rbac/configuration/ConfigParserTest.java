@@ -16,66 +16,57 @@
  */
 package com.hivemq.extensions.rbac.configuration;
 
+import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.configuration.entities.FileAuthConfig;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Files;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
+class ConfigParserTest {
 
-public class ConfigParserTest {
+    private @NotNull File extensionFolder;
+    private @NotNull ConfigParser configParser;
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-    private ConfigParser configParser;
-
-    @Before
-    public void before() {
+    @BeforeEach
+    void setUp(@TempDir final @NotNull File extensionFolder) {
+        this.extensionFolder = extensionFolder;
         configParser = new ConfigParser(new ExtensionConfig());
     }
 
     @Test
-    public void test_valid_config() throws Exception {
-
+    void test_valid_config() throws Exception {
         final URL resource = this.getClass().getClassLoader().getResource("credentials.xml");
+        assertNotNull(resource);
         final File file = new File(resource.toURI());
-
         final FileAuthConfig fileAuthConfig = configParser.read(file);
-
+        assertNotNull(fileAuthConfig);
+        assertNotNull(fileAuthConfig.getRoles());
         assertEquals(2, fileAuthConfig.getRoles().size());
+        assertNotNull(fileAuthConfig.getUsers());
         assertEquals(2, fileAuthConfig.getUsers().size());
     }
 
     @Test
-    public void test_not_exising_file() throws Exception {
-
-        final File file = new File(temporaryFolder.getRoot(), "not-existing.xml");
-
+    void test_not_exising_file() {
+        final File file = new File(extensionFolder, "not-existing.xml");
         final FileAuthConfig fileAuthConfig = configParser.read(file);
-
         assertNull(fileAuthConfig);
     }
 
     @Test
-    public void test_invalid_file() throws Exception {
-
-        final File file = new File(temporaryFolder.getRoot(), "invalid.xml");
-
+    void test_invalid_file() throws Exception {
+        final File file = new File(extensionFolder, "invalid.xml");
         Files.writeString(file.toPath(), "<file-rbac></file-rbac>");
-
         final FileAuthConfig fileAuthConfig = configParser.read(file);
-
         assertNull(fileAuthConfig);
     }
-
-
 }

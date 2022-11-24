@@ -47,38 +47,32 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class CredentialsValidator {
 
     private final @NotNull Configuration configuration;
-
-    private final ReadWriteLock usersLock = new ReentrantReadWriteLock();
-    private final ReadWriteLock rolesLock = new ReentrantReadWriteLock();
     private final @NotNull ExtensionConfig extensionConfig;
     private final @NotNull CredentialsHasher credentialsHasher;
-
+    private final @NotNull ReadWriteLock usersLock = new ReentrantReadWriteLock();
+    private final @NotNull ReadWriteLock rolesLock = new ReentrantReadWriteLock();
     private @NotNull Map<String, User> users = new ConcurrentHashMap<>();
     private @NotNull Map<String, Role> roles = new ConcurrentHashMap<>();
 
     public CredentialsValidator(
-            @NotNull final Configuration configuration,
-            @NotNull final ExtensionConfig extensionConfig,
-            @NotNull final MetricRegistry metricRegistry) {
+            final @NotNull Configuration configuration,
+            final @NotNull ExtensionConfig extensionConfig,
+            final @NotNull MetricRegistry metricRegistry) {
         this.configuration = configuration;
         this.extensionConfig = extensionConfig;
         this.credentialsHasher = new CredentialsHasher(metricRegistry);
     }
 
     public void init() {
-
-        final @Nullable FileAuthConfig currentConfig = configuration.getCurrentConfig();
+        final FileAuthConfig currentConfig = configuration.getCurrentConfig();
         if (currentConfig != null) {
             updateUsersMap(currentConfig);
             updateRolesMap(currentConfig);
         }
 
-        configuration.addReloadCallback(new Configuration.ReloadCallback() {
-            @Override
-            public void onReload(@Nullable final FileAuthConfig oldConfig, @NotNull final FileAuthConfig newConfig) {
-                updateUsersMap(newConfig);
-                updateRolesMap(newConfig);
-            }
+        configuration.addReloadCallback((oldConfig, newConfig) -> {
+            updateUsersMap(newConfig);
+            updateRolesMap(newConfig);
         });
     }
 
@@ -87,9 +81,7 @@ public class CredentialsValidator {
      * @param password the password
      * @return a list of the users roles or null if the credentials are not valid
      */
-    @Nullable
-    public List<String> getRoles(@NotNull final String userName, @NotNull final ByteBuffer password) {
-
+    public @Nullable List<String> getRoles(final @NotNull String userName, final @NotNull ByteBuffer password) {
         //If Config is invalid do not allow clients to connect
         if (users.isEmpty() || roles.isEmpty()) {
             return null;
@@ -109,55 +101,47 @@ public class CredentialsValidator {
         }
 
         if (extensionConfig.getPasswordType() == PasswordType.HASHED) {
-
             final String base64Password = encodePassword(password);
-
             final boolean passwordsEqual = credentialsHasher.checkCredentials(base64Password, user.getPassword());
 
             if (!passwordsEqual) {
                 return null;
             }
-
         } else {
             if (!user.getPassword().equals(StandardCharsets.UTF_8.decode(password).toString())) {
                 return null;
             }
         }
-
         return user.getRoles();
     }
 
-    @NotNull
-    public List<TopicPermission> getPermissions(
+    public @NotNull List<TopicPermission> getPermissions(
             final @NotNull String clientId, final @NotNull String userName, final @NotNull List<String> clientRoles) {
-
         if (clientRoles.isEmpty()) {
             return Collections.emptyList();
         }
 
         final ArrayList<TopicPermission> topicPermissions = new ArrayList<>();
-        for (String clientRole : clientRoles) {
+        for (final String clientRole : clientRoles) {
             final Role role = roles.get(clientRole);
-            for (Permission permission : role.getPermissions()) {
+            for (final Permission permission : role.getPermissions()) {
                 topicPermissions.add(toTopicPermission(clientId, userName, permission));
             }
         }
-
         return topicPermissions;
     }
 
-    @NotNull
-    private String encodePassword(final @NotNull ByteBuffer password) {
-        byte[] passwordBytes = new byte[password.remaining()];
+
+    private @NotNull String encodePassword(final @NotNull ByteBuffer password) {
+        final byte[] passwordBytes = new byte[password.remaining()];
         password.get(passwordBytes);
         return Base64.getEncoder().encodeToString(passwordBytes);
     }
 
     private void updateUsersMap(final @NotNull FileAuthConfig config) {
         final List<User> newUsers = config.getUsers();
-
         final ConcurrentHashMap<String, User> newUsersMap = new ConcurrentHashMap<>(newUsers.size());
-        for (User newUser : newUsers) {
+        for (final User newUser : newUsers) {
             newUsersMap.put(newUser.getName(), newUser);
         }
 
@@ -172,9 +156,8 @@ public class CredentialsValidator {
 
     private void updateRolesMap(final @NotNull FileAuthConfig config) {
         final List<Role> newRoles = config.getRoles();
-
         final ConcurrentHashMap<String, Role> newRolesMap = new ConcurrentHashMap<>(newRoles.size());
-        for (Role newRole : newRoles) {
+        for (final Role newRole : newRoles) {
             newRolesMap.put(newRole.getId(), newRole);
         }
 
@@ -187,8 +170,8 @@ public class CredentialsValidator {
         }
     }
 
-    private TopicPermission toTopicPermission(
-            @NotNull final String clientId, @NotNull final String userName, @NotNull final Permission permission) {
+    private @NotNull TopicPermission toTopicPermission(
+            final @NotNull String clientId, final @NotNull String userName, final @NotNull Permission permission) {
         return Builders.topicPermission()
                 .topicFilter(getTopicFilter(clientId, userName, permission))
                 .activity(permission.getActivity())
@@ -200,10 +183,9 @@ public class CredentialsValidator {
                 .build();
     }
 
-    private String getTopicFilter(
-            @NotNull final String clientId, @NotNull final String userName, final Permission permission) {
+    private @NotNull String getTopicFilter(
+            final @NotNull String clientId, final @NotNull String userName, final @NotNull Permission permission) {
         final String configTopic = permission.getTopic();
         return Substitution.substitute(configTopic, clientId, userName);
     }
-
 }

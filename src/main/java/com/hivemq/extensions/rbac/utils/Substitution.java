@@ -17,19 +17,13 @@
 package com.hivemq.extensions.rbac.utils;
 
 import com.hivemq.extension.sdk.api.annotations.NotNull;
-import com.hivemq.extension.sdk.api.annotations.Nullable;
 import org.apache.commons.text.StringSubstitutor;
-import org.apache.commons.text.lookup.StringLookup;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Substitution {
 
-    private static final Logger log = LoggerFactory.getLogger(Substitution.class);
-
-    private static final String PREFIX = "${{";
-    private static final String SUFFIX = "}}";
-    private static final String ESCAPE_CHAR = "§";
+    private static final @NotNull String PREFIX = "${{";
+    private static final @NotNull String SUFFIX = "}}";
+    private static final @NotNull String ESCAPE_CHAR = "§";
 
     /**
      * Replaces parts enclosed in <code>${{}}</code>
@@ -42,27 +36,21 @@ public class Substitution {
      * @param username actual username
      * @return substituted string
      */
-    @NotNull
-    public static String substitute(
-            @NotNull final String topic, @NotNull final String clientId, @NotNull final String username) {
+    public static @NotNull String substitute(
+            final @NotNull String topic, final @NotNull String clientId, final @NotNull String username) {
+        final StringSubstitutor stringSubstitutor = new StringSubstitutor(key -> {
+            final String lowerCaseKey = key.toLowerCase();
 
-        final StringSubstitutor strSubstitutor = new StringSubstitutor(new StringLookup() {
-            @Nullable
-            @Override
-            public String lookup(@NotNull final String key) {
-                final String lowerCaseKey = key.toLowerCase();
-
-                //replace clientid and username
-                if ("clientid".equals(lowerCaseKey)) {
-                    return clientId;
-                } else if ("username".equals(lowerCaseKey)) {
-                    return username;
-                }
-
-                return null;
+            //replace clientid and username
+            if ("clientid".equals(lowerCaseKey)) {
+                return clientId;
+            } else if ("username".equals(lowerCaseKey)) {
+                return username;
             }
+
+            return null;
         }, PREFIX, SUFFIX, ESCAPE_CHAR.charAt(0));
 
-        return strSubstitutor.replace(topic);
+        return stringSubstitutor.replace(topic);
     }
 }

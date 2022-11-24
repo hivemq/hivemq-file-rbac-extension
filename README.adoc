@@ -5,29 +5,29 @@
 :maven-documentation-profile-link: http://maven.apache.org/guides/introduction/introduction-to-profiles.html
 :hivemq-support: http://www.hivemq.com/support/
 :hivemq-listener: https://www.hivemq.com/docs/hivemq/4.4/user-guide/listeners.html#tcp-listener
+:hivemq-extension-download: https://www.hivemq.com/extension/file-rbac-extension/
 
-== HiveMQ File Role based Access Control Extension
+= HiveMQ File Role based Access Control Extension
 
-*Extension Type*: Security
+image:https://img.shields.io/badge/Extension_Type-Security-orange?style=for-the-badge[Extension Type]
+image:https://img.shields.io/github/v/release/hivemq/hivemq-file-rbac-extension?style=for-the-badge[GitHub release (latest by date),link=https://github.com/hivemq/hivemq-file-rbac-extension/releases/latest]
+image:https://img.shields.io/github/license/hivemq/hivemq-file-rbac-extension?style=for-the-badge&color=brightgreen[GitHub,link=LICENSE]
+image:https://img.shields.io/github/workflow/status/hivemq/hivemq-file-rbac-extension/CI%20Check/master?style=for-the-badge[GitHub Workflow Status (branch),link=https://github.com/hivemq/hivemq-file-rbac-extension/actions/workflows/check.yml?query=branch%3Amaster]
 
-*Version*: 4.5.3
-
-*License*: Apache License 2.0
-
-=== Purpose
+== Purpose
 
 The File Authentication and Authorization Extension implements Access Control based on a configuration file.
 
 This extension implements the configuration for authentication and authorization rules via XML-file.
 These mechanism are important to protect a MQTT deployment, and the data which is exchanged, from unwanted access.
 
-The extension provides fine grained control on a topic level to limit clients to specific topics and specific actions (publish or subscribe).
+The extension provides fine-grained control on a topic level to limit clients to specific topics and specific actions (publish or subscribe).
 Substitution rules for clientId and username allow for dynamic roles to be applied to multiple clients, while still limiting each client to "their own" topics.
 
-=== Features
+== Features
 
 * Username and password based authentication for MQTT Clients
-* Fine grained access control on a topic-filter level
+* Fine-grained access control on a topic-filter level
 * Role based permission management
 * Automatic Substitution of client identifier and username
 * Runtime reload for Credentials and Roles
@@ -35,35 +35,40 @@ Substitution rules for clientId and username allow for dynamic roles to be appli
 * Tooling to generate salted password hashes
 * Option to define a set of listeners the extension is used for
 
-=== Installation
+== Installation
 
-. Unzip the file: `hivemq-file-rbac-extension-<version>-distribution.zip` to the directory: `<HIVEMQ_HOME>/extensions`
-. Configure the extension (`extension-config.xml`) and the credentials (`credentials.xml`).
-. Start HiveMQ
+* Download the extension from the {hivemq-extension-download}[HiveMQ Marketplace^].
+* Copy the content of the zip file to the `extensions` folder of your HiveMQ nodes.
+* Modify the `extension-config.xml` and `credentials.xml` files for your needs.
 
-=== First Steps
+== First Steps
 
-Install the extension. The users and roles from the example configuration files are now applied to all new MQTT connections.
+Install the extension.
+The users and roles from the example configuration files are now applied to all new MQTT connections.
 
-=== Next Steps
+== Next Steps
 
 Setup your custom Users and Roles in the credentials configuration and configure the extension for your specific use case.
 
-CAUTION: Because client identifier and user names can be used for <<substitution,substitution>> in the permissions, MQTT wildcard characters `#` and  `+` are prohibited for client identifier and user names when this extension is used. MQTT connections which include these characters are denied by this extension.
+CAUTION: Because client identifier and usernames can be used for <<substitution,substitution>> in the permissions, MQTT wildcard characters `#` and  `+` are prohibited for client identifier and usernames when this extension is used.
+MQTT connections which include these characters are denied by this extension.
 
 [#configuration]
-=== Configuration
+== Configuration
 
-This extension has two configuration files. The <<extensions-config,extension configuration>> file (`extension-config.xml`) that includes the general configuration for the extension itself.
+This extension has two configuration files.
+The <<extensions-config,extension configuration>> file (`extension-config.xml`) that includes the general configuration for the extension itself.
 And the <<credentials-config,credentials configuration>> file (`credentials.xml`) that includes the configuration of Users, Roles and Permissions.
 
-The credentials configuration file is watched for changes and reloaded at runtime if necessary. If the credentials configuration file has changed and contains a valid configuration, then the previous configuration is automatically archived to an archive folder `credentials-archive` inside the extension folder. So that changes can be tracked and rolled-back if needed.
+The credentials configuration file is watched for changes and reloaded at runtime if necessary.
+If the credentials configuration file has changed and contains a valid configuration, then the previous configuration is automatically archived to an archive folder `credentials-archive` inside the extension folder.
+So that changes can be tracked and rolled-back if needed.
 If the new credentials configuration is invalid the current configuration is maintained.
 
 NOTE: The permissions for connected clients are not changed, only new connecting clients are affected.
 
 [#credentials-config]
-==== Credentials configuration
+=== Credentials configuration
 
 The credentials configuration includes the following settings.
 
@@ -125,8 +130,7 @@ The credentials configuration includes the following settings.
 </file-rbac>
 ----
 
-===== User configuration
-
+=== User configuration
 
 |===
 |Configuration |Description
@@ -146,7 +150,6 @@ java -jar hivemq-file-rbac-extension-4.5.3.jar -p mypassword
 This tool can be used to generate salted password hashes for the extension credentials file (`credentials.xml`).
 A custom salt can be passed with the `-s` parameter, by default a random salt is generated.
 The amount of hashing iteration can be specified with the `-i` parameter.
-
 
 .Example with hashed password
 [source,xml]
@@ -173,19 +176,20 @@ The amount of hashing iteration can be specified with the `-i` parameter.
 </user>
 ----
 
-===== Role configuration
+=== Role configuration
 
 |===
 |Configuration |Description
 |`id` |The ID for this role.
-|`permissions` |A list of permissions which are applied for this role. Permissions are applied and checked by HiveMQ in the order the appear in the configuration file.
+|`permissions` |A list of permissions which are applied for this role. Permissions are applied and checked by HiveMQ in the order they appear in the configuration file.
 |===
 
-===== Permisssion configuration
+=== Permission configuration
 
 |===
 |Configuration |Default |Description
-|`topic` |-|The topic on which this permission should apply. Can contain standard MQTT wildcards `#` and `+`. Also special substitution with `${{clientid}}` and `${{username}}` is supported.
+// suppress inspection "AsciiDocAttributeShouldBeDefined"
+|`topic` |-|The topic on which this permission should apply. Can contain standard MQTT wildcards `#` and `+`. Also, special substitution with `${{clientid}}` and `${{username}}` is supported.
 |`activity` |`ALL` |The activity which this client can perform on this topic. Can be `PUBLISH`, `SUBSCRIBE` or `ALL`.
 |`qos` |`ALL` |The MQTT QoS which this client can publish/subscribe with on this topic. The value can be `ZERO`, `ONE`, `TWO`, `ZERO_ONE`, `ONE_TWO`, `ZERO_TWO` or `ALL`.
 |`retained` |`ALL` |If a message published on this topic can/must be retained. Values are `NOT_RETAINED`, `RETAINED` or `ALL`. This setting is only relevant for PUBLISH messages.
@@ -194,11 +198,15 @@ The amount of hashing iteration can be specified with the `-i` parameter.
 |===
 
 [#substitution]
-===== Substitution
-The special markers `${{clientid}}` and `${{username}}` in the topic filter for a permission are automatically replaced by the extension with the client identifier and username of the client for which authorization is performed. This allows to configure a permission that applies to multiple clients, but always contains their specific client identifier or username in the topic. Limiting each client to "their own" topics.
+=== Substitution
+
+// suppress inspection "AsciiDocAttributeShouldBeDefined"
+The special markers `${{clientid}}` and `${{username}}` in the topic filter for a permission are automatically replaced by the extension with the client identifier and username of the client for which authorization is performed.
+This allows to configure a permission that applies to multiple clients, but always contains their specific client identifier or username in the topic.
+Limiting each client to "their own" topics.
 
 [#extensions-config]
-==== Extension configuration
+=== Extension configuration
 
 The credentials configuration includes the following settings.
 
@@ -229,7 +237,6 @@ The credentials configuration includes the following settings.
 
 ----
 
-
 |===
 |Configuration |Default |Description
 |`credentials-reload-interval` |`60` |Regular interval in seconds, in which the `credentials.xml` configuration file is checked for changes and reloaded.
@@ -243,16 +250,17 @@ fail the authentication.
 
 NOTE: The `listener-names` feature requires the use of at least HiveMQ 4.1 / HiveMQ CE 2020.1
 
-==== Need help?
+== Need Help?
 
-If you encounter any problems, we are happy to help. The best place to get in contact is our {hivemq-support}[support^].
+If you encounter any problems, we are happy to help.
+The best place to get in contact is our {hivemq-support}[support^].
 
-
-= Contributing
+== Contributing
 
 If you want to contribute to HiveMQ File RBAC Extension, see the link:CONTRIBUTING.md[contribution guidelines].
 
-= License
+== License
 
-HiveMQ File RBAC Extension is licensed under the `APACHE LICENSE, VERSION 2.0`. A copy of the license can be found link:LICENSE.txt[here].
+HiveMQ File RBAC Extension is licensed under the `APACHE LICENSE, VERSION 2.0`.
+A copy of the license can be found link:LICENSE[here].
 

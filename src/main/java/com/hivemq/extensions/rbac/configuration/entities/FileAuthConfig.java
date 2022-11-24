@@ -27,21 +27,18 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import java.util.List;
 
-
 @XmlRootElement(name = "file-rbac")
 @XmlType(propOrder = {})
 @XmlAccessorType(XmlAccessType.FIELD)
 public class FileAuthConfig {
 
-    @Nullable
     @XmlElementWrapper(name = "users")
     @XmlElement(name = "user")
-    private List<User> users;
+    private @Nullable List<User> users;
 
-    @Nullable
     @XmlElementWrapper(name = "roles")
     @XmlElement(name = "role")
-    private List<Role> roles;
+    private @Nullable List<Role> roles;
 
     public FileAuthConfig() {
     }
@@ -51,8 +48,7 @@ public class FileAuthConfig {
         this.roles = roles;
     }
 
-    @Nullable
-    public List<User> getUsers() {
+    public @Nullable List<User> getUsers() {
         return users;
     }
 
@@ -60,8 +56,7 @@ public class FileAuthConfig {
         this.users = users;
     }
 
-    @Nullable
-    public List<Role> getRoles() {
+    public @Nullable List<Role> getRoles() {
         return roles;
     }
 
@@ -69,9 +64,8 @@ public class FileAuthConfig {
         this.roles = roles;
     }
 
-    @NotNull
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "Config{" + "users=" + users + ", roles=" + roles + '}';
     }
 }

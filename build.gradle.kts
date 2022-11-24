@@ -55,13 +55,12 @@ hivemqExtension.resources {
 /* ******************** test ******************** */
 
 dependencies {
-    testImplementation("junit:junit:${property("junit.version")}")
-    testImplementation("org.powermock:powermock-api-mockito2:${property("powermock.version")}")
-    testImplementation("org.powermock:powermock-module-junit4:${property("powermock.version")}")
+    testImplementation("org.junit.jupiter:junit-jupiter:${property("junit-jupiter.version")}")
+    testImplementation("org.mockito:mockito-core:${property("mockito.version")}")
 }
 
 tasks.withType<Test>().configureEach {
-    useJUnit()
+    useJUnitPlatform()
 }
 
 tasks.processTestResources {

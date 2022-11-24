@@ -27,7 +27,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import java.util.Set;
 
-
 @XmlRootElement(name = "extension-configuration")
 @XmlType(propOrder = {})
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -36,14 +35,12 @@ public class ExtensionConfig {
     @XmlElement(name = "credentials-reload-interval", defaultValue = "60")
     private int reloadInterval = 60;
 
-    @Nullable
     @XmlElementWrapper(name = "listener-names")
     @XmlElement(name = "listener-name")
-    private Set<String> listenerNames;
+    private @Nullable Set<String> listenerNames;
 
-    @NotNull
     @XmlElement(name = "password-type", defaultValue = "HASHED")
-    private PasswordType passwordType = PasswordType.HASHED;
+    private @Nullable PasswordType passwordType = PasswordType.HASHED;
 
     @XmlElement(name = "next-extension-instead-of-fail", defaultValue = "false")
     private boolean nextExtensionInsteadOfFail = false;
@@ -53,8 +50,8 @@ public class ExtensionConfig {
 
     public ExtensionConfig(
             final int reloadInterval,
-            final Set<String> listenerNames,
-            final @NotNull PasswordType passwordType,
+            final @Nullable Set<String> listenerNames,
+            final @Nullable PasswordType passwordType,
             final boolean nextExtensionInsteadOfFail) {
         this.reloadInterval = reloadInterval;
         this.listenerNames = listenerNames;
@@ -74,15 +71,11 @@ public class ExtensionConfig {
         return listenerNames;
     }
 
-    public void setListenerNames(Set<String> listenerNames) {
-        this.listenerNames = listenerNames;
-    }
-
-    public @NotNull PasswordType getPasswordType() {
+    public @Nullable PasswordType getPasswordType() {
         return passwordType;
     }
 
-    public void setPasswordType(final @NotNull PasswordType passwordType) {
+    public void setPasswordType(final @Nullable PasswordType passwordType) {
         this.passwordType = passwordType;
     }
 
@@ -91,7 +84,7 @@ public class ExtensionConfig {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "ExtensionConfig{" +
                 "reloadInterval=" +
                 reloadInterval +

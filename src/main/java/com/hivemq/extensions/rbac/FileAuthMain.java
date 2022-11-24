@@ -32,20 +32,18 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
+@SuppressWarnings("unused")
 public class FileAuthMain implements ExtensionMain {
 
-    private static final @NotNull Logger log = LoggerFactory.getLogger(FileAuthMain.class);
+    private static final @NotNull Logger LOG = LoggerFactory.getLogger(FileAuthMain.class);
 
     @Override
     public void extensionStart(
             final @NotNull ExtensionStartInput extensionStartInput,
             final @NotNull ExtensionStartOutput extensionStartOutput) {
-
-        log.info("Starting File RBAC extension.");
-
+        LOG.info("Starting File RBAC extension.");
         try {
             final File extensionHomeFolder = extensionStartInput.getExtensionInformation().getExtensionHomeFolder();
-
             final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(extensionHomeFolder);
 
             final Configuration configuration = new Configuration(extensionHomeFolder,
@@ -62,18 +60,15 @@ public class FileAuthMain implements ExtensionMain {
 
             Services.securityRegistry()
                     .setAuthenticatorProvider(new FileAuthenticatorProvider(credentialsValidator, extensionConfig));
-
-        } catch (Exception e) {
-            log.error("Exception thrown at extension start: ", e);
+        } catch (final Exception e) {
+            LOG.error("Exception thrown at extension start: ", e);
         }
-
     }
 
     @Override
     public void extensionStop(
             final @NotNull ExtensionStopInput extensionStopInput,
             final @NotNull ExtensionStopOutput extensionStopOutput) {
-        log.info("Stopping File RBAC extension.");
+        LOG.info("Stopping File RBAC extension.");
     }
-
 }

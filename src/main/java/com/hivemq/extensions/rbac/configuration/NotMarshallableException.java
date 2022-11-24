@@ -16,16 +16,15 @@
  */
 package com.hivemq.extensions.rbac.configuration;
 
-public class NotMarshallableException extends Exception {
-    public NotMarshallableException() {
-    }
+import com.hivemq.extension.sdk.api.annotations.NotNull;
 
-    public NotMarshallableException(String message) {
+class NotMarshallableException extends Exception {
+
+    NotMarshallableException(final @NotNull String message) {
         super(message);
     }
 
-    public NotMarshallableException(String message, Throwable cause) {
+    NotMarshallableException(final @NotNull String message, final @NotNull Throwable cause) {
         super(message, cause);
     }
-
 }

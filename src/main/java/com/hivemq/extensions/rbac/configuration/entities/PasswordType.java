@@ -16,7 +16,6 @@
  */
 package com.hivemq.extensions.rbac.configuration.entities;
 
-
 public enum PasswordType {
     HASHED,
     PLAIN

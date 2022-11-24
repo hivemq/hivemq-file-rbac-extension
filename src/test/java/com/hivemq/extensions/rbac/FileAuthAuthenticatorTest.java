@@ -37,10 +37,8 @@ import com.hivemq.extension.sdk.api.packets.general.MqttVersion;
 import com.hivemq.extension.sdk.api.packets.general.UserProperties;
 import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.utils.CredentialsValidator;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
@@ -50,7 +48,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -58,170 +56,165 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+class FileAuthAuthenticatorTest {
 
-@SuppressWarnings("ConstantConditions")
-public class FileAuthAuthenticatorTest {
+    private @NotNull CredentialsValidator credentialsValidator;
+    private @NotNull ExtensionConfig extensionConfig;
+    private @NotNull FileAuthAuthenticator fileAuthAuthenticator;
+    private @NotNull ModifiableDefaultPermissions modifiableDefaultPermissions;
+    private @NotNull SimpleAuthOutput simpleAuthOutput;
 
-    @Mock
-    private CredentialsValidator credentialsValidator;
-    private FileAuthAuthenticator fileAuthAuthenticator;
 
-    @Mock
-    private ExtensionConfig extensionConfig;
-
-    @Mock
-    private SimpleAuthOutput output;
-
-    private ModifiableDefaultPermissions permissions;
-
-    @Before
-    public void before() {
-        MockitoAnnotations.initMocks(this);
+    @BeforeEach
+    void before() {
+        credentialsValidator = mock(CredentialsValidator.class);
+        extensionConfig = mock(ExtensionConfig.class);
         fileAuthAuthenticator = new FileAuthAuthenticator(credentialsValidator, extensionConfig);
-        permissions = new TestDefaultPermissions();
+        modifiableDefaultPermissions = new TestDefaultPermissions();
         when(credentialsValidator.getPermissions(anyString(), anyString(), anyList())).thenReturn(List.of(mock(
                 TopicPermission.class), mock(TopicPermission.class)));
-        when(output.getDefaultPermissions()).thenReturn(permissions);
+        simpleAuthOutput = mock(SimpleAuthOutput.class);
+        when(simpleAuthOutput.getDefaultPermissions()).thenReturn(modifiableDefaultPermissions);
     }
 
     @Test
-    public void test_wrong_listener_name() {
+    void test_wrong_listener_name() {
         when(extensionConfig.getListenerNames()).thenReturn(Set.of("listener-3", "listener-2"));
-        fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", "pass1", "listener-1"), output);
-        verify(output).nextExtensionOrDefault();
+        fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", "pass1", "listener-1"), simpleAuthOutput);
+        verify(simpleAuthOutput).nextExtensionOrDefault();
     }
 
     @Test
-    public void test_connect_with_empty_username() {
+    void test_connect_with_empty_username() {
         when(extensionConfig.getListenerNames()).thenReturn(Set.of("listener-3", "listener-2"));
-        fileAuthAuthenticator.onConnect(new TestInput("client1", null, "pass1", "listener-2"), output);
-        verify(output).failAuthentication(ConnackReasonCode.BAD_USER_NAME_OR_PASSWORD,
+        fileAuthAuthenticator.onConnect(new TestInput("client1", null, "pass1", "listener-2"), simpleAuthOutput);
+        verify(simpleAuthOutput).failAuthentication(ConnackReasonCode.BAD_USER_NAME_OR_PASSWORD,
                 "Authentication failed because username or password are missing");
     }
 
     @Test
-    public void test_connect_with_empty_username_but_nextExtensionOrDefault() {
+    void test_connect_with_empty_username_but_nextExtensionOrDefault() {
         when(extensionConfig.isNextExtensionInsteadOfFail()).thenReturn(true);
         when(extensionConfig.getListenerNames()).thenReturn(Set.of("listener-3", "listener-2"));
-        fileAuthAuthenticator.onConnect(new TestInput("client1", null, "pass1", "listener-2"), output);
-        verify(output).nextExtensionOrDefault();
+        fileAuthAuthenticator.onConnect(new TestInput("client1", null, "pass1", "listener-2"), simpleAuthOutput);
+        verify(simpleAuthOutput).nextExtensionOrDefault();
     }
 
     @Test
-    public void test_connect_with_empty_password() {
-        fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", null), output);
-        verify(output).failAuthentication(ConnackReasonCode.BAD_USER_NAME_OR_PASSWORD,
+    void test_connect_with_empty_password() {
+        fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", null), simpleAuthOutput);
+        verify(simpleAuthOutput).failAuthentication(ConnackReasonCode.BAD_USER_NAME_OR_PASSWORD,
                 "Authentication failed because username or password are missing");
     }
 
     @Test
-    public void test_connect_with_empty_password_but_nextExtensionOrDefault() {
+    void test_connect_with_empty_password_but_nextExtensionOrDefault() {
         when(extensionConfig.isNextExtensionInsteadOfFail()).thenReturn(true);
-        fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", null), output);
-        verify(output).nextExtensionOrDefault();
+        fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", null), simpleAuthOutput);
+        verify(simpleAuthOutput).nextExtensionOrDefault();
     }
 
     @Test
-    public void test_connect_with_wildcard_username() {
-        fileAuthAuthenticator.onConnect(new TestInput("client1", "client/#", "pass1"), output);
-        verify(output).failAuthentication(ConnackReasonCode.BAD_USER_NAME_OR_PASSWORD,
+    void test_connect_with_wildcard_username() {
+        fileAuthAuthenticator.onConnect(new TestInput("client1", "client/#", "pass1"), simpleAuthOutput);
+        verify(simpleAuthOutput).failAuthentication(ConnackReasonCode.BAD_USER_NAME_OR_PASSWORD,
                 "The characters '#' and '+' are not allowed in the username");
     }
 
     @Test
-    public void test_connect_with_wildcard_username_but_nextExtensionOrDefault() {
+    void test_connect_with_wildcard_username_but_nextExtensionOrDefault() {
         when(extensionConfig.isNextExtensionInsteadOfFail()).thenReturn(true);
-        fileAuthAuthenticator.onConnect(new TestInput("client1", "client/#", "pass1"), output);
-        verify(output).nextExtensionOrDefault();
+        fileAuthAuthenticator.onConnect(new TestInput("client1", "client/#", "pass1"), simpleAuthOutput);
+        verify(simpleAuthOutput).nextExtensionOrDefault();
     }
 
     @Test
-    public void test_connect_with_wildcard_plus_username() {
-        fileAuthAuthenticator.onConnect(new TestInput("client1", "+/client", "pass1"), output);
-        verify(output).failAuthentication(ConnackReasonCode.BAD_USER_NAME_OR_PASSWORD,
+    void test_connect_with_wildcard_plus_username() {
+        fileAuthAuthenticator.onConnect(new TestInput("client1", "+/client", "pass1"), simpleAuthOutput);
+        verify(simpleAuthOutput).failAuthentication(ConnackReasonCode.BAD_USER_NAME_OR_PASSWORD,
                 "The characters '#' and '+' are not allowed in the username");
     }
 
     @Test
-    public void test_connect_with_wildcard_plus_username_but_nextExtensionOrDefault() {
+    void test_connect_with_wildcard_plus_username_but_nextExtensionOrDefault() {
         when(extensionConfig.isNextExtensionInsteadOfFail()).thenReturn(true);
-        fileAuthAuthenticator.onConnect(new TestInput("client1", "+/client", "pass1"), output);
-        verify(output).nextExtensionOrDefault();
+        fileAuthAuthenticator.onConnect(new TestInput("client1", "+/client", "pass1"), simpleAuthOutput);
+        verify(simpleAuthOutput).nextExtensionOrDefault();
     }
 
     @Test
-    public void test_connect_with_wildcard_clientid() {
-        fileAuthAuthenticator.onConnect(new TestInput("client/#", "user1", "pass1"), output);
-        verify(output).failAuthentication(ConnackReasonCode.CLIENT_IDENTIFIER_NOT_VALID,
+    void test_connect_with_wildcard_clientid() {
+        fileAuthAuthenticator.onConnect(new TestInput("client/#", "user1", "pass1"), simpleAuthOutput);
+        verify(simpleAuthOutput).failAuthentication(ConnackReasonCode.CLIENT_IDENTIFIER_NOT_VALID,
                 "The characters '#' and '+' are not allowed in the client identifier");
     }
 
     @Test
-    public void test_connect_with_wildcard_clientid_but_nextExtensionOrDefault() {
+    void test_connect_with_wildcard_clientid_but_nextExtensionOrDefault() {
         when(extensionConfig.isNextExtensionInsteadOfFail()).thenReturn(true);
-        fileAuthAuthenticator.onConnect(new TestInput("client/#", "user1", "pass1"), output);
-        verify(output).nextExtensionOrDefault();
+        fileAuthAuthenticator.onConnect(new TestInput("client/#", "user1", "pass1"), simpleAuthOutput);
+        verify(simpleAuthOutput).nextExtensionOrDefault();
     }
 
     @Test
-    public void test_connect_with_wildcard_plus_clientid() {
-        fileAuthAuthenticator.onConnect(new TestInput("+/client", "user1", "pass1"), output);
-        verify(output).failAuthentication(ConnackReasonCode.CLIENT_IDENTIFIER_NOT_VALID,
+    void test_connect_with_wildcard_plus_clientid() {
+        fileAuthAuthenticator.onConnect(new TestInput("+/client", "user1", "pass1"), simpleAuthOutput);
+        verify(simpleAuthOutput).failAuthentication(ConnackReasonCode.CLIENT_IDENTIFIER_NOT_VALID,
                 "The characters '#' and '+' are not allowed in the client identifier");
     }
 
     @Test
-    public void test_connect_with_wildcard_plus_clientid_but_nextExtensionOrDefault() {
+    void test_connect_with_wildcard_plus_clientid_but_nextExtensionOrDefault() {
         when(extensionConfig.isNextExtensionInsteadOfFail()).thenReturn(true);
-        fileAuthAuthenticator.onConnect(new TestInput("+/client", "user1", "pass1"), output);
-        verify(output).nextExtensionOrDefault();
+        fileAuthAuthenticator.onConnect(new TestInput("+/client", "user1", "pass1"), simpleAuthOutput);
+        verify(simpleAuthOutput).nextExtensionOrDefault();
     }
 
     @Test
-    public void test_connect_with_invalid_credentials() {
+    void test_connect_with_invalid_credentials() {
         when(credentialsValidator.getRoles(anyString(), any(ByteBuffer.class))).thenReturn(null);
         when(extensionConfig.getListenerNames()).thenReturn(Set.of("listener-3", "listener-2"));
-        fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", "pass1", "listener-2"), output);
-        verify(output).failAuthentication(ConnackReasonCode.NOT_AUTHORIZED,
+        fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", "pass1", "listener-2"), simpleAuthOutput);
+        verify(simpleAuthOutput).failAuthentication(ConnackReasonCode.NOT_AUTHORIZED,
                 "Authentication failed because of invalid credentials");
     }
 
     @Test
-    public void test_connect_with_invalid_credentials_but_nextExtensionOrDefault() {
+    void test_connect_with_invalid_credentials_but_nextExtensionOrDefault() {
         when(extensionConfig.isNextExtensionInsteadOfFail()).thenReturn(true);
         when(credentialsValidator.getRoles(anyString(), any(ByteBuffer.class))).thenReturn(null);
         when(extensionConfig.getListenerNames()).thenReturn(Set.of("listener-3", "listener-2"));
-        fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", "pass1", "listener-2"), output);
-        verify(output).nextExtensionOrDefault();
+        fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", "pass1", "listener-2"), simpleAuthOutput);
+        verify(simpleAuthOutput).nextExtensionOrDefault();
     }
 
     @Test
-    public void test_connect_with_valid_credentials_empty_roles() {
+    void test_connect_with_valid_credentials_empty_roles() {
         when(credentialsValidator.getRoles(anyString(), any(ByteBuffer.class))).thenReturn(List.of());
-        fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", "pass1"), output);
-        verify(output).failAuthentication(ConnackReasonCode.NOT_AUTHORIZED,
+        fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", "pass1"), simpleAuthOutput);
+        verify(simpleAuthOutput).failAuthentication(ConnackReasonCode.NOT_AUTHORIZED,
                 "Authentication failed because of invalid credentials");
     }
 
     @Test
-    public void test_connect_with_valid_credentials_empty_roles_but_nextExtensionOrDefault() {
+    void test_connect_with_valid_credentials_empty_roles_but_nextExtensionOrDefault() {
         when(extensionConfig.isNextExtensionInsteadOfFail()).thenReturn(true);
         when(credentialsValidator.getRoles(anyString(), any(ByteBuffer.class))).thenReturn(List.of());
-        fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", "pass1"), output);
-        verify(output).nextExtensionOrDefault();
+        fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", "pass1"), simpleAuthOutput);
+        verify(simpleAuthOutput).nextExtensionOrDefault();
     }
 
     @Test
-    public void test_connect_with_valid_credentials() {
+    void test_connect_with_valid_credentials() {
         when(credentialsValidator.getRoles(anyString(), any(ByteBuffer.class))).thenReturn(List.of("role1", "role2"));
-        fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", "pass1"), output);
-        verify(output).authenticateSuccessfully();
-        assertEquals(2, permissions.asList().size());
+        fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", "pass1"), simpleAuthOutput);
+        verify(simpleAuthOutput).authenticateSuccessfully();
+        assertEquals(2, modifiableDefaultPermissions.asList().size());
     }
 
     private static class TestDefaultPermissions implements ModifiableDefaultPermissions {
 
-        private List<TopicPermission> permissions = new ArrayList<>();
+        private final @NotNull List<TopicPermission> permissions = new ArrayList<>();
 
         @Override
         public @NotNull List<TopicPermission> asList() {
@@ -229,17 +222,17 @@ public class FileAuthAuthenticatorTest {
         }
 
         @Override
-        public void add(@NotNull final TopicPermission permission) {
+        public void add(final @NotNull TopicPermission permission) {
             permissions.add(permission);
         }
 
         @Override
-        public void addAll(@NotNull final Collection<? extends TopicPermission> permissions) {
+        public void addAll(final @NotNull Collection<? extends TopicPermission> permissions) {
             this.permissions.addAll(permissions);
         }
 
         @Override
-        public void remove(@NotNull final TopicPermission permission) {
+        public void remove(final @NotNull TopicPermission permission) {
             permissions.remove(permission);
         }
 
@@ -254,32 +247,31 @@ public class FileAuthAuthenticatorTest {
         }
 
         @Override
-        public void setDefaultBehaviour(@NotNull final DefaultAuthorizationBehaviour defaultBehaviour) {
+        public void setDefaultBehaviour(final @NotNull DefaultAuthorizationBehaviour defaultBehaviour) {
 
         }
     }
 
-    @SuppressWarnings("ConstantConditions")
-    private class TestInput implements SimpleAuthInput {
+    private static class TestInput implements SimpleAuthInput {
 
         private final @NotNull String clientId;
         private final @Nullable String userName;
         private final @Nullable String password;
-        private final @Nullable String listenerName;
+        private final @NotNull String listenerName;
 
         private TestInput(
                 final @NotNull String clientId, final @Nullable String userName, final @Nullable String password) {
             this.clientId = clientId;
             this.userName = userName;
             this.password = password;
-            this.listenerName = null;
+            this.listenerName = "testName";
         }
 
         private TestInput(
                 final @NotNull String clientId,
                 final @Nullable String userName,
                 final @Nullable String password,
-                final @Nullable String listenerName) {
+                final @NotNull String listenerName) {
             this.clientId = clientId;
             this.userName = userName;
             this.password = password;
@@ -302,17 +294,17 @@ public class FileAuthAuthenticatorTest {
         }
     }
 
-    private class TestConnectionInformation implements ConnectionInformation {
+    private static class TestConnectionInformation implements ConnectionInformation {
 
-        private final @Nullable String listenerName;
+        private final @NotNull String listenerName;
 
-        TestConnectionInformation(String listenerName) {
+        TestConnectionInformation(final @NotNull String listenerName) {
             this.listenerName = listenerName;
         }
 
         @Override
         public @NotNull MqttVersion getMqttVersion() {
-            return null;
+            return mock(MqttVersion.class);
         }
 
         @Override
@@ -330,12 +322,12 @@ public class FileAuthAuthenticatorTest {
 
                 @Override
                 public @NotNull String getBindAddress() {
-                    return null;
+                    return mock(String.class);
                 }
 
                 @Override
                 public @NotNull ListenerType getListenerType() {
-                    return null;
+                    return mock(ListenerType.class);
                 }
 
                 @Override
@@ -352,7 +344,7 @@ public class FileAuthAuthenticatorTest {
 
         @Override
         public @NotNull ConnectionAttributeStore getConnectionAttributeStore() {
-            return null;
+            return mock(ConnectionAttributeStore.class);
         }
 
         @Override
@@ -361,8 +353,7 @@ public class FileAuthAuthenticatorTest {
         }
     }
 
-    @SuppressWarnings("ConstantConditions")
-    private class TestConnectPacket implements ConnectPacket {
+    private static class TestConnectPacket implements ConnectPacket {
 
         private final @NotNull String clientId;
         private final @Nullable String userName;
@@ -377,7 +368,7 @@ public class FileAuthAuthenticatorTest {
 
         @Override
         public @NotNull MqttVersion getMqttVersion() {
-            return null;
+            return mock(MqttVersion.class);
         }
 
         @Override
@@ -442,7 +433,7 @@ public class FileAuthAuthenticatorTest {
 
         @Override
         public @NotNull UserProperties getUserProperties() {
-            return null;
+            return mock(UserProperties.class);
         }
 
         @Override
