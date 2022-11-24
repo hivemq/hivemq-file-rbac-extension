@@ -27,66 +27,44 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import java.util.List;
 
-
 @XmlRootElement
 @XmlType(propOrder = {})
 @XmlAccessorType(XmlAccessType.FIELD)
 public class User {
 
-    @Nullable
     @XmlElement(name = "name", required = true)
-    private String name;
+    private @Nullable String name;
 
-    @Nullable
     @XmlElement(name = "password", required = true)
-    private String password;
+    private @Nullable String password;
 
-    @Nullable
     @XmlElementWrapper(name = "roles")
     @XmlElement(name = "id")
-    private List<String> roles;
-
+    private @Nullable List<String> roles;
 
     public User() {
     }
 
-    public User(@NotNull final String name, @NotNull final String password, @NotNull final List<String> roles) {
+    public User(final @Nullable String name, final @Nullable String password, final @Nullable List<String> roles) {
         this.name = name;
         this.password = password;
         this.roles = roles;
     }
 
-    @Nullable
-    public String getName() {
+    public @Nullable String getName() {
         return name;
     }
 
-    public void setName(@NotNull final String name) {
-        this.name = name;
-    }
-
-    @Nullable
-    public String getPassword() {
+    public @Nullable String getPassword() {
         return password;
     }
 
-    public void setPassword(@NotNull final String password) {
-        this.password = password;
-    }
-
-    @Nullable
-    public List<String> getRoles() {
+    public @Nullable List<String> getRoles() {
         return roles;
     }
 
-    public void setRoles(@NotNull final List<String> roles) {
-        this.roles = roles;
-    }
-
-    @NotNull
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "User{" + "name='" + name + '\'' + ", password='" + password + '\'' + ", roles=" + roles + '}';
     }
-
 }

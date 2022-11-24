@@ -26,49 +26,35 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
 import java.util.List;
 
-
 @XmlType(propOrder = {})
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Role {
 
-    @Nullable
     @XmlElement(name = "id")
-    private String id;
+    private @Nullable String id;
 
-    @Nullable
     @XmlElementWrapper(name = "permissions")
     @XmlElement(name = "permission")
-    private List<Permission> permissions;
+    private @Nullable List<Permission> permissions;
 
     public Role() {
     }
 
-    public Role(@NotNull final String id, @NotNull final List<Permission> permissions) {
+    public Role(final @Nullable String id, final @Nullable List<Permission> permissions) {
         this.id = id;
         this.permissions = permissions;
     }
 
-    @Nullable
-    public String getId() {
+    public @Nullable String getId() {
         return id;
     }
 
-    public void setId(@NotNull final String id) {
-        this.id = id;
-    }
-
-    @Nullable
-    public List<Permission> getPermissions() {
+    public @Nullable List<Permission> getPermissions() {
         return permissions;
     }
 
-    public void setPermissions(@NotNull final List<Permission> permissions) {
-        this.permissions = permissions;
-    }
-
-    @NotNull
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "Role{" + "id='" + id + '\'' + ", permissions=" + permissions + '}';
     }
 }

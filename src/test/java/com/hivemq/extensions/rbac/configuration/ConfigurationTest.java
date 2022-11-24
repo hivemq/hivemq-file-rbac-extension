@@ -17,12 +17,10 @@
 package com.hivemq.extensions.rbac.configuration;
 
 import com.hivemq.extension.sdk.api.annotations.NotNull;
-import com.hivemq.extension.sdk.api.annotations.Nullable;
 import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
-import com.hivemq.extensions.rbac.configuration.entities.FileAuthConfig;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,108 +33,77 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+class ConfigurationTest {
 
-public class ConfigurationTest {
+    private @NotNull File extensionFolder;
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
+    @BeforeEach
+    void setUp(@TempDir final @NotNull File extensionFolder) {
+        this.extensionFolder = extensionFolder;
+    }
 
     @Test
-    public void test_create_file_before_it_does_not_exit() throws Exception {
-
+    void test_create_file_before_it_does_not_exit() throws Exception {
         final ExtensionConfig extensionConfig = new ExtensionConfig();
         extensionConfig.setReloadInterval(1);
         final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
         final Configuration configuration =
-                new Configuration(temporaryFolder.getRoot(), scheduledExecutorService, extensionConfig);
-
+                new Configuration(extensionFolder, scheduledExecutorService, extensionConfig);
         configuration.init();
-
         final CountDownLatch latch = new CountDownLatch(1);
-        configuration.addReloadCallback(new Configuration.ReloadCallback() {
-            @Override
-            public void onReload(@Nullable final FileAuthConfig oldConfig, @NotNull final FileAuthConfig newConfig) {
-                latch.countDown();
-            }
-        });
-
+        configuration.addReloadCallback((oldConfig, newConfig) -> latch.countDown());
         //Create a new file
         createCredentialsConfig();
-
-
         //Check if reload was called
         assertTrue(latch.await(30, TimeUnit.SECONDS));
-
         assertNotNull(configuration.getCurrentConfig());
-
         scheduledExecutorService.shutdown();
     }
 
     @Test
-    public void test_reload_invalid_config() throws Exception {
-
+    void test_reload_invalid_config() throws Exception {
         final ExtensionConfig extensionConfig = new ExtensionConfig();
         extensionConfig.setReloadInterval(1);
         final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
         final Configuration configuration =
-                new Configuration(temporaryFolder.getRoot(), scheduledExecutorService, extensionConfig);
-
+                new Configuration(extensionFolder, scheduledExecutorService, extensionConfig);
         //Create a new file
         createCredentialsConfig();
-
         configuration.init();
-
-        final File configFile = new File(temporaryFolder.getRoot(), Configuration.CONFIG_NAME);
-        configFile.delete();
-
+        final File configFile = new File(extensionFolder, Configuration.CONFIG_NAME);
+        assertTrue(configFile.delete());
         final CountDownLatch latch = new CountDownLatch(1);
-        configuration.addReloadCallback(new Configuration.ReloadCallback() {
-            @Override
-            public void onReload(@Nullable final FileAuthConfig oldConfig, @NotNull final FileAuthConfig newConfig) {
-                latch.countDown();
-            }
-        });
-
+        configuration.addReloadCallback((oldConfig, newConfig) -> latch.countDown());
         //Check if reload was called
         assertFalse(latch.await(5, TimeUnit.SECONDS));
-
         assertNotNull(configuration.getCurrentConfig());
-
         scheduledExecutorService.shutdown();
     }
 
     @Test
-    public void test_init() throws Exception {
-
+    void test_init() throws Exception {
         final ExtensionConfig extensionConfig = new ExtensionConfig();
         extensionConfig.setReloadInterval(1);
         final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
         final Configuration configuration =
-                new Configuration(temporaryFolder.getRoot(), scheduledExecutorService, extensionConfig);
-
+                new Configuration(extensionFolder, scheduledExecutorService, extensionConfig);
         createCredentialsConfig();
-
         configuration.init();
-
         assertNotNull(configuration.getCurrentConfig());
-
         scheduledExecutorService.shutdown();
     }
 
     private void createCredentialsConfig() throws URISyntaxException, IOException {
         //Create a new file
-        final File configFile = new File(temporaryFolder.getRoot(), Configuration.CONFIG_NAME);
-
-        //copy config
+        final File configFile = new File(extensionFolder, Configuration.CONFIG_NAME);
+        //Copy config
         final URL resource = this.getClass().getClassLoader().getResource("credentials.xml");
+        assertNotNull(resource);
         final File file = new File(resource.toURI());
         Files.copy(file.toPath(), configFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
-
-
 }

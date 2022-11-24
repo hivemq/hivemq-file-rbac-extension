@@ -33,18 +33,18 @@ import java.io.IOException;
 
 
 @ThreadSafe
-public class XmlParser {
+class XmlParser {
 
-    private static final Logger log = LoggerFactory.getLogger(XmlParser.class);
+    private static final @NotNull Logger LOG = LoggerFactory.getLogger(XmlParser.class);
 
     //jaxb context is thread safe
     private final @NotNull JAXBContext jaxb;
 
-    public XmlParser() {
+    XmlParser() {
         try {
             jaxb = JAXBContext.newInstance(FileAuthConfig.class, User.class, ExtensionConfig.class);
-        } catch (JAXBException e) {
-            log.error("Error in the File Auth Extension. Could not initialize XML parser", e);
+        } catch (final JAXBException e) {
+            LOG.error("Error in the File Auth Extension. Could not initialize XML parser", e);
             throw new RuntimeException(e);
         }
     }
@@ -58,19 +58,16 @@ public class XmlParser {
      * @param file   the file where the XML should be written to
      * @throws NotMarshallableException if the XML cannot be marshalled
      */
-    public void marshal(@NotNull final FileAuthConfig config, @NotNull final File file)
+    void marshal(final @NotNull FileAuthConfig config, final @NotNull File file)
             throws NotMarshallableException {
-
         if (file.isDirectory()) {
             throw new NotMarshallableException("Could not write config to file " +
                     file.getAbsolutePath() +
                     " because it's a directory");
         }
-
         if (file.exists()) {
             throw new NotMarshallableException("File " + file.getAbsolutePath() + " already exists");
         }
-
         if (file.canWrite()) {
             throw new NotMarshallableException("Could not write config to file " +
                     file.getAbsolutePath() +
@@ -81,35 +78,26 @@ public class XmlParser {
             final Marshaller marshaller = jaxb.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             marshaller.marshal(config, file);
-        } catch (JAXBException e) {
+        } catch (final JAXBException e) {
             throw new NotMarshallableException("Could not write config to file " + file.getAbsolutePath(), e);
-
         }
-
     }
 
-    @NotNull
-    public FileAuthConfig unmarshalFileAuthConfig(@NotNull final File file) throws IOException {
-
+    @NotNull FileAuthConfig unmarshalFileAuthConfig(final @NotNull File file) throws IOException {
         try {
             final Unmarshaller unmarshaller = jaxb.createUnmarshaller();
             return (FileAuthConfig) unmarshaller.unmarshal(file);
-        } catch (JAXBException e) {
+        } catch (final JAXBException e) {
             throw new IOException(e);
         }
-
     }
 
-    @NotNull
-    public ExtensionConfig unmarshalExtensionConfig(@NotNull final File file) throws IOException {
-
+    @NotNull ExtensionConfig unmarshalExtensionConfig(final @NotNull File file) throws IOException {
         try {
             final Unmarshaller unmarshaller = jaxb.createUnmarshaller();
             return (ExtensionConfig) unmarshaller.unmarshal(file);
-        } catch (JAXBException e) {
+        } catch (final JAXBException e) {
             throw new IOException(e);
         }
-
     }
-
 }

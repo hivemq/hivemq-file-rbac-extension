@@ -24,19 +24,18 @@ import com.hivemq.extension.sdk.api.services.auth.provider.AuthenticatorProvider
 import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.utils.CredentialsValidator;
 
-public class FileAuthenticatorProvider implements AuthenticatorProvider {
+class FileAuthenticatorProvider implements AuthenticatorProvider {
 
     private final @NotNull FileAuthAuthenticator authenticator;
 
     FileAuthenticatorProvider(
-            @NotNull final CredentialsValidator credentialsValidator, @NotNull final ExtensionConfig extensionConfig) {
+            final @NotNull CredentialsValidator credentialsValidator, final @NotNull ExtensionConfig extensionConfig) {
         this.authenticator = new FileAuthAuthenticator(credentialsValidator, extensionConfig);
     }
 
     @Override
-    public @Nullable Authenticator getAuthenticator(@NotNull final AuthenticatorProviderInput authenticatorProviderInput) {
+    public @Nullable Authenticator getAuthenticator(final @NotNull AuthenticatorProviderInput authenticatorProviderInput) {
         //Always return the same authenticator, because it is thread-safe and can be shared between multiple clients
         return authenticator;
     }
-
 }

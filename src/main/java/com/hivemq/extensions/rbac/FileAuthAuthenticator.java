@@ -32,10 +32,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public class FileAuthAuthenticator implements SimpleAuthenticator {
+class FileAuthAuthenticator implements SimpleAuthenticator {
 
     private final @NotNull CredentialsValidator credentialsValidator;
-
     private final @NotNull ExtensionConfig extensionConfig;
 
     FileAuthAuthenticator(
@@ -46,7 +45,7 @@ public class FileAuthAuthenticator implements SimpleAuthenticator {
 
     @Override
     public void onConnect(
-            @NotNull final SimpleAuthInput simpleAuthInput, @NotNull final SimpleAuthOutput simpleAuthOutput) {
+            final @NotNull SimpleAuthInput simpleAuthInput, final @NotNull SimpleAuthOutput simpleAuthOutput) {
         final boolean nextExtensionInsteadOfFail = extensionConfig.isNextExtensionInsteadOfFail();
         final Set<String> listenerNames = extensionConfig.getListenerNames();
         final Optional<Listener> connectedListenerOptional = simpleAuthInput.getConnectionInformation().getListener();
@@ -64,7 +63,7 @@ public class FileAuthAuthenticator implements SimpleAuthenticator {
         final String clientId = simpleAuthInput.getClientInformation().getClientId();
 
         //check if username and password are present
-        if (!userNameOptional.isPresent() || !passwordOptional.isPresent()) {
+        if (userNameOptional.isEmpty() || passwordOptional.isEmpty()) {
             //client is not authenticated
             if (nextExtensionInsteadOfFail) {
                 simpleAuthOutput.nextExtensionOrDefault();
@@ -100,7 +99,6 @@ public class FileAuthAuthenticator implements SimpleAuthenticator {
             return;
         }
 
-
         //check if we have any roles for username/password combination
         final List<String> roles = credentialsValidator.getRoles(userName, passwordOptional.get());
 
@@ -122,5 +120,4 @@ public class FileAuthAuthenticator implements SimpleAuthenticator {
 
         simpleAuthOutput.authenticateSuccessfully();
     }
-
 }

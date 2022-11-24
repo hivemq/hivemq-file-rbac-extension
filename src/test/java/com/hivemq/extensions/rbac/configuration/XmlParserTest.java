@@ -16,71 +16,64 @@
  */
 package com.hivemq.extensions.rbac.configuration;
 
+import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.configuration.entities.FileAuthConfig;
 import com.hivemq.extensions.rbac.configuration.entities.PasswordType;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.net.URL;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class XmlParserTest {
+class XmlParserTest {
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    private @NotNull File extensionFolder;
 
-    @Test(expected = NotMarshallableException.class)
-    public void test_marshal_directory() throws Exception {
-
-        final XmlParser xmlParser = new XmlParser();
-        final File file = temporaryFolder.newFolder();
-
-        xmlParser.marshal(new FileAuthConfig(), file);
+    @BeforeEach
+    void setUp(@TempDir final @NotNull File extensionFolder) {
+        this.extensionFolder = extensionFolder;
     }
 
-    @Test(expected = NotMarshallableException.class)
-    public void test_marshal_file_exists() throws Exception {
 
+    @Test
+    void test_marshal_directory() {
         final XmlParser xmlParser = new XmlParser();
-        final File file = temporaryFolder.newFile();
-
-        xmlParser.marshal(new FileAuthConfig(), file);
+        assertThrows(NotMarshallableException.class, () -> xmlParser.marshal(new FileAuthConfig(), extensionFolder));
     }
 
     @Test
-    public void test_marshal_unmarshal_credentials() throws Exception {
-
+    void test_marshal_file_exists() {
         final XmlParser xmlParser = new XmlParser();
+        assertThrows(NotMarshallableException.class, () -> xmlParser.marshal(new FileAuthConfig(), extensionFolder));
+    }
 
+    @Test
+    void test_marshal_unmarshal_credentials() throws Exception {
+        final XmlParser xmlParser = new XmlParser();
         final URL resource = this.getClass().getClassLoader().getResource("credentials.xml");
+        assertNotNull(resource);
         final File file = new File(resource.toURI());
-
         final FileAuthConfig config = xmlParser.unmarshalFileAuthConfig(file);
-
-        final File testFile = new File(temporaryFolder.getRoot(), "test.xml");
+        final File testFile = new File(extensionFolder, "test.xml");
         xmlParser.marshal(config, testFile);
-
         final FileAuthConfig marshalledConfig = xmlParser.unmarshalFileAuthConfig(testFile);
-
         assertEquals(config.toString().trim(), marshalledConfig.toString().trim());
     }
 
     @Test
-    public void test_unmarshal_extension_config() throws Exception {
-
+    void test_unmarshal_extension_config() throws Exception {
         final XmlParser xmlParser = new XmlParser();
-
         final URL resource = this.getClass().getClassLoader().getResource("test-extension-config.xml");
+        assertNotNull(resource);
         final File file = new File(resource.toURI());
-
         final ExtensionConfig config = xmlParser.unmarshalExtensionConfig(file);
-
         assertEquals(PasswordType.HASHED, config.getPasswordType());
         assertEquals(120, config.getReloadInterval());
     }
-
 }

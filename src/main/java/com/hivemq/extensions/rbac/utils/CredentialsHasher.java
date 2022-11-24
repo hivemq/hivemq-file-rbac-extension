@@ -30,8 +30,8 @@ import java.util.concurrent.TimeUnit;
 @ThreadSafe
 public class CredentialsHasher {
 
-    static final String HASH_CACHE_HITRATE = "com.hivemq.extensions.file-rbac.hash.cache.hitrate";
-    private static final String HASH_TIME = "com.hivemq.extensions.file-rbac.hash.sampled-time";
+    static final @NotNull String HASH_CACHE_HITRATE = "com.hivemq.extensions.file-rbac.hash.cache.hitrate";
+    private static final @NotNull String HASH_TIME = "com.hivemq.extensions.file-rbac.hash.sampled-time";
 
     private final @NotNull MetricRegistry metricRegistry;
     private final @NotNull Cache<String, byte[]> credentialHashCache;
@@ -39,14 +39,12 @@ public class CredentialsHasher {
 
     public CredentialsHasher(final @NotNull MetricRegistry metricRegistry) {
         this.metricRegistry = metricRegistry;
-
         credentialHashCache =
                 Caffeine.newBuilder().recordStats().expireAfterWrite(30, TimeUnit.SECONDS).maximumSize(1000).build();
     }
 
     public boolean checkCredentials(
-            @NotNull final String base64Password, @NotNull final String saltPasswordFromConfig) {
-
+            final @NotNull String base64Password, final @NotNull String saltPasswordFromConfig) {
         final String[] saltPw = saltPasswordFromConfig.split(":");
         if (saltPw.length != 3) {
             return false;
@@ -55,9 +53,7 @@ public class CredentialsHasher {
         final String saltFromConfigBase64 = saltPw[0];
         final int iterations = Integer.parseInt(saltPw[1]);
         final String passwordHashFromConfigBase64 = saltPw[2];
-
         final String cacheString = base64Password + saltFromConfigBase64 + iterations;
-
         byte[] credentialsHash = credentialHashCache.getIfPresent(cacheString);
 
         if (credentialsHash != null) {
@@ -66,7 +62,7 @@ public class CredentialsHasher {
         } else {
             //not found in cache
             final Timer timer = metricRegistry.timer(HASH_TIME);
-            try (Timer.Context timerContext = timer.time()) {
+            try (final Timer.Context ignored = timer.time()) {
                 credentialsHash = Hashing.createHash(base64Password, saltFromConfigBase64, iterations);
             }
             credentialHashCache.put(cacheString, credentialsHash);
@@ -75,5 +71,4 @@ public class CredentialsHasher {
         //We use a time constant equality check for passwords to avoid timing attacks
         return MessageDigest.isEqual(credentialsHash, Base64.getDecoder().decode(passwordHashFromConfigBase64));
     }
-
 }

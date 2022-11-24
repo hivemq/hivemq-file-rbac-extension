@@ -29,29 +29,28 @@ import java.util.Base64;
 
 public class PasswordGenerator {
 
-    @Nullable
+    @SuppressWarnings("unused")
     @Parameter(names = {"--password", "-p"},
                required = true,
                description = "The password to create a hashed representation from")
-    private String password;
+    private @Nullable String password;
 
-    @Nullable
     @Parameter(names = {"--salt", "-s"},
                description = "The salt to use for hashing (optional). If no salt is specified, a random salt is used")
-    private String salt;
+    private @Nullable String salt;
 
-    @Nullable
+    @SuppressWarnings({"FieldCanBeLocal", "CanBeFinal"})
     @Parameter(names = {"--iterations", "-i"}, description = "The amount of hashing iterations. Default: 100")
     private int iterations = 100;
 
     @Parameter(names = "--help", help = true)
     private boolean help;
 
+    @SuppressWarnings({"FieldCanBeLocal", "CanBeFinal"})
     @Parameter(names = "-q", description = "Only outputs the hash string.")
     private boolean quiet = false;
 
-    public static void main(@NotNull String[] args) {
-
+    public static void main(final @NotNull String @NotNull [] args) {
         try {
             final PasswordGenerator generator = new PasswordGenerator();
             final JCommander jCommander = JCommander.newBuilder().addObject(generator).build();
@@ -61,9 +60,8 @@ public class PasswordGenerator {
                 jCommander.usage();
                 System.exit(0);
             }
-
             generator.generateHash();
-        } catch (ParameterException e) {
+        } catch (final ParameterException e) {
             System.err.println(e.getMessage());
             e.getJCommander().usage();
             System.exit(1);
@@ -71,26 +69,20 @@ public class PasswordGenerator {
     }
 
     private void generateHash() {
-
         if (password == null || password.isEmpty()) {
             System.err.println("Required Parameter Password missing");
             System.exit(1);
         }
-
         if (iterations < 1) {
             System.err.println("Iterations must be larger than 0");
             System.exit(1);
         }
-
         if (salt == null) {
             salt = RandomStringUtils.randomAlphanumeric(32);
         }
-
         final String base64Password = Base64.getEncoder().encodeToString(password.getBytes(StandardCharsets.UTF_8));
         final String base64Salt = Base64.getEncoder().encodeToString(salt.getBytes(StandardCharsets.UTF_8));
-
-        final @NotNull byte[] hash = Hashing.createHash(base64Password, base64Salt, iterations);
-
+        final byte[] hash = Hashing.createHash(base64Password, base64Salt, iterations);
         final String passwordString = base64Salt + ":" + iterations + ":" + Base64.getEncoder().encodeToString(hash);
         if (!quiet) {
             System.out.println("Add the following string as password to your credentials configuration file:\n" +
@@ -98,5 +90,4 @@ public class PasswordGenerator {
         }
         System.out.println(passwordString);
     }
-
 }

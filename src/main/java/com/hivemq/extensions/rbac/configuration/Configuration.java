@@ -27,10 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -43,16 +40,15 @@ import static java.util.Collections.unmodifiableList;
 @ThreadSafe
 public class Configuration {
 
-    static final String CONFIG_NAME = "credentials.xml";
-    private static final Logger log = LoggerFactory.getLogger(Configuration.class);
-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private static final @NotNull Logger LOG = LoggerFactory.getLogger(Configuration.class);
+    static final @NotNull String CONFIG_NAME = "credentials.xml";
+    private final @NotNull ReadWriteLock lock = new ReentrantReadWriteLock();
 
-    // COWAL is perfect here because the callbacks are not expected to change regularly
-    //The callbacks are shared between this class and the reloadable config task. Modifications are only possible via this class")
-    private final List<ReloadCallback> callbacks = new CopyOnWriteArrayList<>();
+    //COWAL is perfect here because the callbacks are not expected to change regularly.
+    //The callbacks are shared between this class and the reloadable config task.
+    //Modifications are only possible via this class.
+    private final @NotNull List<ReloadCallback> callbacks = new CopyOnWriteArrayList<>();
 
-    //"This queue is thread safe and shared between this class and the reloadable config file task")
-    private final Queue<ReloadCallback> newCallbacks = new LinkedBlockingQueue<>();
     private final @NotNull File extensionHomeFolder;
     private final @NotNull ConfigParser configParser;
 
@@ -61,16 +57,13 @@ public class Configuration {
 
 
     public Configuration(
-            @NotNull final File extensionHomeFolder,
-            @NotNull final ScheduledExecutorService extensionExecutorService,
-            @NotNull final ExtensionConfig extensionConfig) {
-
+            final @NotNull File extensionHomeFolder,
+            final @NotNull ScheduledExecutorService extensionExecutorService,
+            final @NotNull ExtensionConfig extensionConfig) {
         configParser = new ConfigParser(extensionConfig);
         this.extensionHomeFolder = extensionHomeFolder;
         final ReloadConfigFileTask reloadableTask = new ReloadConfigFileTask(extensionHomeFolder,
-                extensionExecutorService,
                 unmodifiableList(callbacks) /* We don't want the task to modify the callbacks!*/,
-                newCallbacks,
                 configParser,
                 new ConfigArchiver(extensionHomeFolder, new XmlParser()),
                 this);
@@ -81,29 +74,24 @@ public class Configuration {
     }
 
     public void init() {
-
         config = configParser.read(getConfigFile(extensionHomeFolder));
 
         if (config == null) {
-            log.warn("No credentials configuration file for file auth extension available, denying all connections.");
+            LOG.warn("No credentials configuration file for file auth extension available, denying all connections.");
         }
 
-        addReloadCallback(new ReloadCallback() {
-            @Override
-            public void onReload(@Nullable final FileAuthConfig oldConfig, @NotNull final FileAuthConfig newConfig) {
-                final Lock writeLock = lock.writeLock();
-                writeLock.lock();
-                try {
-                    config = newConfig;
-                } finally {
-                    writeLock.unlock();
-                }
+        addReloadCallback((oldConfig, newConfig) -> {
+            final Lock writeLock = lock.writeLock();
+            writeLock.lock();
+            try {
+                config = newConfig;
+            } finally {
+                writeLock.unlock();
             }
         });
     }
 
-    @Nullable
-    public FileAuthConfig getCurrentConfig() {
+    public @Nullable FileAuthConfig getCurrentConfig() {
         final Lock readLock = lock.readLock();
         readLock.lock();
         try {
@@ -116,13 +104,11 @@ public class Configuration {
     /**
      * Adds a reload callback.
      */
-    public void addReloadCallback(@NotNull final ReloadCallback callback) {
+    public void addReloadCallback(final @NotNull ReloadCallback callback) {
         callbacks.add(callback);
-        newCallbacks.add(callback);
     }
 
-    @NotNull
-    private static File getConfigFile(final @NotNull File extensionHomeFolder) {
+    private static @NotNull File getConfigFile(final @NotNull File extensionHomeFolder) {
         return new File(extensionHomeFolder, CONFIG_NAME);
     }
 
@@ -137,43 +123,33 @@ public class Configuration {
     public interface ReloadCallback {
 
         /**
-         * An callback that is called when the config changes
+         * A callback that is called when the config changes
          *
          * @param oldConfig the old config
          * @param newConfig the new config
          */
         void onReload(@Nullable FileAuthConfig oldConfig, @NotNull FileAuthConfig newConfig);
-
     }
 
     private static class ReloadConfigFileTask implements Runnable {
 
-        private final @NotNull ExecutorService callbackExecutor;
         private final @NotNull ConfigArchiver configArchiver;
         private final @NotNull ConfigParser configParser;
         private final @NotNull File configFile;
-        private final Configuration configuration;
-
+        private final @NotNull Configuration configuration;
         private final @NotNull List<ReloadCallback> callbacks;
-        private final @NotNull Queue<ReloadCallback> newCallbacks;
         private @Nullable FileAuthConfig oldConfig;
-        private long lastReadTimestamp = 0;
+        private long lastReadTimestamp;
 
         ReloadConfigFileTask(
-                @NotNull final File extensionHomeFolder,
-                @NotNull final ExecutorService callbackExecutor,
-                @NotNull final List<ReloadCallback> callbacks,
-                @NotNull final Queue<ReloadCallback> newCallbacks,
-                @NotNull final ConfigParser configParser,
-                @NotNull final ConfigArchiver configArchiver,
-                @NotNull final Configuration configuration) {
-
+                final @NotNull File extensionHomeFolder,
+                final @NotNull List<ReloadCallback> callbacks,
+                final @NotNull ConfigParser configParser,
+                final @NotNull ConfigArchiver configArchiver,
+                final @NotNull Configuration configuration) {
             this.callbacks = callbacks;
-            this.newCallbacks = newCallbacks;
             this.configParser = configParser;
-            this.callbackExecutor = callbackExecutor;
             this.configArchiver = configArchiver;
-
             configFile = getConfigFile(extensionHomeFolder);
             this.configuration = configuration;
             lastReadTimestamp = System.currentTimeMillis();
@@ -182,9 +158,8 @@ public class Configuration {
 
         @Override
         public void run() {
-
             if (!configFile.exists()) {
-                log.debug(
+                LOG.debug(
                         "No credentials file for file auth extension {} available, not reloading configuration for now",
                         configFile.getAbsolutePath());
                 return;
@@ -192,13 +167,13 @@ public class Configuration {
 
             final long lastModification = configFile.lastModified();
             if (configuration.getCurrentConfig() != null && lastReadTimestamp >= lastModification) {
-                log.trace("Checked for changes for file {}. No changes since {}",
+                LOG.trace("Checked for changes for file {}. No changes since {}",
                         configFile.getAbsolutePath(),
                         lastModification);
                 return;
             }
 
-            log.debug("Credentials for file auth extension changed, checking new credentials file.",
+            LOG.debug("Credentials for file auth extension changed, checking new credentials file. {}",
                     configFile.getAbsolutePath());
             final FileAuthConfig newConfig = configParser.read(configFile);
 
@@ -209,19 +184,17 @@ public class Configuration {
                 return;
             }
 
-            log.info("Credentials configuration for file auth extension changed, using new configuration.");
+            LOG.info("Credentials configuration for file auth extension changed, using new configuration.");
             try {
                 configArchiver.archive(oldConfig);
-            } catch (IOException e) {
-                log.warn("Archival of the old credentials config failed. Reason: {}", e.getMessage());
+            } catch (final IOException e) {
+                LOG.warn("Archival of the old credentials config failed. Reason: {}", e.getMessage());
             }
 
             oldConfig = newConfig;
-
-            for (ReloadCallback callback : callbacks) {
+            for (final ReloadCallback callback : callbacks) {
                 callback.onReload(oldConfig, newConfig);
             }
         }
     }
-
 }

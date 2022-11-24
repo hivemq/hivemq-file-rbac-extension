@@ -16,49 +16,45 @@
  */
 package com.hivemq.extensions.rbac.configuration;
 
+import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.configuration.entities.PasswordType;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.nio.file.Files;
 
 import static com.hivemq.extensions.rbac.configuration.ExtensionConfiguration.EXTENSION_CONFIG_FILE_NAME;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
+class ExtensionConfigurationTest {
 
-public class ExtensionConfigurationTest {
+    private @NotNull File extensionFolder;
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @BeforeEach
+    void setUp(@TempDir final @NotNull File extensionFolder) {
+        this.extensionFolder = extensionFolder;
+    }
 
     @Test
-    public void test_read_extension_configuration() throws Exception {
-
-        final File configFile = new File(temporaryFolder.getRoot(), EXTENSION_CONFIG_FILE_NAME);
-
+    void test_read_extension_configuration() throws Exception {
+        final File configFile = new File(extensionFolder, EXTENSION_CONFIG_FILE_NAME);
         Files.writeString(configFile.toPath(),
                 "<extension-configuration><credentials-reload-interval>999</credentials-reload-interval></extension-configuration>");
-
-        final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(temporaryFolder.getRoot());
-
+        final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(extensionFolder);
         final ExtensionConfig extensionConfig = extensionConfiguration.getExtensionConfig();
-
         assertNotNull(extensionConfig);
         assertEquals(999, extensionConfig.getReloadInterval());
     }
 
     @Test
-    public void test_read_extension_file_not_present() throws Exception {
-
-        final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(temporaryFolder.getRoot());
-
+    void test_read_extension_file_not_present() {
+        final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(extensionFolder);
         final ExtensionConfig extensionConfig = extensionConfiguration.getExtensionConfig();
-
         assertNotNull(extensionConfig);
         //check that default values are used
         assertEquals(60, extensionConfig.getReloadInterval());
@@ -66,52 +62,37 @@ public class ExtensionConfigurationTest {
     }
 
     @Test
-    public void test_read_extension_configuration_invalid_reload_interval() throws Exception {
-
-        final File configFile = new File(temporaryFolder.getRoot(), EXTENSION_CONFIG_FILE_NAME);
-
+    void test_read_extension_configuration_invalid_reload_interval() throws Exception {
+        final File configFile = new File(extensionFolder, EXTENSION_CONFIG_FILE_NAME);
         Files.writeString(configFile.toPath(),
                 "<extension-configuration><credentials-reload-interval>-1</credentials-reload-interval></extension-configuration>");
-
-        final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(temporaryFolder.getRoot());
-
+        final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(extensionFolder);
         final ExtensionConfig extensionConfig = extensionConfiguration.getExtensionConfig();
-
         assertNotNull(extensionConfig);
         assertEquals(60, extensionConfig.getReloadInterval());
     }
 
     @Test
-    public void test_read_extension_configuration_invalid_pw_type() throws Exception {
-
-        final File configFile = new File(temporaryFolder.getRoot(), EXTENSION_CONFIG_FILE_NAME);
-
+    void test_read_extension_configuration_invalid_pw_type() throws Exception {
+        final File configFile = new File(extensionFolder, EXTENSION_CONFIG_FILE_NAME);
         Files.writeString(configFile.toPath(),
                 "<extension-configuration><password-type>ABC</password-type></extension-configuration>");
-
-        final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(temporaryFolder.getRoot());
-
+        final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(extensionFolder);
         final ExtensionConfig extensionConfig = extensionConfiguration.getExtensionConfig();
-
         assertNotNull(extensionConfig);
         assertEquals(PasswordType.HASHED, extensionConfig.getPasswordType());
         assertNull(extensionConfig.getListenerNames());
     }
 
     @Test
-    public void test_read_extension_configuration_existing_listener_names() throws Exception {
-
-        final File configFile = new File(temporaryFolder.getRoot(), EXTENSION_CONFIG_FILE_NAME);
-
+    void test_read_extension_configuration_existing_listener_names() throws Exception {
+        final File configFile = new File(extensionFolder, EXTENSION_CONFIG_FILE_NAME);
         Files.writeString(configFile.toPath(),
                 "<extension-configuration><listener-names><listener-name>listener-1</listener-name><listener-name>listener-2</listener-name></listener-names></extension-configuration>");
-
-        final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(temporaryFolder.getRoot());
-
+        final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(extensionFolder);
         final ExtensionConfig extensionConfig = extensionConfiguration.getExtensionConfig();
-
         assertNotNull(extensionConfig);
+        assertNotNull(extensionConfig.getListenerNames());
         assertEquals(2, extensionConfig.getListenerNames().size());
     }
-
 }
