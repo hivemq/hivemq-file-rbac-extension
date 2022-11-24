@@ -51,16 +51,16 @@ class ConfigurationTest {
         final ExtensionConfig extensionConfig = new ExtensionConfig();
         extensionConfig.setReloadInterval(1);
         final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-        final Configuration configuration =
-                new Configuration(extensionFolder, scheduledExecutorService, extensionConfig);
-        configuration.init();
+        final CredentialsConfiguration credentialsConfiguration =
+                new CredentialsConfiguration(extensionFolder, scheduledExecutorService, extensionConfig);
+        credentialsConfiguration.init();
         final CountDownLatch latch = new CountDownLatch(1);
-        configuration.addReloadCallback((oldConfig, newConfig) -> latch.countDown());
+        credentialsConfiguration.addReloadCallback((oldConfig, newConfig) -> latch.countDown());
         //Create a new file
         createCredentialsConfig();
         //Check if reload was called
         assertTrue(latch.await(30, TimeUnit.SECONDS));
-        assertNotNull(configuration.getCurrentConfig());
+        assertNotNull(credentialsConfiguration.getCurrentConfig());
         scheduledExecutorService.shutdown();
     }
 
@@ -69,18 +69,18 @@ class ConfigurationTest {
         final ExtensionConfig extensionConfig = new ExtensionConfig();
         extensionConfig.setReloadInterval(1);
         final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-        final Configuration configuration =
-                new Configuration(extensionFolder, scheduledExecutorService, extensionConfig);
+        final CredentialsConfiguration credentialsConfiguration =
+                new CredentialsConfiguration(extensionFolder, scheduledExecutorService, extensionConfig);
         //Create a new file
         createCredentialsConfig();
-        configuration.init();
-        final File configFile = new File(extensionFolder, Configuration.CONFIG_NAME);
+        credentialsConfiguration.init();
+        final File configFile = new File(extensionFolder, CredentialsConfiguration.CONFIG_NAME);
         assertTrue(configFile.delete());
         final CountDownLatch latch = new CountDownLatch(1);
-        configuration.addReloadCallback((oldConfig, newConfig) -> latch.countDown());
+        credentialsConfiguration.addReloadCallback((oldConfig, newConfig) -> latch.countDown());
         //Check if reload was called
         assertFalse(latch.await(5, TimeUnit.SECONDS));
-        assertNotNull(configuration.getCurrentConfig());
+        assertNotNull(credentialsConfiguration.getCurrentConfig());
         scheduledExecutorService.shutdown();
     }
 
@@ -89,17 +89,17 @@ class ConfigurationTest {
         final ExtensionConfig extensionConfig = new ExtensionConfig();
         extensionConfig.setReloadInterval(1);
         final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-        final Configuration configuration =
-                new Configuration(extensionFolder, scheduledExecutorService, extensionConfig);
+        final CredentialsConfiguration credentialsConfiguration =
+                new CredentialsConfiguration(extensionFolder, scheduledExecutorService, extensionConfig);
         createCredentialsConfig();
-        configuration.init();
-        assertNotNull(configuration.getCurrentConfig());
+        credentialsConfiguration.init();
+        assertNotNull(credentialsConfiguration.getCurrentConfig());
         scheduledExecutorService.shutdown();
     }
 
     private void createCredentialsConfig() throws URISyntaxException, IOException {
         //Create a new file
-        final File configFile = new File(extensionFolder, Configuration.CONFIG_NAME);
+        final File configFile = new File(extensionFolder, CredentialsConfiguration.CONFIG_NAME);
         //Copy config
         final URL resource = this.getClass().getClassLoader().getResource("credentials.xml");
         assertNotNull(resource);

@@ -23,7 +23,7 @@ import com.hivemq.extension.sdk.api.parameter.ExtensionStartOutput;
 import com.hivemq.extension.sdk.api.parameter.ExtensionStopInput;
 import com.hivemq.extension.sdk.api.parameter.ExtensionStopOutput;
 import com.hivemq.extension.sdk.api.services.Services;
-import com.hivemq.extensions.rbac.configuration.Configuration;
+import com.hivemq.extensions.rbac.configuration.CredentialsConfiguration;
 import com.hivemq.extensions.rbac.configuration.ExtensionConfiguration;
 import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.utils.CredentialsValidator;
@@ -46,12 +46,12 @@ public class FileAuthMain implements ExtensionMain {
             final File extensionHomeFolder = extensionStartInput.getExtensionInformation().getExtensionHomeFolder();
             final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(extensionHomeFolder);
 
-            final Configuration configuration = new Configuration(extensionHomeFolder,
+            final CredentialsConfiguration credentialsConfiguration = new CredentialsConfiguration(extensionHomeFolder,
                     Services.extensionExecutorService(),
                     extensionConfiguration.getExtensionConfig());
-            configuration.init();
+            credentialsConfiguration.init();
 
-            final CredentialsValidator credentialsValidator = new CredentialsValidator(configuration,
+            final CredentialsValidator credentialsValidator = new CredentialsValidator(credentialsConfiguration,
                     extensionConfiguration.getExtensionConfig(),
                     Services.metricRegistry());
             credentialsValidator.init();
