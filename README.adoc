@@ -188,7 +188,7 @@ The amount of hashing iteration can be specified with the `-i` parameter.
 |`topic` |-|The topic on which this permission should apply. Can contain standard MQTT wildcards `#` and `+`. Also special substitution with `${{clientid}}` and `${{username}}` is supported.
 |`activity` |`ALL` |The activity which this client can perform on this topic. Can be `PUBLISH`, `SUBSCRIBE` or `ALL`.
 |`qos` |`ALL` |The MQTT QoS which this client can publish/subscribe with on this topic. The value can be `ZERO`, `ONE`, `TWO`, `ZERO_ONE`, `ONE_TWO`, `ZERO_TWO` or `ALL`.
-|`retained` |`ALL` |If a message published on this topic can/must be retained. Values are `NOT_RETAINED`, `RETAINED` or `ALL`. This setting is only relevant for PUBLISH messages.
+|`retain` |`ALL` |If a message published on this topic can/must be retained. Values are `NOT_RETAINED`, `RETAINED` or `ALL`. This setting is only relevant for PUBLISH messages.
 |`shared-subscription` |`ALL` |If a subscription on this topic can/must be a shared subscription. Values are `SHARED`, `NOT_SHARED` or `ALL`. This setting is only relevant for SUBSCRIBE messages.
 |`shared-group` |`#` |Limits the Shared Subscription group name for a subscription. Values are `#` to match all or a specific string value. This setting is only relevant for SUBSCRIBE messages that include a Shared Subscription.
 |===
