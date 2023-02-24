@@ -116,7 +116,7 @@ class CredentialsValidatorTest {
     }
 
     @AfterEach
-    public void after() {
+    void tearDown() {
         scheduledExecutorService.shutdown();
     }
 
