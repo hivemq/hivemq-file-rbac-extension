@@ -12,7 +12,7 @@
 image:https://img.shields.io/badge/Extension_Type-Security-orange?style=for-the-badge[Extension Type]
 image:https://img.shields.io/github/v/release/hivemq/hivemq-file-rbac-extension?style=for-the-badge[GitHub release (latest by date),link=https://github.com/hivemq/hivemq-file-rbac-extension/releases/latest]
 image:https://img.shields.io/github/license/hivemq/hivemq-file-rbac-extension?style=for-the-badge&color=brightgreen[GitHub,link=LICENSE]
-image:https://img.shields.io/github/workflow/status/hivemq/hivemq-file-rbac-extension/CI%20Check/master?style=for-the-badge[GitHub Workflow Status (branch),link=https://github.com/hivemq/hivemq-file-rbac-extension/actions/workflows/check.yml?query=branch%3Amaster]
+image:https://img.shields.io/github/actions/workflow/status/hivemq/hivemq-file-rbac-extension/check.yml?branch=master&style=for-the-badge[GitHub Workflow Status (branch),link=https://github.com/hivemq/hivemq-file-rbac-extension/actions/workflows/check.yml?query=branch%3Amaster]
 
 == Purpose
 
@@ -68,7 +68,7 @@ If the new credentials configuration is invalid the current configuration is mai
 NOTE: The permissions for connected clients are not changed, only new connecting clients are affected.
 
 [#credentials-config]
-=== Credentials configuration
+=== Credentials Configuration
 
 The credentials configuration includes the following settings.
 
@@ -130,7 +130,7 @@ The credentials configuration includes the following settings.
 </file-rbac>
 ----
 
-=== User configuration
+=== User Configuration
 
 |===
 |Configuration |Description
@@ -176,7 +176,7 @@ The amount of hashing iteration can be specified with the `-i` parameter.
 </user>
 ----
 
-=== Role configuration
+=== Role Configuration
 
 |===
 |Configuration |Description
@@ -184,15 +184,14 @@ The amount of hashing iteration can be specified with the `-i` parameter.
 |`permissions` |A list of permissions which are applied for this role. Permissions are applied and checked by HiveMQ in the order they appear in the configuration file.
 |===
 
-=== Permission configuration
+=== Permission Configuration
 
 |===
 |Configuration |Default |Description
-// suppress inspection "AsciiDocAttributeShouldBeDefined"
-|`topic` |-|The topic on which this permission should apply. Can contain standard MQTT wildcards `#` and `+`. Also, special substitution with `${{clientid}}` and `${{username}}` is supported.
+|`topic` |-|The topic on which this permission should apply. Can contain standard MQTT wildcards `#` and `+`. Also, special substitution with `${\{clientid}}` and `${\{username}}` is supported.
 |`activity` |`ALL` |The activity which this client can perform on this topic. Can be `PUBLISH`, `SUBSCRIBE` or `ALL`.
 |`qos` |`ALL` |The MQTT QoS which this client can publish/subscribe with on this topic. The value can be `ZERO`, `ONE`, `TWO`, `ZERO_ONE`, `ONE_TWO`, `ZERO_TWO` or `ALL`.
-|`retained` |`ALL` |If a message published on this topic can/must be retained. Values are `NOT_RETAINED`, `RETAINED` or `ALL`. This setting is only relevant for PUBLISH messages.
+|`retain` |`ALL` |If a message published on this topic can/must be retained. Values are `NOT_RETAINED`, `RETAINED` or `ALL`. This setting is only relevant for PUBLISH messages.
 |`shared-subscription` |`ALL` |If a subscription on this topic can/must be a shared subscription. Values are `SHARED`, `NOT_SHARED` or `ALL`. This setting is only relevant for SUBSCRIBE messages.
 |`shared-group` |`#` |Limits the Shared Subscription group name for a subscription. Values are `#` to match all or a specific string value. This setting is only relevant for SUBSCRIBE messages that include a Shared Subscription.
 |===
@@ -200,13 +199,12 @@ The amount of hashing iteration can be specified with the `-i` parameter.
 [#substitution]
 === Substitution
 
-// suppress inspection "AsciiDocAttributeShouldBeDefined"
-The special markers `${{clientid}}` and `${{username}}` in the topic filter for a permission are automatically replaced by the extension with the client identifier and username of the client for which authorization is performed.
+The special markers `${\{clientid}}` and `${\{username}}` in the topic filter for a permission are automatically replaced by the extension with the client identifier and username of the client for which authorization is performed.
 This allows to configure a permission that applies to multiple clients, but always contains their specific client identifier or username in the topic.
 Limiting each client to "their own" topics.
 
 [#extensions-config]
-=== Extension configuration
+=== Extension Configuration
 
 The credentials configuration includes the following settings.
 
