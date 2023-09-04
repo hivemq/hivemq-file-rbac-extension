@@ -17,6 +17,7 @@
 package com.hivemq.extensions.rbac.configuration;
 
 import com.hivemq.extension.sdk.api.annotations.NotNull;
+import com.hivemq.extensions.rbac.ExtensionConstants;
 import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.configuration.entities.FileAuthConfig;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +45,7 @@ class ConfigParserTest {
 
     @Test
     void test_valid_config() throws Exception {
-        final URL resource = this.getClass().getClassLoader().getResource("credentials.xml");
+        final URL resource = this.getClass().getClassLoader().getResource(ExtensionConstants.CREDENTIALS_LOCATION);
         assertNotNull(resource);
         final File file = new File(resource.toURI());
         final FileAuthConfig fileAuthConfig = configParser.read(file);

@@ -17,93 +17,98 @@
 package com.hivemq.extensions.rbac.configuration;
 
 import com.hivemq.extension.sdk.api.annotations.NotNull;
+import com.hivemq.extensions.rbac.ExtensionConstants;
 import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
-import org.junit.jupiter.api.BeforeEach;
+import com.hivemq.extensions.rbac.configuration.entities.PasswordType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class ConfigurationTest {
 
-    private @NotNull File extensionFolder;
+    @TempDir
+    private @NotNull Path extensionHome;
 
-    @BeforeEach
-    void setUp(@TempDir final @NotNull File extensionFolder) {
-        this.extensionFolder = extensionFolder;
+    @ParameterizedTest
+    @ValueSource(strings = {
+            ExtensionConstants.EXTENSION_CONFIG_LOCATION,
+            ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
+    void test_read_extension_configuration(final @NotNull String location) throws Exception {
+        final Path configFile = getTempConfig(location);
+        Files.writeString(configFile,
+                "<extension-configuration><credentials-reload-interval>999</credentials-reload-interval></extension-configuration>");
+        final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(extensionHome.toFile());
+        final ExtensionConfig extensionConfig = extensionConfiguration.getExtensionConfig();
+        assertNotNull(extensionConfig);
+        assertEquals(999, extensionConfig.getReloadInterval());
     }
 
     @Test
-    void test_create_file_before_it_does_not_exit() throws Exception {
-        final ExtensionConfig extensionConfig = new ExtensionConfig();
-        extensionConfig.setReloadInterval(1);
-        final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-        final CredentialsConfiguration credentialsConfiguration =
-                new CredentialsConfiguration(extensionFolder, scheduledExecutorService, extensionConfig);
-        credentialsConfiguration.init();
-        final CountDownLatch latch = new CountDownLatch(1);
-        credentialsConfiguration.addReloadCallback((oldConfig, newConfig) -> latch.countDown());
-        //Create a new file
-        createCredentialsConfig();
-        //Check if reload was called
-        assertTrue(latch.await(30, TimeUnit.SECONDS));
-        assertNotNull(credentialsConfiguration.getCurrentConfig());
-        scheduledExecutorService.shutdown();
+    void test_read_extension_file_not_present() {
+        final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(extensionHome.toFile());
+        final ExtensionConfig extensionConfig = extensionConfiguration.getExtensionConfig();
+        assertNotNull(extensionConfig);
+        //check that default values are used
+        assertEquals(60, extensionConfig.getReloadInterval());
+        assertEquals(PasswordType.HASHED, extensionConfig.getPasswordType());
     }
 
-    @Test
-    void test_reload_invalid_config() throws Exception {
-        final ExtensionConfig extensionConfig = new ExtensionConfig();
-        extensionConfig.setReloadInterval(1);
-        final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-        final CredentialsConfiguration credentialsConfiguration =
-                new CredentialsConfiguration(extensionFolder, scheduledExecutorService, extensionConfig);
-        //Create a new file
-        createCredentialsConfig();
-        credentialsConfiguration.init();
-        final File configFile = new File(extensionFolder, CredentialsConfiguration.CONFIG_NAME);
-        assertTrue(configFile.delete());
-        final CountDownLatch latch = new CountDownLatch(1);
-        credentialsConfiguration.addReloadCallback((oldConfig, newConfig) -> latch.countDown());
-        //Check if reload was called
-        assertFalse(latch.await(5, TimeUnit.SECONDS));
-        assertNotNull(credentialsConfiguration.getCurrentConfig());
-        scheduledExecutorService.shutdown();
+    @ParameterizedTest
+    @ValueSource(strings = {
+            ExtensionConstants.EXTENSION_CONFIG_LOCATION,
+            ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
+    void test_read_extension_configuration_invalid_reload_interval(final @NotNull String location) throws Exception {
+        final Path configFile = getTempConfig(location);
+        Files.writeString(configFile,
+                "<extension-configuration><credentials-reload-interval>-1</credentials-reload-interval></extension-configuration>");
+        final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(extensionHome.toFile());
+        final ExtensionConfig extensionConfig = extensionConfiguration.getExtensionConfig();
+        assertNotNull(extensionConfig);
+        assertEquals(60, extensionConfig.getReloadInterval());
     }
 
-    @Test
-    void test_init() throws Exception {
-        final ExtensionConfig extensionConfig = new ExtensionConfig();
-        extensionConfig.setReloadInterval(1);
-        final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-        final CredentialsConfiguration credentialsConfiguration =
-                new CredentialsConfiguration(extensionFolder, scheduledExecutorService, extensionConfig);
-        createCredentialsConfig();
-        credentialsConfiguration.init();
-        assertNotNull(credentialsConfiguration.getCurrentConfig());
-        scheduledExecutorService.shutdown();
+    @ParameterizedTest
+    @ValueSource(strings = {
+            ExtensionConstants.EXTENSION_CONFIG_LOCATION,
+            ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
+    void test_read_extension_configuration_invalid_pw_type(final @NotNull String location) throws Exception {
+        final Path configFile = getTempConfig(location);
+        Files.writeString(configFile,
+                "<extension-configuration><password-type>ABC</password-type></extension-configuration>");
+        final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(extensionHome.toFile());
+        final ExtensionConfig extensionConfig = extensionConfiguration.getExtensionConfig();
+        assertNotNull(extensionConfig);
+        assertEquals(PasswordType.HASHED, extensionConfig.getPasswordType());
+        assertNull(extensionConfig.getListenerNames());
     }
 
-    private void createCredentialsConfig() throws URISyntaxException, IOException {
-        //Create a new file
-        final File configFile = new File(extensionFolder, CredentialsConfiguration.CONFIG_NAME);
-        //Copy config
-        final URL resource = this.getClass().getClassLoader().getResource("credentials.xml");
-        assertNotNull(resource);
-        final File file = new File(resource.toURI());
-        Files.copy(file.toPath(), configFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    @ParameterizedTest
+    @ValueSource(strings = {
+            ExtensionConstants.EXTENSION_CONFIG_LOCATION,
+            ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
+    void test_read_extension_configuration_existing_listener_names(final @NotNull String location) throws Exception {
+        final Path configFile = getTempConfig(location);
+        Files.writeString(configFile,
+                "<extension-configuration><listener-names><listener-name>listener-1</listener-name><listener-name>listener-2</listener-name></listener-names></extension-configuration>");
+        final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(extensionHome.toFile());
+        final ExtensionConfig extensionConfig = extensionConfiguration.getExtensionConfig();
+        assertNotNull(extensionConfig);
+        assertNotNull(extensionConfig.getListenerNames());
+        assertEquals(2, extensionConfig.getListenerNames().size());
+    }
+
+    private @NotNull Path getTempConfig(final @NotNull String location) {
+        final Path configFile = extensionHome.resolve(location);
+        //noinspection ResultOfMethodCallIgnored
+        configFile.getParent().toFile().mkdir();
+        return configFile;
     }
 }
