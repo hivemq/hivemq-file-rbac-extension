@@ -18,15 +18,20 @@ public class ConfigResolver implements Supplier<Path> {
 
     private final @NotNull AtomicBoolean legacyWarningAlreadyLogged = new AtomicBoolean();
     private final @NotNull Path extensionHome;
+    private final @NotNull String location;
+    private final @NotNull String legacyLocation;
 
-    public ConfigResolver(final @NotNull Path extensionHome) {
+    public ConfigResolver(
+            final @NotNull Path extensionHome, final @NotNull String location, final @NotNull String legacyLocation) {
         this.extensionHome = extensionHome;
+        this.location = location;
+        this.legacyLocation = legacyLocation;
     }
 
     @Override
     public @NotNull Path get() {
-        final Path extensionXmlPath = extensionHome.resolve(ExtensionConstants.EXTENSION_CONFIG_LOCATION);
-        final Path extensionXmlLegacyPath = extensionHome.resolve(ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION);
+        final Path extensionXmlPath = extensionHome.resolve(location);
+        final Path extensionXmlLegacyPath = extensionHome.resolve(legacyLocation);
         // If the config is present at the legacy location we chose this in any case.
         // The only way the config could be present at the legacy location is when it was deliberately placed there.
         if (extensionXmlLegacyPath.toFile().exists()) {

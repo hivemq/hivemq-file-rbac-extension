@@ -34,6 +34,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import static com.hivemq.extensions.rbac.ExtensionConstants.CREDENTIALS_LEGACY_LOCATION;
+import static com.hivemq.extensions.rbac.ExtensionConstants.CREDENTIALS_LOCATION;
 import static java.util.Collections.unmodifiableList;
 
 @ThreadSafe
@@ -49,7 +51,7 @@ public class CredentialsConfiguration {
 
     private final @NotNull ConfigParser configParser;
 
-    private final @NotNull CredentialsResolver credentialsResolver;
+    private final @NotNull ConfigResolver credentialsResolver;
 
     //guarded by lock
     private @Nullable FileAuthConfig config;
@@ -59,7 +61,8 @@ public class CredentialsConfiguration {
             final @NotNull File extensionHomeFolder,
             final @NotNull ScheduledExecutorService extensionExecutorService,
             final @NotNull ExtensionConfig extensionConfig) {
-        credentialsResolver = new CredentialsResolver(extensionHomeFolder.toPath());
+        credentialsResolver =
+                new ConfigResolver(extensionHomeFolder.toPath(), CREDENTIALS_LOCATION, CREDENTIALS_LEGACY_LOCATION);
         configParser = new ConfigParser(extensionConfig);
         final ReloadConfigFileTask reloadableTask = new ReloadConfigFileTask(//
                 unmodifiableList(callbacks) /* We don't want the task to modify the callbacks!*/,
@@ -132,7 +135,7 @@ public class CredentialsConfiguration {
         private final @NotNull ConfigArchiver configArchiver;
         private final @NotNull ConfigParser configParser;
         private final @NotNull CredentialsConfiguration credentialsConfiguration;
-        private final @NotNull CredentialsResolver credentialsResolver;
+        private final @NotNull ConfigResolver configResolver;
         private final @NotNull List<ReloadCallback> callbacks;
         private @Nullable FileAuthConfig oldConfig;
         private long lastReadTimestamp;
@@ -142,19 +145,19 @@ public class CredentialsConfiguration {
                 final @NotNull ConfigParser configParser,
                 final @NotNull ConfigArchiver configArchiver,
                 final @NotNull CredentialsConfiguration credentialsConfiguration,
-                final @NotNull CredentialsResolver credentialsResolver) {
+                final @NotNull ConfigResolver configResolver) {
             this.callbacks = callbacks;
             this.configParser = configParser;
             this.configArchiver = configArchiver;
             this.credentialsConfiguration = credentialsConfiguration;
-            this.credentialsResolver = credentialsResolver;
+            this.configResolver = configResolver;
             lastReadTimestamp = System.currentTimeMillis();
-            oldConfig = configParser.read(credentialsResolver.get().toFile());
+            oldConfig = configParser.read(configResolver.get().toFile());
         }
 
         @Override
         public void run() {
-            final File configFile = credentialsResolver.get().toFile();
+            final File configFile = configResolver.get().toFile();
             if (!configFile.exists()) {
                 LOG.debug(
                         "No credentials file for file auth extension {} available, not reloading configuration for now",
