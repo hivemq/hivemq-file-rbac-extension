@@ -27,12 +27,12 @@ import java.io.IOException;
 public class ExtensionConfiguration {
 
     private static final @NotNull Logger LOG = LoggerFactory.getLogger(ExtensionConfiguration.class);
-    static final @NotNull String EXTENSION_CONFIG_FILE_NAME = "extension-config.xml";
     private final @NotNull XmlParser xmlParser = new XmlParser();
     private final @NotNull ExtensionConfig extensionConfig;
 
     public ExtensionConfiguration(final @NotNull File extensionHomeFolder) {
-        extensionConfig = read(new File(extensionHomeFolder, EXTENSION_CONFIG_FILE_NAME));
+        final ConfigResolver configResolver = new ConfigResolver(extensionHomeFolder.toPath());
+        extensionConfig = read(configResolver.get().toFile());
     }
 
     public @NotNull ExtensionConfig getExtensionConfig() {

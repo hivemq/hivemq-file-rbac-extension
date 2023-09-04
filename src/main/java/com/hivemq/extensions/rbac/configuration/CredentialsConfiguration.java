@@ -40,7 +40,6 @@ import static java.util.Collections.unmodifiableList;
 public class CredentialsConfiguration {
 
     private static final @NotNull Logger LOG = LoggerFactory.getLogger(CredentialsConfiguration.class);
-    static final @NotNull String CONFIG_NAME = "credentials.xml";
     private final @NotNull ReadWriteLock lock = new ReentrantReadWriteLock();
 
     //COWAL is perfect here because the callbacks are not expected to change regularly.
@@ -48,8 +47,9 @@ public class CredentialsConfiguration {
     //Modifications are only possible via this class.
     private final @NotNull List<ReloadCallback> callbacks = new CopyOnWriteArrayList<>();
 
-    private final @NotNull File extensionHomeFolder;
     private final @NotNull ConfigParser configParser;
+
+    private final @NotNull CredentialsResolver credentialsResolver;
 
     //guarded by lock
     private @Nullable FileAuthConfig config;
@@ -59,13 +59,14 @@ public class CredentialsConfiguration {
             final @NotNull File extensionHomeFolder,
             final @NotNull ScheduledExecutorService extensionExecutorService,
             final @NotNull ExtensionConfig extensionConfig) {
+        credentialsResolver = new CredentialsResolver(extensionHomeFolder.toPath());
         configParser = new ConfigParser(extensionConfig);
-        this.extensionHomeFolder = extensionHomeFolder;
-        final ReloadConfigFileTask reloadableTask = new ReloadConfigFileTask(extensionHomeFolder,
+        final ReloadConfigFileTask reloadableTask = new ReloadConfigFileTask(//
                 unmodifiableList(callbacks) /* We don't want the task to modify the callbacks!*/,
                 configParser,
                 new ConfigArchiver(extensionHomeFolder, new XmlParser()),
-                this);
+                this,
+                credentialsResolver);
         extensionExecutorService.scheduleWithFixedDelay(reloadableTask,
                 extensionConfig.getReloadInterval(),
                 extensionConfig.getReloadInterval(),
@@ -73,7 +74,7 @@ public class CredentialsConfiguration {
     }
 
     public void init() {
-        config = configParser.read(getConfigFile(extensionHomeFolder));
+        config = configParser.read(credentialsResolver.get().toFile());
 
         if (config == null) {
             LOG.warn("No credentials configuration file for file auth extension available, denying all connections.");
@@ -107,10 +108,6 @@ public class CredentialsConfiguration {
         callbacks.add(callback);
     }
 
-    private static @NotNull File getConfigFile(final @NotNull File extensionHomeFolder) {
-        return new File(extensionHomeFolder, CONFIG_NAME);
-    }
-
     /**
      * A callback that gets triggered every time the config file changes.
      * <p>
@@ -134,29 +131,30 @@ public class CredentialsConfiguration {
 
         private final @NotNull ConfigArchiver configArchiver;
         private final @NotNull ConfigParser configParser;
-        private final @NotNull File configFile;
         private final @NotNull CredentialsConfiguration credentialsConfiguration;
+        private final @NotNull CredentialsResolver credentialsResolver;
         private final @NotNull List<ReloadCallback> callbacks;
         private @Nullable FileAuthConfig oldConfig;
         private long lastReadTimestamp;
 
         ReloadConfigFileTask(
-                final @NotNull File extensionHomeFolder,
                 final @NotNull List<ReloadCallback> callbacks,
                 final @NotNull ConfigParser configParser,
                 final @NotNull ConfigArchiver configArchiver,
-                final @NotNull CredentialsConfiguration credentialsConfiguration) {
+                final @NotNull CredentialsConfiguration credentialsConfiguration,
+                final @NotNull CredentialsResolver credentialsResolver) {
             this.callbacks = callbacks;
             this.configParser = configParser;
             this.configArchiver = configArchiver;
-            configFile = getConfigFile(extensionHomeFolder);
             this.credentialsConfiguration = credentialsConfiguration;
+            this.credentialsResolver = credentialsResolver;
             lastReadTimestamp = System.currentTimeMillis();
-            oldConfig = configParser.read(configFile);
+            oldConfig = configParser.read(credentialsResolver.get().toFile());
         }
 
         @Override
         public void run() {
+            final File configFile = credentialsResolver.get().toFile();
             if (!configFile.exists()) {
                 LOG.debug(
                         "No credentials file for file auth extension {} available, not reloading configuration for now",

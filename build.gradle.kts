@@ -56,6 +56,7 @@ hivemqExtension.resources {
 
 dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:${property("junit-jupiter.version")}")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:${property("junit-jupiter.version")}")
     testImplementation("org.mockito:mockito-core:${property("mockito.version")}")
 }
 

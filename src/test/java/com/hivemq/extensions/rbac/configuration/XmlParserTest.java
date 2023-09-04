@@ -17,6 +17,7 @@
 package com.hivemq.extensions.rbac.configuration;
 
 import com.hivemq.extension.sdk.api.annotations.NotNull;
+import com.hivemq.extensions.rbac.ExtensionConstants;
 import com.hivemq.extensions.rbac.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.configuration.entities.FileAuthConfig;
 import com.hivemq.extensions.rbac.configuration.entities.PasswordType;
@@ -56,7 +57,7 @@ class XmlParserTest {
     @Test
     void test_marshal_unmarshal_credentials() throws Exception {
         final XmlParser xmlParser = new XmlParser();
-        final URL resource = this.getClass().getClassLoader().getResource("credentials.xml");
+        final URL resource = this.getClass().getClassLoader().getResource(ExtensionConstants.CREDENTIALS_LOCATION);
         assertNotNull(resource);
         final File file = new File(resource.toURI());
         final FileAuthConfig config = xmlParser.unmarshalFileAuthConfig(file);
