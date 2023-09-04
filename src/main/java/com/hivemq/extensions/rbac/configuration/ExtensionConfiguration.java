@@ -24,6 +24,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 
+import static com.hivemq.extensions.rbac.ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION;
+import static com.hivemq.extensions.rbac.ExtensionConstants.EXTENSION_CONFIG_LOCATION;
+
 public class ExtensionConfiguration {
 
     private static final @NotNull Logger LOG = LoggerFactory.getLogger(ExtensionConfiguration.class);
@@ -31,7 +34,9 @@ public class ExtensionConfiguration {
     private final @NotNull ExtensionConfig extensionConfig;
 
     public ExtensionConfiguration(final @NotNull File extensionHomeFolder) {
-        final ConfigResolver configResolver = new ConfigResolver(extensionHomeFolder.toPath());
+        final ConfigResolver configResolver = new ConfigResolver(extensionHomeFolder.toPath(),
+                EXTENSION_CONFIG_LOCATION,
+                EXTENSION_CONFIG_LEGACY_LOCATION);
         extensionConfig = read(configResolver.get().toFile());
     }
 
