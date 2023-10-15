@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.hivemq.extension)
     alias(libs.plugins.defaults)
     alias(libs.plugins.license)
-    alias(libs.plugins.asciidoctor)
 }
 
 group = "com.hivemq.extensions"
@@ -14,6 +13,10 @@ hivemqExtension {
     priority.set(1000)
     startPriority.set(10000)
     sdkVersion.set(libs.versions.hivemq.extensionSdk)
+
+    resources {
+        from("LICENSE")
+    }
 }
 
 tasks.hivemqExtensionJar {
@@ -31,21 +34,6 @@ dependencies {
     implementation(libs.jaxb.api)
     runtimeOnly(libs.jaxb.impl)
     implementation(libs.jcommander)
-}
-
-val prepareAsciidoc by tasks.registering(Sync::class) {
-    from("README.adoc").into({ temporaryDir })
-}
-
-tasks.asciidoctor {
-    dependsOn(prepareAsciidoc)
-    sourceDir(prepareAsciidoc.map { it.destinationDir })
-}
-
-hivemqExtension.resources {
-    from("LICENSE")
-    from("README.adoc") { rename { "README.txt" } }
-    from(tasks.asciidoctor)
 }
 
 @Suppress("UnstableApiUsage")
