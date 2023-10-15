@@ -24,18 +24,14 @@ tasks.hivemqExtensionJar {
 
 dependencies {
     hivemqProvided(libs.logback.classic)
-
     implementation(libs.commonsLang)
     implementation(libs.commonsText)
     implementation(libs.bouncycastle.prov)
     implementation(libs.caffeine)
     implementation(libs.jaxb.api)
-    implementation(libs.jcommander)
-
     runtimeOnly(libs.jaxb.impl)
+    implementation(libs.jcommander)
 }
-
-/* ******************** resources ******************** */
 
 val prepareAsciidoc by tasks.registering(Sync::class) {
     from("README.adoc").into({ temporaryDir })
@@ -76,10 +72,4 @@ license {
     mapping("java", "SLASHSTAR_STYLE")
     exclude("**/template-s3discovery.properties")
     exclude("**/logback-test.xml")
-}
-
-/* ******************** run ******************** */
-
-tasks.prepareHivemqHome {
-    hivemqHomeDirectory.set(file("/path/to/a/hivemq/folder"))
 }
