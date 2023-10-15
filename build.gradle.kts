@@ -26,7 +26,6 @@ tasks.hivemqExtensionJar {
 }
 
 dependencies {
-    hivemqProvided(libs.logback.classic)
     implementation(libs.commonsLang)
     implementation(libs.commonsText)
     implementation(libs.bouncycastle.prov)
