@@ -26,4 +26,3 @@ mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 hivemq-extension = { id = "com.hivemq.extension", version = "3.1.0" }
 defaults = { id = "io.github.sgtsilvio.gradle.defaults", version = "0.2.0" }
 license = { id = "com.github.hierynomus.license", version = "0.16.1" }
-asciidoctor = { id = "org.asciidoctor.jvm.convert", version = "3.3.2" }
