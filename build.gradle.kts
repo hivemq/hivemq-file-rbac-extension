@@ -1,8 +1,8 @@
 plugins {
-    id("com.hivemq.extension")
-    id("com.github.hierynomus.license")
-    id("io.github.sgtsilvio.gradle.defaults")
-    id("org.asciidoctor.jvm.convert")
+    alias(libs.plugins.hivemq.extension)
+    alias(libs.plugins.defaults)
+    alias(libs.plugins.license)
+    alias(libs.plugins.asciidoctor)
 }
 
 group = "com.hivemq.extensions"
@@ -13,7 +13,7 @@ hivemqExtension {
     author.set("HiveMQ")
     priority.set(1000)
     startPriority.set(10000)
-    sdkVersion.set("${property("hivemq-extension-sdk.version")}")
+    sdkVersion.set(libs.versions.hivemq.extensionSdk)
 }
 
 tasks.hivemqExtensionJar {
@@ -23,16 +23,16 @@ tasks.hivemqExtensionJar {
 }
 
 dependencies {
-    hivemqProvided("ch.qos.logback:logback-classic:${property("logback.version")}")
+    hivemqProvided(libs.logback.classic)
 
-    implementation("org.apache.commons:commons-lang3:${property("commons-lang.version")}")
-    implementation("org.apache.commons:commons-text:${property("commons-text.version")}")
-    implementation("org.bouncycastle:bcprov-jdk15on:${property("bouncycastle.version")}")
-    implementation("com.github.ben-manes.caffeine:caffeine:${property("caffeine.version")}")
-    implementation("jakarta.xml.bind:jakarta.xml.bind-api:${property("jakarta-xml-bind.version")}")
-    implementation("com.beust:jcommander:${property("jcommander.version")}")
+    implementation(libs.commonsLang)
+    implementation(libs.commonsText)
+    implementation(libs.bouncycastle.prov)
+    implementation(libs.caffeine)
+    implementation(libs.jaxb.api)
+    implementation(libs.jcommander)
 
-    runtimeOnly("com.sun.xml.bind:jaxb-impl:${property("jaxb.version")}")
+    runtimeOnly(libs.jaxb.impl)
 }
 
 /* ******************** resources ******************** */
@@ -55,9 +55,9 @@ hivemqExtension.resources {
 /* ******************** test ******************** */
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter:${property("junit-jupiter.version")}")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:${property("junit-jupiter.version")}")
-    testImplementation("org.mockito:mockito-core:${property("mockito.version")}")
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.junit.jupiter.params)
+    testImplementation(libs.mockito)
 }
 
 tasks.withType<Test>().configureEach {
