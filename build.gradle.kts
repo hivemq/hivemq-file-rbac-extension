@@ -52,23 +52,24 @@ hivemqExtension.resources {
     from(tasks.asciidoctor)
 }
 
-/* ******************** test ******************** */
-
-dependencies {
-    testImplementation(libs.junit.jupiter)
-    testImplementation(libs.junit.jupiter.params)
-    testImplementation(libs.mockito)
+@Suppress("UnstableApiUsage")
+testing {
+    suites {
+        withType<JvmTestSuite> {
+            useJUnitJupiter(libs.versions.junit.jupiter)
+        }
+        "test"(JvmTestSuite::class) {
+            dependencies {
+                implementation(libs.mockito)
+            }
+            targets.configureEach {
+                testTask {
+                    classpath += files("src/hivemq-extension")
+                }
+            }
+        }
+    }
 }
-
-tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
-}
-
-tasks.processTestResources {
-    from("src/hivemq-extension/")
-}
-
-/* ******************** checks ******************** */
 
 license {
     header = rootDir.resolve("HEADER")
