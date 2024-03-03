@@ -17,6 +17,7 @@
 package com.hivemq.extensions.rbac.file.configuration;
 
 import com.hivemq.extension.sdk.api.annotations.NotNull;
+import com.hivemq.extensions.rbac.file.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.file.configuration.entities.FileAuthConfig;
 import com.hivemq.extensions.rbac.file.configuration.entities.Permission;
 import com.hivemq.extensions.rbac.file.configuration.entities.Role;
@@ -39,7 +40,7 @@ class ConfigArchiverTest {
     @BeforeEach
     void setUp(@TempDir final @NotNull File extensionFolder) {
         this.extensionFolder = extensionFolder;
-        configArchiver = new ConfigArchiver(extensionFolder, new XmlParser());
+        configArchiver = new ConfigArchiver(extensionFolder, new XmlParser(),new ExtensionConfig());
     }
 
     @Test
@@ -62,5 +63,20 @@ class ConfigArchiverTest {
         System.out.println(archivedFiles[0].getName());
         assertTrue(archivedFiles[0].getName().startsWith("20"));
         assertTrue(archivedFiles[0].getName().endsWith("credentials.xml"));
+    }
+    @Test
+    void test_archiver_disabled() throws Exception {
+        final FileAuthConfig config = new FileAuthConfig();
+        config.setRoles(List.of(new Role("id1", List.of(new Permission("topic1")))));
+
+        ExtensionConfig extensionConfig= new ExtensionConfig();
+        extensionConfig.setArchiverEnabled(false);        
+        configArchiver = new ConfigArchiver(extensionFolder, new XmlParser(),extensionConfig);
+        configArchiver.archive(config);
+
+        final File[] files = extensionFolder.listFiles();
+        assertNotNull(files);
+        
+        assertEquals(0, files.length);
     }
 }

@@ -67,7 +67,7 @@ public class CredentialsConfiguration {
         final ReloadConfigFileTask reloadableTask = new ReloadConfigFileTask(//
                 unmodifiableList(callbacks) /* We don't want the task to modify the callbacks!*/,
                 configParser,
-                new ConfigArchiver(extensionHomeFolder, new XmlParser()),
+                new ConfigArchiver(extensionHomeFolder, new XmlParser(),extensionConfig),
                 this,
                 credentialsResolver);
         extensionExecutorService.scheduleWithFixedDelay(reloadableTask,

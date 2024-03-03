@@ -19,6 +19,7 @@ package com.hivemq.extensions.rbac.file.configuration;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.annotations.Nullable;
 import com.hivemq.extension.sdk.api.annotations.ThreadSafe;
+import com.hivemq.extensions.rbac.file.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.file.configuration.entities.FileAuthConfig;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.slf4j.Logger;
@@ -35,11 +36,13 @@ class ConfigArchiver {
 
     private final @NotNull File archiveFolder;
     private final @NotNull XmlParser xmlParser;
+    private final @NotNull ExtensionConfig extensionConfig;
 
     ConfigArchiver(
-            final @NotNull File extensionHomeFolder, final @NotNull XmlParser xmlParser) {
+            final @NotNull File extensionHomeFolder, final @NotNull XmlParser xmlParser, final @NotNull ExtensionConfig extensionConfig) {
         this.xmlParser = xmlParser;
         archiveFolder = new File(extensionHomeFolder, "credentials-archive");
+        this.extensionConfig = extensionConfig;
     }
 
     /**
@@ -55,6 +58,11 @@ class ConfigArchiver {
     synchronized void archive(final @Nullable FileAuthConfig config) throws IOException {
         if (config == null) {
             LOG.debug("Configuration is invalid, archiving is not possible");
+            return;
+        }
+        //If someone don't want to create archive every time when he changed credentials.xml file. 
+        if (!this.extensionConfig.isArchiverEnabled()){
+            LOG.debug("Config Archiver is disabled , archiving is not enabled.");
             return;
         }
 

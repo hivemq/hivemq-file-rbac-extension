@@ -21,7 +21,8 @@
 
     <!-- Reload interval for credentials -->
     <credentials-reload-interval>120</credentials-reload-interval>
-
+    <!-- Avoid save old config to archive folder -->        
+    <archiver-enabled>false</archiver-enabled>
     <!-- If the credentials file is using HASHED or PLAIN passwords -->
     <password-type>HASHED</password-type>
 
