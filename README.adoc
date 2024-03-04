@@ -216,7 +216,14 @@ The credentials configuration includes the following settings.
 
     <!-- Reload interval for credentials in seconds -->
     <credentials-reload-interval>60</credentials-reload-interval>
-
+    
+    <!-- Avoid save previous credentials.xml to archive folder       
+    Use this option to enable or disable save archive credentials.xml in case of replace
+        true (default) -> archiver enabled
+        false          -> archiver disabled
+    -->        
+    <archiver-enabled>true</archiver-enabled>
+    
     <!-- Optional list of names of listeners this extension is used for
     <listener-names>
         <listener-name>my-listener</listener-name>
@@ -238,6 +245,7 @@ The credentials configuration includes the following settings.
 |===
 |Configuration |Default |Description
 |`credentials-reload-interval` |`60` |Regular interval in seconds, in which the `credentials.xml` configuration file is checked for changes and reloaded.
+|`archiver-enabled` |`true` |Use this option to enable or disable save archive credentials.xml in case of replace.
 |`listener-names` |`null` |List of names of listeners, this extension will be used for. See {hivemq-listener}[HiveMQ config details^].
 |`password-type` |`HASHED` |How passwords are stored in the `credentials.xml` configuration file. Can either bei `PLAIN` for plain text passwords, or `HASHED` for a salted password hash.
 |`next-extension-instead-of-fail` |`false` |The outcome in case the RBAC could not authenticate the client successfully.

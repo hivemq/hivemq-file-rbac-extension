@@ -35,6 +35,9 @@ public class ExtensionConfig {
     @XmlElement(name = "credentials-reload-interval", defaultValue = "60")
     private int reloadInterval = 60;
 
+    @XmlElement(name = "archiver-enabled", defaultValue = "true")
+    private boolean archiverEnabled = true;
+
     @XmlElementWrapper(name = "listener-names")
     @XmlElement(name = "listener-name")
     private @Nullable Set<String> listenerNames;
@@ -50,10 +53,12 @@ public class ExtensionConfig {
 
     public ExtensionConfig(
             final int reloadInterval,
+            final boolean archiverEnabled,
             final @Nullable Set<String> listenerNames,
             final @Nullable PasswordType passwordType,
             final boolean nextExtensionInsteadOfFail) {
         this.reloadInterval = reloadInterval;
+        this.archiverEnabled = archiverEnabled;
         this.listenerNames = listenerNames;
         this.passwordType = passwordType;
         this.nextExtensionInsteadOfFail = nextExtensionInsteadOfFail;
@@ -65,6 +70,14 @@ public class ExtensionConfig {
 
     public void setReloadInterval(final int reloadInterval) {
         this.reloadInterval = reloadInterval;
+    }
+
+    public boolean isArchiverEnabled() {
+        return archiverEnabled;
+    }
+
+    public void setArchiverEnabled(final boolean archiverEnabled) {
+        this.archiverEnabled = archiverEnabled;
     }
 
     public @Nullable Set<String> getListenerNames() {
@@ -88,6 +101,8 @@ public class ExtensionConfig {
         return "ExtensionConfig{" +
                 "reloadInterval=" +
                 reloadInterval +
+                "archiverEnabled=" +
+                archiverEnabled +
                 ", listenerNames=" +
                 listenerNames +
                 ", passwordType=" +
