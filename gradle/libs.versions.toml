@@ -7,6 +7,7 @@ hivemq-extensionSdk = "4.4.0"
 jaxb-api = "2.3.3"
 jaxb-impl = "2.3.9"
 jcommander = "1.82"
+jetbrains-annotations = "24.1.0"
 junit-jupiter = "5.10.0"
 mockito = "5.11.0"
 
@@ -18,6 +19,7 @@ commonsText = { module = "org.apache.commons:commons-text", version.ref = "commo
 jaxb-api = { module = "jakarta.xml.bind:jakarta.xml.bind-api", version.ref = "jaxb-api" }
 jaxb-impl = { module = "com.sun.xml.bind:jaxb-impl", version.ref = "jaxb-impl" }
 jcommander = { module = "com.beust:jcommander", version.ref = "jcommander" }
+jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
 mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 
 [plugins]

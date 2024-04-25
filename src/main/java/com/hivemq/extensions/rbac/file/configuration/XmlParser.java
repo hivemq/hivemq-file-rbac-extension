@@ -15,11 +15,11 @@
  */
 package com.hivemq.extensions.rbac.file.configuration;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.annotations.ThreadSafe;
 import com.hivemq.extensions.rbac.file.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.file.configuration.entities.FileAuthConfig;
 import com.hivemq.extensions.rbac.file.configuration.entities.User;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,8 +57,7 @@ class XmlParser {
      * @param file   the file where the XML should be written to
      * @throws NotMarshallableException if the XML cannot be marshalled
      */
-    void marshal(final @NotNull FileAuthConfig config, final @NotNull File file)
-            throws NotMarshallableException {
+    void marshal(final @NotNull FileAuthConfig config, final @NotNull File file) throws NotMarshallableException {
         if (file.isDirectory()) {
             throw new NotMarshallableException("Could not write config to file " +
                     file.getAbsolutePath() +

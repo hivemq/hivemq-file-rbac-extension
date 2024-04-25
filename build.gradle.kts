@@ -26,6 +26,8 @@ tasks.hivemqExtensionJar {
 }
 
 dependencies {
+    compileOnly(libs.jetbrains.annotations)
+
     implementation(libs.commonsLang)
     implementation(libs.commonsText)
     implementation(libs.bouncycastle.prov)
@@ -43,6 +45,7 @@ testing {
         }
         "test"(JvmTestSuite::class) {
             dependencies {
+                compileOnly(libs.jetbrains.annotations)
                 implementation(libs.mockito)
             }
             targets.configureEach {

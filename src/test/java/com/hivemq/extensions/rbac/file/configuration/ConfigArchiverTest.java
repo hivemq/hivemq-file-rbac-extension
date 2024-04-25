@@ -15,10 +15,10 @@
  */
 package com.hivemq.extensions.rbac.file.configuration;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extensions.rbac.file.configuration.entities.FileAuthConfig;
 import com.hivemq.extensions.rbac.file.configuration.entities.Permission;
 import com.hivemq.extensions.rbac.file.configuration.entities.Role;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;

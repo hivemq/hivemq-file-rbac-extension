@@ -19,8 +19,8 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.annotations.ThreadSafe;
+import org.jetbrains.annotations.NotNull;
 
 import java.security.MessageDigest;
 import java.util.Base64;

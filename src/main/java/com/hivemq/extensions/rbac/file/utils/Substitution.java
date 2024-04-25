@@ -15,8 +15,8 @@
  */
 package com.hivemq.extensions.rbac.file.utils;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
 import org.apache.commons.text.StringSubstitutor;
+import org.jetbrains.annotations.NotNull;
 
 public class Substitution {
 

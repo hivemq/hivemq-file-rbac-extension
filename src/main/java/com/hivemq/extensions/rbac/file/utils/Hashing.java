@@ -15,10 +15,10 @@
  */
 package com.hivemq.extensions.rbac.file.utils;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
 import org.bouncycastle.crypto.digests.SHA512Digest;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
 import org.bouncycastle.crypto.params.KeyParameter;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Base64;
 

@@ -15,11 +15,11 @@
  */
 package com.hivemq.extensions.rbac.file.configuration;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
-import com.hivemq.extension.sdk.api.annotations.Nullable;
 import com.hivemq.extension.sdk.api.annotations.ThreadSafe;
 import com.hivemq.extensions.rbac.file.configuration.entities.FileAuthConfig;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

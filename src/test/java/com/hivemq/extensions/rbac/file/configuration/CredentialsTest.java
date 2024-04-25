@@ -15,9 +15,9 @@
  */
 package com.hivemq.extensions.rbac.file.configuration;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extensions.rbac.file.ExtensionConstants;
 import com.hivemq.extensions.rbac.file.configuration.entities.ExtensionConfig;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;

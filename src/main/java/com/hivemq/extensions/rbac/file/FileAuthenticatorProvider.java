@@ -15,13 +15,13 @@
  */
 package com.hivemq.extensions.rbac.file;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
-import com.hivemq.extension.sdk.api.annotations.Nullable;
 import com.hivemq.extension.sdk.api.auth.Authenticator;
 import com.hivemq.extension.sdk.api.auth.parameter.AuthenticatorProviderInput;
 import com.hivemq.extension.sdk.api.services.auth.provider.AuthenticatorProvider;
 import com.hivemq.extensions.rbac.file.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.file.utils.CredentialsValidator;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 class FileAuthenticatorProvider implements AuthenticatorProvider {
 
