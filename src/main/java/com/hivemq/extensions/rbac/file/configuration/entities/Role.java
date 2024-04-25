@@ -36,6 +36,7 @@ public class Role {
     @XmlElement(name = "permission")
     private @Nullable List<Permission> permissions;
 
+    @SuppressWarnings("unused")
     public Role() {
     }
 

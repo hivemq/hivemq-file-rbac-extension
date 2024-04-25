@@ -41,6 +41,7 @@ public class User {
     @XmlElement(name = "id")
     private @Nullable List<String> roles;
 
+    @SuppressWarnings("unused")
     public User() {
     }
 
