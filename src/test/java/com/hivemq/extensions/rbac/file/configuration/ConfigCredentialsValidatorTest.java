@@ -15,7 +15,6 @@
  */
 package com.hivemq.extensions.rbac.file.configuration;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extensions.rbac.file.configuration.ConfigCredentialsValidator.ValidationResult;
 import com.hivemq.extensions.rbac.file.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.file.configuration.entities.FileAuthConfig;
@@ -23,6 +22,7 @@ import com.hivemq.extensions.rbac.file.configuration.entities.PasswordType;
 import com.hivemq.extensions.rbac.file.configuration.entities.Permission;
 import com.hivemq.extensions.rbac.file.configuration.entities.Role;
 import com.hivemq.extensions.rbac.file.configuration.entities.User;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

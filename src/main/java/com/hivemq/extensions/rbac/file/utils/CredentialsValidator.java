@@ -16,8 +16,6 @@
 package com.hivemq.extensions.rbac.file.utils;
 
 import com.codahale.metrics.MetricRegistry;
-import com.hivemq.extension.sdk.api.annotations.NotNull;
-import com.hivemq.extension.sdk.api.annotations.Nullable;
 import com.hivemq.extension.sdk.api.annotations.ThreadSafe;
 import com.hivemq.extension.sdk.api.auth.parameter.TopicPermission;
 import com.hivemq.extension.sdk.api.services.builder.Builders;
@@ -28,6 +26,8 @@ import com.hivemq.extensions.rbac.file.configuration.entities.PasswordType;
 import com.hivemq.extensions.rbac.file.configuration.entities.Permission;
 import com.hivemq.extensions.rbac.file.configuration.entities.Role;
 import com.hivemq.extensions.rbac.file.configuration.entities.User;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;

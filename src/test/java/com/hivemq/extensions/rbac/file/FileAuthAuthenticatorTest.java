@@ -15,8 +15,6 @@
  */
 package com.hivemq.extensions.rbac.file;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
-import com.hivemq.extension.sdk.api.annotations.Nullable;
 import com.hivemq.extension.sdk.api.auth.parameter.SimpleAuthInput;
 import com.hivemq.extension.sdk.api.auth.parameter.SimpleAuthOutput;
 import com.hivemq.extension.sdk.api.auth.parameter.TopicPermission;
@@ -36,6 +34,8 @@ import com.hivemq.extension.sdk.api.packets.general.MqttVersion;
 import com.hivemq.extension.sdk.api.packets.general.UserProperties;
 import com.hivemq.extensions.rbac.file.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.file.utils.CredentialsValidator;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

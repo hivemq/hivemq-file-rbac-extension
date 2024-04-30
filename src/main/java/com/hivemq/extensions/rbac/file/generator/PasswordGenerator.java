@@ -18,10 +18,10 @@ package com.hivemq.extensions.rbac.file.generator;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
-import com.hivemq.extension.sdk.api.annotations.NotNull;
-import com.hivemq.extension.sdk.api.annotations.Nullable;
 import com.hivemq.extensions.rbac.file.utils.Hashing;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -38,14 +38,15 @@ public class PasswordGenerator {
                description = "The salt to use for hashing (optional). If no salt is specified, a random salt is used")
     private @Nullable String salt;
 
-    @SuppressWarnings({"FieldCanBeLocal", "CanBeFinal"})
+    @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal"})
     @Parameter(names = {"--iterations", "-i"}, description = "The amount of hashing iterations. Default: 100")
     private int iterations = 100;
 
+    @SuppressWarnings("unused")
     @Parameter(names = "--help", help = true)
     private boolean help;
 
-    @SuppressWarnings({"FieldCanBeLocal", "CanBeFinal"})
+    @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal"})
     @Parameter(names = "-q", description = "Only outputs the hash string.")
     private boolean quiet = false;
 

@@ -15,8 +15,8 @@
  */
 package com.hivemq.extensions.rbac.file.configuration.entities;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
-import com.hivemq.extension.sdk.api.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -41,6 +41,7 @@ public class User {
     @XmlElement(name = "id")
     private @Nullable List<String> roles;
 
+    @SuppressWarnings("unused")
     public User() {
     }
 

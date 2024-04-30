@@ -16,13 +16,13 @@
 package com.hivemq.extensions.rbac.file.utils;
 
 import com.codahale.metrics.MetricRegistry;
-import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.auth.parameter.TopicPermission;
 import com.hivemq.extension.sdk.api.services.builder.Builders;
 import com.hivemq.extension.sdk.api.services.builder.TopicPermissionBuilder;
 import com.hivemq.extensions.rbac.file.configuration.CredentialsConfiguration;
 import com.hivemq.extensions.rbac.file.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.file.configuration.entities.PasswordType;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

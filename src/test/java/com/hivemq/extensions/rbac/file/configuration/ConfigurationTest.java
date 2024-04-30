@@ -15,10 +15,10 @@
  */
 package com.hivemq.extensions.rbac.file.configuration;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extensions.rbac.file.ExtensionConstants;
 import com.hivemq.extensions.rbac.file.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.file.configuration.entities.PasswordType;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -38,8 +38,7 @@ class ConfigurationTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            ExtensionConstants.EXTENSION_CONFIG_LOCATION,
-            ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
+            ExtensionConstants.EXTENSION_CONFIG_LOCATION, ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
     void test_read_extension_configuration(final @NotNull String location) throws Exception {
         final Path configFile = getTempConfig(location);
         Files.writeString(configFile,
@@ -62,8 +61,7 @@ class ConfigurationTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            ExtensionConstants.EXTENSION_CONFIG_LOCATION,
-            ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
+            ExtensionConstants.EXTENSION_CONFIG_LOCATION, ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
     void test_read_extension_configuration_invalid_reload_interval(final @NotNull String location) throws Exception {
         final Path configFile = getTempConfig(location);
         Files.writeString(configFile,
@@ -76,8 +74,7 @@ class ConfigurationTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            ExtensionConstants.EXTENSION_CONFIG_LOCATION,
-            ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
+            ExtensionConstants.EXTENSION_CONFIG_LOCATION, ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
     void test_read_extension_configuration_invalid_pw_type(final @NotNull String location) throws Exception {
         final Path configFile = getTempConfig(location);
         Files.writeString(configFile,
@@ -91,8 +88,7 @@ class ConfigurationTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            ExtensionConstants.EXTENSION_CONFIG_LOCATION,
-            ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
+            ExtensionConstants.EXTENSION_CONFIG_LOCATION, ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
     void test_read_extension_configuration_existing_listener_names(final @NotNull String location) throws Exception {
         final Path configFile = getTempConfig(location);
         Files.writeString(configFile,
