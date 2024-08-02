@@ -21,7 +21,7 @@ hivemqExtension {
 
 tasks.hivemqExtensionJar {
     manifest {
-        attributes["Main-Class"] = "com.hivemq.extensions.rbac.generator.PasswordGenerator"
+        attributes["Main-Class"] = "com.hivemq.extensions.rbac.file.generator.PasswordGenerator"
     }
 }
 
