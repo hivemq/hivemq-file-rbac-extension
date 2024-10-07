@@ -27,7 +27,6 @@ tasks.hivemqExtensionJar {
 
 dependencies {
     compileOnly(libs.jetbrains.annotations)
-
     implementation(libs.commonsLang)
     implementation(libs.commonsText)
     implementation(libs.bouncycastle.prov)
