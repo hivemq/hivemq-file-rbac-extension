@@ -1,7 +1,7 @@
 [versions]
-bouncycastle = "1.78.1"
+bouncycastle = "1.79"
 caffeine = "3.1.8"
-commonsLang = "3.14.0"
+commonsLang = "3.17.0"
 commonsText = "1.12.0"
 hivemq-extensionSdk = "4.4.0"
 jaxb-api = "2.3.3"
@@ -9,7 +9,7 @@ jaxb-impl = "2.3.9"
 jcommander = "1.82"
 jetbrains-annotations = "26.0.1"
 junit-jupiter = "5.10.0"
-mockito = "5.12.0"
+mockito = "5.14.2"
 
 [libraries]
 bouncycastle-prov = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
@@ -23,6 +23,6 @@ jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "j
 mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 
 [plugins]
-hivemq-extension = { id = "com.hivemq.extension", version = "3.1.0" }
+hivemq-extension = { id = "com.hivemq.extension", version = "3.2.0" }
 defaults = { id = "io.github.sgtsilvio.gradle.defaults", version = "0.2.0" }
 license = { id = "com.github.hierynomus.license", version = "0.16.1" }
