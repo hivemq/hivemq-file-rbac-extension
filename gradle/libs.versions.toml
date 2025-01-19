@@ -1,6 +1,6 @@
 [versions]
-bouncycastle = "1.79"
-caffeine = "3.1.8"
+bouncycastle = "1.80"
+caffeine = "3.2.0"
 commonsLang = "3.17.0"
 commonsText = "1.13.0"
 hivemq-extensionSdk = "4.4.0"
