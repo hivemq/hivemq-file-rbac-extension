@@ -53,14 +53,12 @@ oci {
             dependencies {
                 runtime("com.hivemq:hivemq-community-edition:latest") { isChanging = true }
             }
-            layers {
-                layer("main") {
-                    contents {
-                        permissions("opt/hivemq/", 0b111_111_101)
-                        permissions("opt/hivemq/extensions/", 0b111_111_101)
-                        into("opt/hivemq/extensions") {
-                            from(zipTree(tasks.hivemqExtensionZip.flatMap { it.archiveFile }))
-                        }
+            layer("main") {
+                contents {
+                    permissions("opt/hivemq/", 0b111_111_101)
+                    permissions("opt/hivemq/extensions/", 0b111_111_101)
+                    into("opt/hivemq/extensions") {
+                        from(zipTree(tasks.hivemqExtensionZip.flatMap { it.archiveFile }))
                     }
                 }
             }
