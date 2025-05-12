@@ -20,6 +20,12 @@ hivemqExtension {
     }
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
 tasks.hivemqExtensionJar {
     manifest {
         attributes["Main-Class"] = "com.hivemq.extensions.rbac.file.generator.PasswordGenerator"
