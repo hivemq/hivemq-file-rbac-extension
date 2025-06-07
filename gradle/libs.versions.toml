@@ -1,5 +1,5 @@
 [versions]
-bouncycastle = "1.80"
+bouncycastle = "1.81"
 caffeine = "3.2.0"
 commonsLang = "3.17.0"
 commonsText = "1.13.1"
