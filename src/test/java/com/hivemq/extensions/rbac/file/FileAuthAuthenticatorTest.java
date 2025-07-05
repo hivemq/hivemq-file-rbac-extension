@@ -47,7 +47,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -57,22 +57,18 @@ import static org.mockito.Mockito.when;
 
 class FileAuthAuthenticatorTest {
 
-    private @NotNull CredentialsValidator credentialsValidator;
-    private @NotNull ExtensionConfig extensionConfig;
-    private @NotNull FileAuthAuthenticator fileAuthAuthenticator;
-    private @NotNull ModifiableDefaultPermissions modifiableDefaultPermissions;
-    private @NotNull SimpleAuthOutput simpleAuthOutput;
+    private final @NotNull CredentialsValidator credentialsValidator = mock();
+    private final @NotNull ExtensionConfig extensionConfig = mock();
+    private final @NotNull SimpleAuthOutput simpleAuthOutput = mock();
 
+    private final @NotNull ModifiableDefaultPermissions modifiableDefaultPermissions = new TestDefaultPermissions();
+    private final @NotNull FileAuthAuthenticator fileAuthAuthenticator =
+            new FileAuthAuthenticator(credentialsValidator, extensionConfig);
 
     @BeforeEach
     void before() {
-        credentialsValidator = mock(CredentialsValidator.class);
-        extensionConfig = mock(ExtensionConfig.class);
-        fileAuthAuthenticator = new FileAuthAuthenticator(credentialsValidator, extensionConfig);
-        modifiableDefaultPermissions = new TestDefaultPermissions();
         when(credentialsValidator.getPermissions(anyString(), anyString(), anyList())).thenReturn(List.of(mock(
                 TopicPermission.class), mock(TopicPermission.class)));
-        simpleAuthOutput = mock(SimpleAuthOutput.class);
         when(simpleAuthOutput.getDefaultPermissions()).thenReturn(modifiableDefaultPermissions);
     }
 
@@ -208,7 +204,7 @@ class FileAuthAuthenticatorTest {
         when(credentialsValidator.getRoles(anyString(), any(ByteBuffer.class))).thenReturn(List.of("role1", "role2"));
         fileAuthAuthenticator.onConnect(new TestInput("client1", "user1", "pass1"), simpleAuthOutput);
         verify(simpleAuthOutput).authenticateSuccessfully();
-        assertEquals(2, modifiableDefaultPermissions.asList().size());
+        assertThat(modifiableDefaultPermissions.asList()).hasSize(2);
     }
 
     private static class TestDefaultPermissions implements ModifiableDefaultPermissions {
@@ -247,7 +243,6 @@ class FileAuthAuthenticatorTest {
 
         @Override
         public void setDefaultBehaviour(final @NotNull DefaultAuthorizationBehaviour defaultBehaviour) {
-
         }
     }
 
@@ -259,7 +254,9 @@ class FileAuthAuthenticatorTest {
         private final @NotNull String listenerName;
 
         private TestInput(
-                final @NotNull String clientId, final @Nullable String userName, final @Nullable String password) {
+                final @NotNull String clientId,
+                final @Nullable String userName,
+                final @Nullable String password) {
             this.clientId = clientId;
             this.userName = userName;
             this.password = password;
@@ -359,7 +356,9 @@ class FileAuthAuthenticatorTest {
         private final @Nullable String password;
 
         private TestConnectPacket(
-                final @NotNull String clientId, final @Nullable String userName, final @Nullable String password) {
+                final @NotNull String clientId,
+                final @Nullable String userName,
+                final @Nullable String password) {
             this.clientId = clientId;
             this.userName = userName;
             this.password = password;

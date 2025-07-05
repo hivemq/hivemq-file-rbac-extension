@@ -23,43 +23,38 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ConfigArchiverTest {
 
-    private @NotNull File extensionFolder;
+    @TempDir
+    private @NotNull Path extensionHome;
+
     private @NotNull ConfigArchiver configArchiver;
 
     @BeforeEach
-    void setUp(@TempDir final @NotNull File extensionFolder) {
-        this.extensionFolder = extensionFolder;
-        configArchiver = new ConfigArchiver(extensionFolder, new XmlParser());
+    void setUp() {
+        configArchiver = new ConfigArchiver(extensionHome, new XmlParser());
     }
 
     @Test
     void test_archive() throws Exception {
-        final FileAuthConfig config = new FileAuthConfig();
+        final var config = new FileAuthConfig();
         config.setRoles(List.of(new Role("id1", List.of(new Permission("topic1")))));
         configArchiver.archive(config);
 
-        final File[] files = extensionFolder.listFiles();
-        assertNotNull(files);
-        assertEquals(1, files.length);
+        final var files = extensionHome.toFile().listFiles();
+        assertThat(files).hasSize(1);
 
-        final File archiveFolder = files[0];
-        assertEquals("credentials-archive", archiveFolder.getName());
-        assertTrue(archiveFolder.isDirectory());
+        final var archiveFolder = files[0];
+        assertThat(archiveFolder.getName()).isEqualTo("credentials-archive");
+        assertThat(archiveFolder).isDirectory();
 
-        final File[] archivedFiles = archiveFolder.listFiles();
-        assertNotNull(archivedFiles);
-        assertEquals(1, archivedFiles.length);
-        System.out.println(archivedFiles[0].getName());
-        assertTrue(archivedFiles[0].getName().startsWith("20"));
-        assertTrue(archivedFiles[0].getName().endsWith("credentials.xml"));
+        final var archivedFiles = archiveFolder.listFiles();
+        assertThat(archivedFiles).isNotNull();
+        assertThat(archivedFiles[0].getName()).startsWith("20").endsWith("credentials.xml");
     }
 }

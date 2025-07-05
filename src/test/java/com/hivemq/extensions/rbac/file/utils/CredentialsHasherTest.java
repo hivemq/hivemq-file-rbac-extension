@@ -25,60 +25,58 @@ import org.junit.jupiter.api.Test;
 import java.util.Base64;
 
 import static com.hivemq.extensions.rbac.file.utils.CredentialsHasher.HASH_CACHE_HITRATE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class CredentialsHasherTest {
 
     @Test
     void test_check_credentials_valid_password() {
-        final CredentialsHasher credentialsHasher = new CredentialsHasher(new MetricRegistry());
-        final String base64Password = Base64.getEncoder().encodeToString("password".getBytes());
-        final String hashedPassword = getHashedPassword();
-        final boolean result = credentialsHasher.checkCredentials(base64Password, hashedPassword);
-        assertTrue(result);
+        final var credentialsHasher = new CredentialsHasher(new MetricRegistry());
+        final var base64Password = Base64.getEncoder().encodeToString("password".getBytes());
+        final var hashedPassword = getHashedPassword();
+        final var result = credentialsHasher.checkCredentials(base64Password, hashedPassword);
+        assertThat(result).isTrue();
     }
 
     @Test
     void test_check_credentials_invalid_password() {
-        final CredentialsHasher credentialsHasher = new CredentialsHasher(new MetricRegistry());
-        final String base64Password = Base64.getEncoder().encodeToString("notapassword".getBytes());
-        final String hashedPassword = getHashedPassword();
-        final boolean result = credentialsHasher.checkCredentials(base64Password, hashedPassword);
-        assertFalse(result);
+        final var credentialsHasher = new CredentialsHasher(new MetricRegistry());
+        final var base64Password = Base64.getEncoder().encodeToString("notapassword".getBytes());
+        final var hashedPassword = getHashedPassword();
+        final var result = credentialsHasher.checkCredentials(base64Password, hashedPassword);
+        assertThat(result).isFalse();
     }
 
     @Test
     void test_check_credentials_invalid_string() {
-        final CredentialsHasher credentialsHasher = new CredentialsHasher(new MetricRegistry());
-        final String base64Password = Base64.getEncoder().encodeToString("password".getBytes());
-        final boolean result = credentialsHasher.checkCredentials(base64Password, "invalid-string");
-        assertFalse(result);
+        final var credentialsHasher = new CredentialsHasher(new MetricRegistry());
+        final var base64Password = Base64.getEncoder().encodeToString("password".getBytes());
+        final var result = credentialsHasher.checkCredentials(base64Password, "invalid-string");
+        assertThat(result).isFalse();
     }
 
     @Test
     void test_check_credentials_valid_cached() {
-        final MetricRegistry metricRegistry = new MetricRegistry();
-        final CredentialsHasher credentialsHasher = new CredentialsHasher(metricRegistry);
-        final String base64Password = Base64.getEncoder().encodeToString("password".getBytes());
-        final String hashedPassword = getHashedPassword();
-        final boolean result1 = credentialsHasher.checkCredentials(base64Password, hashedPassword);
-        final boolean result2 = credentialsHasher.checkCredentials(base64Password, hashedPassword);
-        final boolean result3 = credentialsHasher.checkCredentials(base64Password, hashedPassword);
-        assertTrue(result1);
-        assertTrue(result2);
-        assertTrue(result3);
-        assertEquals(2, metricRegistry.meter(HASH_CACHE_HITRATE).getCount());
+        final var metricRegistry = new MetricRegistry();
+        final var credentialsHasher = new CredentialsHasher(metricRegistry);
+        final var base64Password = Base64.getEncoder().encodeToString("password".getBytes());
+        final var hashedPassword = getHashedPassword();
+        final var result1 = credentialsHasher.checkCredentials(base64Password, hashedPassword);
+        final var result2 = credentialsHasher.checkCredentials(base64Password, hashedPassword);
+        final var result3 = credentialsHasher.checkCredentials(base64Password, hashedPassword);
+        assertThat(result1).isTrue();
+        assertThat(result2).isTrue();
+        assertThat(result3).isTrue();
+        assertThat(metricRegistry.meter(HASH_CACHE_HITRATE).getCount()).isEqualTo(2);
     }
 
-    private @NotNull String getHashedPassword() {
-        final String base64Salt = Base64.getEncoder().encodeToString("salt".getBytes());
-        final byte[] password = "password".getBytes();
-        final byte[] salt = "salt".getBytes();
-        final PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA512Digest());
+    private static @NotNull String getHashedPassword() {
+        final var base64Salt = Base64.getEncoder().encodeToString("salt".getBytes());
+        final var password = "password".getBytes();
+        final var salt = "salt".getBytes();
+        final var gen = new PKCS5S2ParametersGenerator(new SHA512Digest());
         gen.init(password, salt, 100);
-        final byte[] credentialsHash = ((KeyParameter) gen.generateDerivedParameters(512)).getKey();
+        final var credentialsHash = ((KeyParameter) gen.generateDerivedParameters(512)).getKey();
         return base64Salt + ":" + 100 + ":" + Base64.getEncoder().encodeToString(credentialsHash);
     }
 }

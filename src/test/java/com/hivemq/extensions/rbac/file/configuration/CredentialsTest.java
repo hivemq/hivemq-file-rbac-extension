@@ -18,13 +18,12 @@ package com.hivemq.extensions.rbac.file.configuration;
 import com.hivemq.extensions.rbac.file.ExtensionConstants;
 import com.hivemq.extensions.rbac.file.configuration.entities.ExtensionConfig;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.io.File;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -33,9 +32,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class CredentialsTest {
 
@@ -43,74 +40,71 @@ class CredentialsTest {
     private @NotNull Path extensionHome;
 
     private final @NotNull ExtensionConfig extensionConfig = new ExtensionConfig();
+    private final @NotNull ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
     @BeforeEach
     void setUp() {
         extensionConfig.setReloadInterval(1);
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {ExtensionConstants.CREDENTIALS_LOCATION, ExtensionConstants.CREDENTIALS_LEGACY_LOCATION})
-    void test_create_file_before_it_does_not_exit(
-            final @NotNull String location) throws Exception {
-        final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-        final CredentialsConfiguration credentialsConfiguration =
-                new CredentialsConfiguration(extensionHome.toFile(), scheduledExecutorService, extensionConfig);
-        credentialsConfiguration.init();
-        final CountDownLatch latch = new CountDownLatch(1);
-        credentialsConfiguration.addReloadCallback((oldConfig, newConfig) -> latch.countDown());
-        //Create a new file
-        createCredentialsConfig(extensionHome, location);
-        //Check if reload was called
-        assertTrue(latch.await(30, TimeUnit.SECONDS));
-        assertNotNull(credentialsConfiguration.getCurrentConfig());
-        scheduledExecutorService.shutdown();
+    @AfterEach
+    void tearDown() {
+        executorService.shutdown();
     }
 
     @ParameterizedTest
     @ValueSource(strings = {ExtensionConstants.CREDENTIALS_LOCATION, ExtensionConstants.CREDENTIALS_LEGACY_LOCATION})
-    void test_reload_invalid_config(
+    void test_create_file_before_it_does_not_exit(
             final @NotNull String location) throws Exception {
-        final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-        final CredentialsConfiguration credentialsConfiguration =
-                new CredentialsConfiguration(extensionHome.toFile(), scheduledExecutorService, extensionConfig);
-        //Create a new file
+        final var credentialsConfiguration =
+                new CredentialsConfiguration(extensionHome, executorService, extensionConfig);
+        credentialsConfiguration.init();
+        final var latch = new CountDownLatch(1);
+        credentialsConfiguration.addReloadCallback((oldConfig, newConfig) -> latch.countDown());
+        // create a new file
+        createCredentialsConfig(extensionHome, location);
+        // check if reload was called
+        assertThat(latch.await(30, TimeUnit.SECONDS)).isTrue();
+        assertThat(credentialsConfiguration.getCurrentConfig()).isNotNull();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {ExtensionConstants.CREDENTIALS_LOCATION, ExtensionConstants.CREDENTIALS_LEGACY_LOCATION})
+    void test_reload_invalid_config(final @NotNull String location) throws Exception {
+        final var credentialsConfiguration =
+                new CredentialsConfiguration(extensionHome, executorService, extensionConfig);
+        // create a new file
         createCredentialsConfig(extensionHome, location);
         credentialsConfiguration.init();
-        final Path resolve = extensionHome.resolve(location);
-        assertTrue(resolve.toFile().delete());
-        final CountDownLatch latch = new CountDownLatch(1);
+        final var resolve = extensionHome.resolve(location);
+        Files.delete(resolve);
+        final var latch = new CountDownLatch(1);
         credentialsConfiguration.addReloadCallback((oldConfig, newConfig) -> latch.countDown());
-        //Check if reload was called
-        assertFalse(latch.await(5, TimeUnit.SECONDS));
-        assertNotNull(credentialsConfiguration.getCurrentConfig());
-        scheduledExecutorService.shutdown();
+        // check if reload was called
+        assertThat(latch.await(5, TimeUnit.SECONDS)).isFalse();
+        assertThat(credentialsConfiguration.getCurrentConfig()).isNotNull();
     }
 
     @ParameterizedTest
     @ValueSource(strings = {ExtensionConstants.CREDENTIALS_LOCATION, ExtensionConstants.CREDENTIALS_LEGACY_LOCATION})
     void test_init(final @NotNull String location) throws Exception {
-        final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-        final CredentialsConfiguration credentialsConfiguration =
-                new CredentialsConfiguration(extensionHome.toFile(), scheduledExecutorService, extensionConfig);
+        final var credentialsConfiguration =
+                new CredentialsConfiguration(extensionHome, executorService, extensionConfig);
         createCredentialsConfig(extensionHome, location);
         credentialsConfiguration.init();
-        assertNotNull(credentialsConfiguration.getCurrentConfig());
-        scheduledExecutorService.shutdown();
+        assertThat(credentialsConfiguration.getCurrentConfig()).isNotNull();
     }
 
     private void createCredentialsConfig(final @NotNull Path extensionHome, final @NotNull String location)
             throws Exception {
-        //Create a new file
-        final Path configFile = extensionHome.resolve(location);
+        // create a new file
+        final var targetPath = extensionHome.resolve(location);
+        Files.createDirectories(targetPath.getParent());
 
-        //noinspection ResultOfMethodCallIgnored
-        configFile.getParent().toFile().mkdir();
-
-        //Copy config
-        final URL resource = this.getClass().getClassLoader().getResource(ExtensionConstants.CREDENTIALS_LOCATION);
-        assertNotNull(resource);
-        final File file = new File(resource.toURI());
-        Files.copy(file.toPath(), configFile, StandardCopyOption.REPLACE_EXISTING);
+        // copy config
+        final var resource = getClass().getClassLoader().getResource(ExtensionConstants.CREDENTIALS_LOCATION);
+        assertThat(resource).isNotNull();
+        final var configPath = Path.of(resource.toURI()).toAbsolutePath();
+        Files.copy(configPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
     }
 }

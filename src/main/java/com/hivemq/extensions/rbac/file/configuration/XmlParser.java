@@ -26,17 +26,16 @@ import org.slf4j.LoggerFactory;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import java.io.File;
 import java.io.IOException;
-
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 @ThreadSafe
 class XmlParser {
 
     private static final @NotNull Logger LOG = LoggerFactory.getLogger(XmlParser.class);
 
-    //jaxb context is thread safe
+    // JAXB context is thread safe
     private final @NotNull JAXBContext jaxb;
 
     XmlParser() {
@@ -57,43 +56,38 @@ class XmlParser {
      * @param file   the file where the XML should be written to
      * @throws NotMarshallableException if the XML cannot be marshalled
      */
-    void marshal(final @NotNull FileAuthConfig config, final @NotNull File file) throws NotMarshallableException {
-        if (file.isDirectory()) {
-            throw new NotMarshallableException("Could not write config to file " +
-                    file.getAbsolutePath() +
-                    " because it's a directory");
+    void marshal(final @NotNull FileAuthConfig config, final @NotNull Path file) throws NotMarshallableException {
+        if (Files.isDirectory(file)) {
+            throw new NotMarshallableException("Could not write config to file " + file + " because it's a directory");
         }
-        if (file.exists()) {
-            throw new NotMarshallableException("File " + file.getAbsolutePath() + " already exists");
+        if (Files.exists(file)) {
+            throw new NotMarshallableException("File " + file + " already exists");
         }
-        if (file.canWrite()) {
-            throw new NotMarshallableException("Could not write config to file " +
-                    file.getAbsolutePath() +
-                    " because it's not writable");
+        if (Files.isWritable(file)) {
+            throw new NotMarshallableException("Could not write config to file " + file + " because it's not writable");
         }
-
         try {
-            final Marshaller marshaller = jaxb.createMarshaller();
+            final var marshaller = jaxb.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            marshaller.marshal(config, file);
+            marshaller.marshal(config, file.toFile());
         } catch (final JAXBException e) {
-            throw new NotMarshallableException("Could not write config to file " + file.getAbsolutePath(), e);
+            throw new NotMarshallableException("Could not write config to file " + file, e);
         }
     }
 
-    @NotNull FileAuthConfig unmarshalFileAuthConfig(final @NotNull File file) throws IOException {
+    @NotNull FileAuthConfig unmarshalFileAuthConfig(final @NotNull Path file) throws IOException {
         try {
-            final Unmarshaller unmarshaller = jaxb.createUnmarshaller();
-            return (FileAuthConfig) unmarshaller.unmarshal(file);
+            final var unmarshaller = jaxb.createUnmarshaller();
+            return (FileAuthConfig) unmarshaller.unmarshal(file.toFile());
         } catch (final JAXBException e) {
             throw new IOException(e);
         }
     }
 
-    @NotNull ExtensionConfig unmarshalExtensionConfig(final @NotNull File file) throws IOException {
+    @NotNull ExtensionConfig unmarshalExtensionConfig(final @NotNull Path file) throws IOException {
         try {
-            final Unmarshaller unmarshaller = jaxb.createUnmarshaller();
-            return (ExtensionConfig) unmarshaller.unmarshal(file);
+            final var unmarshaller = jaxb.createUnmarshaller();
+            return (ExtensionConfig) unmarshaller.unmarshal(file.toFile());
         } catch (final JAXBException e) {
             throw new IOException(e);
         }

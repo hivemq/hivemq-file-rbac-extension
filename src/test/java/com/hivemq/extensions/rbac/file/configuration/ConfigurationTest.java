@@ -27,9 +27,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ConfigurationTest {
 
@@ -40,70 +38,68 @@ class ConfigurationTest {
     @ValueSource(strings = {
             ExtensionConstants.EXTENSION_CONFIG_LOCATION, ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
     void test_read_extension_configuration(final @NotNull String location) throws Exception {
-        final Path configFile = getTempConfig(location);
+        final var configFile = getTempConfig(location);
         Files.writeString(configFile,
                 "<extension-configuration><credentials-reload-interval>999</credentials-reload-interval></extension-configuration>");
-        final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(extensionHome.toFile());
-        final ExtensionConfig extensionConfig = extensionConfiguration.getExtensionConfig();
-        assertNotNull(extensionConfig);
-        assertEquals(999, extensionConfig.getReloadInterval());
+        final var extensionConfiguration = new ExtensionConfiguration(extensionHome);
+        final var extensionConfig = extensionConfiguration.getExtensionConfig();
+        assertThat(extensionConfig).isNotNull();
+        assertThat(extensionConfig.getReloadInterval()).isEqualTo(999);
     }
 
     @Test
     void test_read_extension_file_not_present() {
-        final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(extensionHome.toFile());
-        final ExtensionConfig extensionConfig = extensionConfiguration.getExtensionConfig();
-        assertNotNull(extensionConfig);
-        //check that default values are used
-        assertEquals(60, extensionConfig.getReloadInterval());
-        assertEquals(PasswordType.HASHED, extensionConfig.getPasswordType());
+        final var extensionConfiguration = new ExtensionConfiguration(extensionHome);
+        final var extensionConfig = extensionConfiguration.getExtensionConfig();
+        assertThat(extensionConfig).isNotNull();
+        // check that default values are used
+        assertThat(extensionConfig.getReloadInterval()).isEqualTo(60);
+        assertThat(extensionConfig.getPasswordType()).isEqualTo(PasswordType.HASHED);
     }
 
     @ParameterizedTest
     @ValueSource(strings = {
             ExtensionConstants.EXTENSION_CONFIG_LOCATION, ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
     void test_read_extension_configuration_invalid_reload_interval(final @NotNull String location) throws Exception {
-        final Path configFile = getTempConfig(location);
+        final var configFile = getTempConfig(location);
         Files.writeString(configFile,
                 "<extension-configuration><credentials-reload-interval>-1</credentials-reload-interval></extension-configuration>");
-        final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(extensionHome.toFile());
-        final ExtensionConfig extensionConfig = extensionConfiguration.getExtensionConfig();
-        assertNotNull(extensionConfig);
-        assertEquals(60, extensionConfig.getReloadInterval());
+        final var extensionConfiguration = new ExtensionConfiguration(extensionHome);
+        final var extensionConfig = extensionConfiguration.getExtensionConfig();
+        assertThat(extensionConfig).isNotNull();
+        assertThat(extensionConfig.getReloadInterval()).isEqualTo(60);
     }
 
     @ParameterizedTest
     @ValueSource(strings = {
             ExtensionConstants.EXTENSION_CONFIG_LOCATION, ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
     void test_read_extension_configuration_invalid_pw_type(final @NotNull String location) throws Exception {
-        final Path configFile = getTempConfig(location);
+        final var configFile = getTempConfig(location);
         Files.writeString(configFile,
                 "<extension-configuration><password-type>ABC</password-type></extension-configuration>");
-        final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(extensionHome.toFile());
+        final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(extensionHome);
         final ExtensionConfig extensionConfig = extensionConfiguration.getExtensionConfig();
-        assertNotNull(extensionConfig);
-        assertEquals(PasswordType.HASHED, extensionConfig.getPasswordType());
-        assertNull(extensionConfig.getListenerNames());
+        assertThat(extensionConfig).isNotNull();
+        assertThat(extensionConfig.getPasswordType()).isEqualTo(PasswordType.HASHED);
+        assertThat(extensionConfig.getListenerNames()).isNull();
     }
 
     @ParameterizedTest
     @ValueSource(strings = {
             ExtensionConstants.EXTENSION_CONFIG_LOCATION, ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
     void test_read_extension_configuration_existing_listener_names(final @NotNull String location) throws Exception {
-        final Path configFile = getTempConfig(location);
+        final var configFile = getTempConfig(location);
         Files.writeString(configFile,
                 "<extension-configuration><listener-names><listener-name>listener-1</listener-name><listener-name>listener-2</listener-name></listener-names></extension-configuration>");
-        final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(extensionHome.toFile());
-        final ExtensionConfig extensionConfig = extensionConfiguration.getExtensionConfig();
-        assertNotNull(extensionConfig);
-        assertNotNull(extensionConfig.getListenerNames());
-        assertEquals(2, extensionConfig.getListenerNames().size());
+        final var extensionConfiguration = new ExtensionConfiguration(extensionHome);
+        final var extensionConfig = extensionConfiguration.getExtensionConfig();
+        assertThat(extensionConfig).isNotNull();
+        assertThat(extensionConfig.getListenerNames()).hasSize(2);
     }
 
-    private @NotNull Path getTempConfig(final @NotNull String location) {
-        final Path configFile = extensionHome.resolve(location);
-        //noinspection ResultOfMethodCallIgnored
-        configFile.getParent().toFile().mkdir();
+    private @NotNull Path getTempConfig(final @NotNull String location) throws Exception {
+        final var configFile = extensionHome.resolve(location);
+        Files.createDirectories(configFile.getParent());
         return configFile;
     }
 }

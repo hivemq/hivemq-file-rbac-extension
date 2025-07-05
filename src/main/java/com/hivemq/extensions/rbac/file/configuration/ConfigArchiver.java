@@ -23,8 +23,9 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Date;
 
 @ThreadSafe
@@ -32,13 +33,12 @@ class ConfigArchiver {
 
     private static final @NotNull Logger LOG = LoggerFactory.getLogger(ConfigArchiver.class);
 
-    private final @NotNull File archiveFolder;
+    private final @NotNull Path archiveFolder;
     private final @NotNull XmlParser xmlParser;
 
-    ConfigArchiver(
-            final @NotNull File extensionHomeFolder, final @NotNull XmlParser xmlParser) {
+    ConfigArchiver(final @NotNull Path extensionHome, final @NotNull XmlParser xmlParser) {
         this.xmlParser = xmlParser;
-        archiveFolder = new File(extensionHomeFolder, "credentials-archive");
+        this.archiveFolder = extensionHome.resolve("credentials-archive").toAbsolutePath();
     }
 
     /**
@@ -56,32 +56,25 @@ class ConfigArchiver {
             LOG.debug("Configuration is invalid, archiving is not possible");
             return;
         }
-
-        //If someone's nasty and creates a file that looks like a folder
-        if (archiveFolder.isFile()) {
+        // if someone's nasty and creates a file that looks like a folder
+        if (Files.isRegularFile(archiveFolder)) {
             LOG.warn("The credentials archive folder is a file, trying to delete");
-            if (archiveFolder.delete()) {
-                throw new IOException("Could not delete file " + archiveFolder.getAbsolutePath());
+            if (Files.deleteIfExists(archiveFolder)) {
+                throw new IOException("Could not delete file " + archiveFolder);
             }
         }
-
-        //If someone deleted the folder in the meantime
-        if (!archiveFolder.exists()) {
+        // if someone deleted the folder in the meantime
+        if (!Files.exists(archiveFolder)) {
             LOG.debug("Creating credentials archive Folder");
-
-            if (!archiveFolder.mkdir()) {
-                throw new IOException("Could not create credentials archive folder " + archiveFolder.getAbsolutePath());
-            } else {
-                LOG.info("Created credentials Archive folder {}.", archiveFolder.getAbsolutePath());
-            }
+            Files.createDirectories(archiveFolder);
+            LOG.info("Created credentials Archive folder {}.", archiveFolder);
         }
-
-        final FastDateFormat formatter = FastDateFormat.getInstance("yyyyMMdd-hh-mm-ss");
+        final var formatter = FastDateFormat.getInstance("yyyyMMdd-hh-mm-ss");
         try {
-            final String dateString = formatter.format(new Date());
-            final File file = new File(archiveFolder, dateString + "-credentials.xml");
+            final var dateString = formatter.format(new Date());
+            final var file = archiveFolder.resolve(dateString + "-credentials.xml").toAbsolutePath();
             xmlParser.marshal(config, file);
-            LOG.info("Archived current credentials config to {}.", file.getAbsolutePath());
+            LOG.info("Archived current credentials config to {}.", file);
         } catch (final NotMarshallableException e) {
             throw new IOException(e);
         }

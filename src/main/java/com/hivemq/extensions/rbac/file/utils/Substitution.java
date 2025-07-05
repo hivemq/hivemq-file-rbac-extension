@@ -28,7 +28,6 @@ public class Substitution {
      * Replaces parts enclosed in <code>${{}}</code>
      * <p>
      * Can replace <code>${{clientid}}</code> and <code>${{username}}</code>
-     * <p>
      *
      * @param topic    topic pattern
      * @param clientId actual clientId
@@ -36,20 +35,19 @@ public class Substitution {
      * @return substituted string
      */
     public static @NotNull String substitute(
-            final @NotNull String topic, final @NotNull String clientId, final @NotNull String username) {
-        final StringSubstitutor stringSubstitutor = new StringSubstitutor(key -> {
-            final String lowerCaseKey = key.toLowerCase();
-
-            //replace clientid and username
+            final @NotNull String topic,
+            final @NotNull String clientId,
+            final @NotNull String username) {
+        final var stringSubstitutor = new StringSubstitutor(key -> {
+            final var lowerCaseKey = key.toLowerCase();
+            // replace clientid and username
             if ("clientid".equals(lowerCaseKey)) {
                 return clientId;
             } else if ("username".equals(lowerCaseKey)) {
                 return username;
             }
-
             return null;
         }, PREFIX, SUFFIX, ESCAPE_CHAR.charAt(0));
-
         return stringSubstitutor.replace(topic);
     }
 }

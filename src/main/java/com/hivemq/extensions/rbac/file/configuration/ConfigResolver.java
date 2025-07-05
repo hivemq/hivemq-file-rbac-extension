@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
@@ -37,7 +38,9 @@ public class ConfigResolver implements Supplier<Path> {
     private final @NotNull String legacyLocation;
 
     public ConfigResolver(
-            final @NotNull Path extensionHome, final @NotNull String location, final @NotNull String legacyLocation) {
+            final @NotNull Path extensionHome,
+            final @NotNull String location,
+            final @NotNull String legacyLocation) {
         this.extensionHome = extensionHome;
         this.location = location;
         this.legacyLocation = legacyLocation;
@@ -45,11 +48,11 @@ public class ConfigResolver implements Supplier<Path> {
 
     @Override
     public @NotNull Path get() {
-        final Path extensionXmlPath = extensionHome.resolve(location);
-        final Path extensionXmlLegacyPath = extensionHome.resolve(legacyLocation);
+        final var extensionXmlPath = extensionHome.resolve(location).toAbsolutePath();
+        final var extensionXmlLegacyPath = extensionHome.resolve(legacyLocation).toAbsolutePath();
         // If the config is present at the legacy location we chose this in any case.
         // The only way the config could be present at the legacy location is when it was deliberately placed there.
-        if (extensionXmlLegacyPath.toFile().exists()) {
+        if (Files.exists(extensionXmlLegacyPath)) {
             if (!legacyWarningAlreadyLogged.getAndSet(true)) {
                 LOG.warn("{}: The configuration file is placed at the legacy location '{}'. " +
                                 "Please move the configuration file to the new location '{}'. " +

@@ -52,10 +52,9 @@ public class PasswordGenerator {
 
     public static void main(final @NotNull String @NotNull [] args) {
         try {
-            final PasswordGenerator generator = new PasswordGenerator();
-            final JCommander jCommander = JCommander.newBuilder().addObject(generator).build();
+            final var generator = new PasswordGenerator();
+            final var jCommander = JCommander.newBuilder().addObject(generator).build();
             jCommander.parse(args);
-
             if (generator.help) {
                 jCommander.usage();
                 System.exit(0);
@@ -78,12 +77,16 @@ public class PasswordGenerator {
             System.exit(1);
         }
         if (salt == null) {
-            salt = RandomStringUtils.randomAlphanumeric(32);
+            salt = RandomStringUtils.secure().nextAlphanumeric(32);
+            if (salt == null) {
+                System.err.println("Could not generate random salt");
+                System.exit(1);
+            }
         }
-        final String base64Password = Base64.getEncoder().encodeToString(password.getBytes(StandardCharsets.UTF_8));
-        final String base64Salt = Base64.getEncoder().encodeToString(salt.getBytes(StandardCharsets.UTF_8));
-        final byte[] hash = Hashing.createHash(base64Password, base64Salt, iterations);
-        final String passwordString = base64Salt + ":" + iterations + ":" + Base64.getEncoder().encodeToString(hash);
+        final var base64Password = Base64.getEncoder().encodeToString(password.getBytes(StandardCharsets.UTF_8));
+        final var base64Salt = Base64.getEncoder().encodeToString(salt.getBytes(StandardCharsets.UTF_8));
+        final var hash = Hashing.createHash(base64Password, base64Salt, iterations);
+        final var passwordString = base64Salt + ":" + iterations + ":" + Base64.getEncoder().encodeToString(hash);
         if (!quiet) {
             System.out.println("Add the following string as password to your credentials configuration file:\n" +
                     "----------------------------------------------------------------------------");

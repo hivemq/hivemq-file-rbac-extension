@@ -16,7 +16,6 @@
 package com.hivemq.extensions.rbac.file.utils;
 
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.hivemq.extension.sdk.api.annotations.ThreadSafe;
@@ -35,39 +34,36 @@ public class CredentialsHasher {
     private final @NotNull MetricRegistry metricRegistry;
     private final @NotNull Cache<String, byte[]> credentialHashCache;
 
-
     public CredentialsHasher(final @NotNull MetricRegistry metricRegistry) {
         this.metricRegistry = metricRegistry;
-        credentialHashCache =
+        this.credentialHashCache =
                 Caffeine.newBuilder().recordStats().expireAfterWrite(30, TimeUnit.SECONDS).maximumSize(1000).build();
     }
 
     public boolean checkCredentials(
-            final @NotNull String base64Password, final @NotNull String saltPasswordFromConfig) {
-        final String[] saltPw = saltPasswordFromConfig.split(":");
+            final @NotNull String base64Password,
+            final @NotNull String saltPasswordFromConfig) {
+        final var saltPw = saltPasswordFromConfig.split(":");
         if (saltPw.length != 3) {
             return false;
         }
-
-        final String saltFromConfigBase64 = saltPw[0];
-        final int iterations = Integer.parseInt(saltPw[1]);
-        final String passwordHashFromConfigBase64 = saltPw[2];
-        final String cacheString = base64Password + saltFromConfigBase64 + iterations;
-        byte[] credentialsHash = credentialHashCache.getIfPresent(cacheString);
-
+        final var saltFromConfigBase64 = saltPw[0];
+        final var iterations = Integer.parseInt(saltPw[1]);
+        final var passwordHashFromConfigBase64 = saltPw[2];
+        final var cacheString = base64Password + saltFromConfigBase64 + iterations;
+        var credentialsHash = credentialHashCache.getIfPresent(cacheString);
         if (credentialsHash != null) {
-            //found in cache
+            // found in cache
             metricRegistry.meter(HASH_CACHE_HITRATE).mark();
         } else {
-            //not found in cache
-            final Timer timer = metricRegistry.timer(HASH_TIME);
-            try (final Timer.Context ignored = timer.time()) {
+            // not found in cache
+            final var timer = metricRegistry.timer(HASH_TIME);
+            try (final var ignored = timer.time()) {
                 credentialsHash = Hashing.createHash(base64Password, saltFromConfigBase64, iterations);
             }
             credentialHashCache.put(cacheString, credentialsHash);
         }
-
-        //We use a time constant equality check for passwords to avoid timing attacks
+        // we use a time constant equality check for passwords to avoid timing attacks
         return MessageDigest.isEqual(credentialsHash, Base64.getDecoder().decode(passwordHashFromConfigBase64));
     }
 }

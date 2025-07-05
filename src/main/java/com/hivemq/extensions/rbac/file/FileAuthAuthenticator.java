@@ -18,18 +18,11 @@ package com.hivemq.extensions.rbac.file;
 import com.hivemq.extension.sdk.api.auth.SimpleAuthenticator;
 import com.hivemq.extension.sdk.api.auth.parameter.SimpleAuthInput;
 import com.hivemq.extension.sdk.api.auth.parameter.SimpleAuthOutput;
-import com.hivemq.extension.sdk.api.auth.parameter.TopicPermission;
-import com.hivemq.extension.sdk.api.client.parameter.Listener;
 import com.hivemq.extension.sdk.api.packets.auth.DefaultAuthorizationBehaviour;
 import com.hivemq.extension.sdk.api.packets.connect.ConnackReasonCode;
 import com.hivemq.extensions.rbac.file.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.file.utils.CredentialsValidator;
 import org.jetbrains.annotations.NotNull;
-
-import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 class FileAuthAuthenticator implements SimpleAuthenticator {
 
@@ -37,33 +30,31 @@ class FileAuthAuthenticator implements SimpleAuthenticator {
     private final @NotNull ExtensionConfig extensionConfig;
 
     FileAuthAuthenticator(
-            final @NotNull CredentialsValidator credentialsValidator, final @NotNull ExtensionConfig extensionConfig) {
+            final @NotNull CredentialsValidator credentialsValidator,
+            final @NotNull ExtensionConfig extensionConfig) {
         this.credentialsValidator = credentialsValidator;
         this.extensionConfig = extensionConfig;
     }
 
     @Override
     public void onConnect(
-            final @NotNull SimpleAuthInput simpleAuthInput, final @NotNull SimpleAuthOutput simpleAuthOutput) {
-        final boolean nextExtensionInsteadOfFail = extensionConfig.isNextExtensionInsteadOfFail();
-        final Set<String> listenerNames = extensionConfig.getListenerNames();
-        final Optional<Listener> connectedListenerOptional = simpleAuthInput.getConnectionInformation().getListener();
-
+            final @NotNull SimpleAuthInput simpleAuthInput,
+            final @NotNull SimpleAuthOutput simpleAuthOutput) {
+        final var nextExtensionInsteadOfFail = extensionConfig.isNextExtensionInsteadOfFail();
+        final var listenerNames = extensionConfig.getListenerNames();
+        final var connectedListenerOptional = simpleAuthInput.getConnectionInformation().getListener();
         if (listenerNames != null && !listenerNames.isEmpty() && connectedListenerOptional.isPresent()) {
-            final String connectedListenerName = connectedListenerOptional.get().getName();
+            final var connectedListenerName = connectedListenerOptional.get().getName();
             if (!listenerNames.contains(connectedListenerName)) {
                 simpleAuthOutput.nextExtensionOrDefault();
                 return;
             }
         }
-
-        final Optional<String> userNameOptional = simpleAuthInput.getConnectPacket().getUserName();
-        final Optional<ByteBuffer> passwordOptional = simpleAuthInput.getConnectPacket().getPassword();
-        final String clientId = simpleAuthInput.getClientInformation().getClientId();
-
-        //check if username and password are present
+        // check if username and password are present
+        final var userNameOptional = simpleAuthInput.getConnectPacket().getUserName();
+        final var passwordOptional = simpleAuthInput.getConnectPacket().getPassword();
         if (userNameOptional.isEmpty() || passwordOptional.isEmpty()) {
-            //client is not authenticated
+            // client is not authenticated
             if (nextExtensionInsteadOfFail) {
                 simpleAuthOutput.nextExtensionOrDefault();
                 return;
@@ -72,11 +63,11 @@ class FileAuthAuthenticator implements SimpleAuthenticator {
                     "Authentication failed because username or password are missing");
             return;
         }
-        final String userName = userNameOptional.get();
-
-        //prevent clientIds with MQTT wildcard characters
+        final var userName = userNameOptional.get();
+        // prevent clientIds with MQTT wildcard characters
+        final var clientId = simpleAuthInput.getClientInformation().getClientId();
         if (clientId.contains("#") || clientId.contains("+")) {
-            //client is not authenticated
+            // client is not authenticated
             if (nextExtensionInsteadOfFail) {
                 simpleAuthOutput.nextExtensionOrDefault();
                 return;
@@ -85,10 +76,9 @@ class FileAuthAuthenticator implements SimpleAuthenticator {
                     "The characters '#' and '+' are not allowed in the client identifier");
             return;
         }
-
-        //prevent usernames with MQTT wildcard characters
+        // prevent usernames with MQTT wildcard characters
         if (userName.contains("#") || userName.contains("+")) {
-            //client is not authenticated
+            // client is not authenticated
             if (nextExtensionInsteadOfFail) {
                 simpleAuthOutput.nextExtensionOrDefault();
                 return;
@@ -97,10 +87,8 @@ class FileAuthAuthenticator implements SimpleAuthenticator {
                     "The characters '#' and '+' are not allowed in the username");
             return;
         }
-
-        //check if we have any roles for username/password combination
-        final List<String> roles = credentialsValidator.getRoles(userName, passwordOptional.get());
-
+        // check if we have any roles for username/password combination
+        final var roles = credentialsValidator.getRoles(userName, passwordOptional.get());
         if (roles == null || roles.isEmpty()) {
             //username/password combination is unknown or has invalid roles
             if (nextExtensionInsteadOfFail) {
@@ -111,12 +99,10 @@ class FileAuthAuthenticator implements SimpleAuthenticator {
                     "Authentication failed because of invalid credentials");
             return;
         }
-
-        //username/password combination is valid and has roles, so we set the default permissions for this client
-        final List<TopicPermission> topicPermissions = credentialsValidator.getPermissions(clientId, userName, roles);
+        // username/password combination is valid and has roles, so we set the default permissions for this client
+        final var topicPermissions = credentialsValidator.getPermissions(clientId, userName, roles);
         simpleAuthOutput.getDefaultPermissions().addAll(topicPermissions);
         simpleAuthOutput.getDefaultPermissions().setDefaultBehaviour(DefaultAuthorizationBehaviour.DENY);
-
         simpleAuthOutput.authenticateSuccessfully();
     }
 }

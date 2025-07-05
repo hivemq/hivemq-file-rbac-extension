@@ -20,8 +20,9 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static com.hivemq.extensions.rbac.file.ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION;
 import static com.hivemq.extensions.rbac.file.ExtensionConstants.EXTENSION_CONFIG_LOCATION;
@@ -29,14 +30,14 @@ import static com.hivemq.extensions.rbac.file.ExtensionConstants.EXTENSION_CONFI
 public class ExtensionConfiguration {
 
     private static final @NotNull Logger LOG = LoggerFactory.getLogger(ExtensionConfiguration.class);
+
     private final @NotNull XmlParser xmlParser = new XmlParser();
     private final @NotNull ExtensionConfig extensionConfig;
 
-    public ExtensionConfiguration(final @NotNull File extensionHomeFolder) {
-        final ConfigResolver configResolver = new ConfigResolver(extensionHomeFolder.toPath(),
-                EXTENSION_CONFIG_LOCATION,
-                EXTENSION_CONFIG_LEGACY_LOCATION);
-        extensionConfig = read(configResolver.get().toFile());
+    public ExtensionConfiguration(final @NotNull Path extensionHome) {
+        final var configResolver =
+                new ConfigResolver(extensionHome, EXTENSION_CONFIG_LOCATION, EXTENSION_CONFIG_LEGACY_LOCATION);
+        this.extensionConfig = read(configResolver.get());
     }
 
     public @NotNull ExtensionConfig getExtensionConfig() {
@@ -47,20 +48,18 @@ public class ExtensionConfiguration {
      * @param file the new config file to read.
      * @return the new config based on the file contents or null if the config is invalid
      */
-    private @NotNull ExtensionConfig read(final @NotNull File file) {
-        final ExtensionConfig defaultConfig = new ExtensionConfig();
-        if (!file.exists()) {
-            LOG.warn("File auth extension configuration file {} missing, using defaults", file.getAbsolutePath());
+    private @NotNull ExtensionConfig read(final @NotNull Path file) {
+        final var defaultConfig = new ExtensionConfig();
+        if (!Files.exists(file)) {
+            LOG.warn("File auth extension configuration file {} missing, using defaults", file);
             return defaultConfig;
         }
-        if (!file.canRead()) {
-            LOG.warn("Unable to read file auth extension configuration file {}, using defaults",
-                    file.getAbsolutePath());
+        if (!Files.isReadable(file)) {
+            LOG.warn("Unable to read file auth extension configuration file {}, using defaults", file);
             return defaultConfig;
         }
-
         try {
-            final ExtensionConfig newExtensionConfig = xmlParser.unmarshalExtensionConfig(file);
+            final var newExtensionConfig = xmlParser.unmarshalExtensionConfig(file);
             if (newExtensionConfig.getReloadInterval() < 1) {
                 LOG.warn(
                         "Credentials reload interval for file auth extension must be greater than 0, using default interval " +

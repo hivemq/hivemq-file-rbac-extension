@@ -23,13 +23,10 @@ import com.hivemq.extension.sdk.api.parameter.ExtensionStopOutput;
 import com.hivemq.extension.sdk.api.services.Services;
 import com.hivemq.extensions.rbac.file.configuration.CredentialsConfiguration;
 import com.hivemq.extensions.rbac.file.configuration.ExtensionConfiguration;
-import com.hivemq.extensions.rbac.file.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.file.utils.CredentialsValidator;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
 
 @SuppressWarnings("unused")
 public class FileAuthMain implements ExtensionMain {
@@ -42,21 +39,20 @@ public class FileAuthMain implements ExtensionMain {
             final @NotNull ExtensionStartOutput extensionStartOutput) {
         LOG.info("Starting File RBAC extension.");
         try {
-            final File extensionHomeFolder = extensionStartInput.getExtensionInformation().getExtensionHomeFolder();
-            final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(extensionHomeFolder);
+            final var extensionHome = extensionStartInput.getExtensionInformation().getExtensionHomeFolder().toPath();
+            final var extensionConfiguration = new ExtensionConfiguration(extensionHome);
 
-            final CredentialsConfiguration credentialsConfiguration = new CredentialsConfiguration(extensionHomeFolder,
+            final var credentialsConfiguration = new CredentialsConfiguration(extensionHome,
                     Services.extensionExecutorService(),
                     extensionConfiguration.getExtensionConfig());
             credentialsConfiguration.init();
 
-            final CredentialsValidator credentialsValidator = new CredentialsValidator(credentialsConfiguration,
+            final var credentialsValidator = new CredentialsValidator(credentialsConfiguration,
                     extensionConfiguration.getExtensionConfig(),
                     Services.metricRegistry());
             credentialsValidator.init();
 
-            final ExtensionConfig extensionConfig = extensionConfiguration.getExtensionConfig();
-
+            final var extensionConfig = extensionConfiguration.getExtensionConfig();
             Services.securityRegistry()
                     .setAuthenticatorProvider(new FileAuthenticatorProvider(credentialsValidator, extensionConfig));
         } catch (final Exception e) {

@@ -27,18 +27,15 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.MockedStatic;
 
-import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
@@ -103,15 +100,18 @@ class CredentialsValidatorTest {
             "    </users>\n" +
             ROLES +
             "</file-rbac>";
+
+    @TempDir
+    private @NotNull Path extensionHome;
+
+    private final @NotNull ScheduledExecutorService scheduledExecutorService =
+            Executors.newSingleThreadScheduledExecutor();
+
     private @NotNull CredentialsValidator validator;
-    private @NotNull ScheduledExecutorService scheduledExecutorService;
-    private @NotNull File extensionFolder;
 
     @BeforeEach
-    void setUp(@TempDir final @NotNull File extensionFolder) throws Exception {
-        this.extensionFolder = extensionFolder;
-        this.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-        this.validator = initValidator(PLAIN_CREDENTIALS, false);
+    void setUp() throws Exception {
+        validator = initValidator(PLAIN_CREDENTIALS, false);
     }
 
     @AfterEach
@@ -121,78 +121,72 @@ class CredentialsValidatorTest {
 
     @Test
     void test_valid_roles_plain() {
-        final List<String> roles = validator.getRoles("user1", ByteBuffer.wrap("pass1".getBytes()));
-        assertNotNull(roles);
-        assertEquals("role1", roles.get(0));
-        final List<String> roles2 = validator.getRoles("user2", ByteBuffer.wrap("pass2".getBytes()));
-        assertNotNull(roles2);
-        assertEquals("role1", roles2.get(0));
-        assertEquals("role2", roles2.get(1));
+        final var roles = validator.getRoles("user1", ByteBuffer.wrap("pass1".getBytes()));
+        assertThat(roles).containsExactly("role1");
+        final var roles2 = validator.getRoles("user2", ByteBuffer.wrap("pass2".getBytes()));
+        assertThat(roles2).containsExactly("role1", "role2");
     }
 
     @Test
     void test_valid_roles_hashed() throws Exception {
         this.validator = initValidator(HASHED_CREDENTIALS, true);
-        final List<String> roles = validator.getRoles("user1", ByteBuffer.wrap("pass1".getBytes()));
-        assertNotNull(roles);
-        assertEquals("role1", roles.get(0));
-        final List<String> roles2 = validator.getRoles("user2", ByteBuffer.wrap("pass2".getBytes()));
-        assertNotNull(roles2);
-        assertEquals("role1", roles2.get(0));
-        assertEquals("role2", roles2.get(1));
+        final var roles = validator.getRoles("user1", ByteBuffer.wrap("pass1".getBytes()));
+        assertThat(roles).containsExactly("role1");
+        final var roles2 = validator.getRoles("user2", ByteBuffer.wrap("pass2".getBytes()));
+        assertThat(roles2).containsExactly("role1", "role2");
     }
 
     @Test
     void test_permissions() {
-        try (final MockedStatic<Builders> ignored = mockStatic(Builders.class)) {
+        try (final var ignored = mockStatic(Builders.class)) {
             when(Builders.topicPermission()).thenReturn(new TestTopicPermissionBuilder());
-            final List<TopicPermission> permissions = validator.getPermissions("client1", "user1", List.of("role1"));
-            assertEquals(1, permissions.size());
-            assertEquals("data/client1/personal", permissions.get(0).getTopicFilter());
-            final List<TopicPermission> permissions2 = validator.getPermissions("client2", "user2", List.of("role2"));
-            assertEquals(1, permissions2.size());
-            assertEquals("user2/#", permissions2.get(0).getTopicFilter());
-            final List<TopicPermission> permissions3 =
-                    validator.getPermissions("client3", "user3", List.of("role1", "role2"));
-            assertEquals(2, permissions3.size());
-            assertEquals("data/client3/personal", permissions3.get(0).getTopicFilter());
-            assertEquals("user3/#", permissions3.get(1).getTopicFilter());
+            final var permissions = validator.getPermissions("client1", "user1", List.of("role1"));
+            assertThat(permissions).singleElement().satisfies(permission -> {
+                assertThat(permission.getTopicFilter()).isEqualTo("data/client1/personal");
+            });
+            final var permissions2 = validator.getPermissions("client2", "user2", List.of("role2"));
+            assertThat(permissions2).singleElement().satisfies(permission -> {
+                assertThat(permission.getTopicFilter()).isEqualTo("user2/#");
+            });
+            final var permissions3 = validator.getPermissions("client3", "user3", List.of("role1", "role2"));
+            assertThat(permissions3).satisfiesExactly( //
+                    permission -> assertThat(permission.getTopicFilter()).isEqualTo("data/client3/personal"),
+                    permission -> assertThat(permission.getTopicFilter()).isEqualTo("user3/#"));
         }
     }
 
     @Test
     void test_invalid_roles() {
-        final List<String> roles = validator.getRoles("user1", ByteBuffer.wrap("pass2".getBytes()));
-        assertNull(roles);
-        final List<String> roles2 = validator.getRoles("user2", ByteBuffer.wrap("pass1".getBytes()));
-        assertNull(roles2);
-        final List<String> roles3 = validator.getRoles("user3", ByteBuffer.wrap("pass3".getBytes()));
-        assertNull(roles3);
+        final var roles = validator.getRoles("user1", ByteBuffer.wrap("pass2".getBytes()));
+        assertThat(roles).isNull();
+        final var roles2 = validator.getRoles("user2", ByteBuffer.wrap("pass1".getBytes()));
+        assertThat(roles2).isNull();
+        final var roles3 = validator.getRoles("user3", ByteBuffer.wrap("pass3".getBytes()));
+        assertThat(roles3).isNull();
     }
 
     @Test
     void test_invalid_config() throws Exception {
-        this.validator = initValidator("", false);
-        final List<String> roles = validator.getRoles("user1", ByteBuffer.wrap("pass1".getBytes()));
-        assertNull(roles);
-        final List<String> roles2 = validator.getRoles("user2", ByteBuffer.wrap("pass2".getBytes()));
-        assertNull(roles2);
+        validator = initValidator("", false);
+        final var roles = validator.getRoles("user1", ByteBuffer.wrap("pass1".getBytes()));
+        assertThat(roles).isNull();
+        final var roles2 = validator.getRoles("user2", ByteBuffer.wrap("pass2".getBytes()));
+        assertThat(roles2).isNull();
     }
 
     private @NotNull CredentialsValidator initValidator(final @NotNull String credentials, final boolean hashed)
             throws Exception {
-        final ExtensionConfig extensionConfig = new ExtensionConfig();
+        final var extensionConfig = new ExtensionConfig();
         if (hashed) {
             extensionConfig.setPasswordType(PasswordType.HASHED);
         } else {
             extensionConfig.setPasswordType(PasswordType.PLAIN);
         }
-        Files.writeString(new File(extensionFolder, "credentials.xml").toPath(), credentials);
-        final CredentialsConfiguration credentialsConfiguration =
-                new CredentialsConfiguration(extensionFolder, scheduledExecutorService, extensionConfig);
+        Files.writeString(extensionHome.resolve("credentials.xml"), credentials);
+        final var credentialsConfiguration =
+                new CredentialsConfiguration(extensionHome, scheduledExecutorService, extensionConfig);
         credentialsConfiguration.init();
-        final CredentialsValidator validator =
-                new CredentialsValidator(credentialsConfiguration, extensionConfig, new MetricRegistry());
+        final var validator = new CredentialsValidator(credentialsConfiguration, extensionConfig, new MetricRegistry());
         validator.init();
         return validator;
     }

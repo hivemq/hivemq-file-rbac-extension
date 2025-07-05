@@ -28,13 +28,14 @@ class FileAuthenticatorProvider implements AuthenticatorProvider {
     private final @NotNull FileAuthAuthenticator authenticator;
 
     FileAuthenticatorProvider(
-            final @NotNull CredentialsValidator credentialsValidator, final @NotNull ExtensionConfig extensionConfig) {
+            final @NotNull CredentialsValidator credentialsValidator,
+            final @NotNull ExtensionConfig extensionConfig) {
         this.authenticator = new FileAuthAuthenticator(credentialsValidator, extensionConfig);
     }
 
     @Override
     public @Nullable Authenticator getAuthenticator(final @NotNull AuthenticatorProviderInput authenticatorProviderInput) {
-        //Always return the same authenticator, because it is thread-safe and can be shared between multiple clients
+        // always return the same authenticator, because it is thread-safe and can be shared between multiple clients
         return authenticator;
     }
 }

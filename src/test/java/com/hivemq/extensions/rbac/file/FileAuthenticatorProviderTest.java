@@ -15,26 +15,18 @@
  */
 package com.hivemq.extensions.rbac.file;
 
-import com.hivemq.extension.sdk.api.auth.Authenticator;
-import com.hivemq.extension.sdk.api.auth.parameter.AuthenticatorProviderInput;
-import com.hivemq.extensions.rbac.file.configuration.entities.ExtensionConfig;
-import com.hivemq.extensions.rbac.file.utils.CredentialsValidator;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-
 
 class FileAuthenticatorProviderTest {
 
     @Test
     void test_return_same_authenticator() {
-        final FileAuthenticatorProvider fileAuthenticatorProvider =
-                new FileAuthenticatorProvider(mock(CredentialsValidator.class), mock(ExtensionConfig.class));
-        final Authenticator authenticator1 =
-                fileAuthenticatorProvider.getAuthenticator(mock(AuthenticatorProviderInput.class));
-        final Authenticator authenticator2 =
-                fileAuthenticatorProvider.getAuthenticator(mock(AuthenticatorProviderInput.class));
-        assertSame(authenticator1, authenticator2);
+        final var fileAuthenticatorProvider = new FileAuthenticatorProvider(mock(), mock());
+        final var authenticator1 = fileAuthenticatorProvider.getAuthenticator(mock());
+        final var authenticator2 = fileAuthenticatorProvider.getAuthenticator(mock());
+        assertThat(authenticator1).isSameAs(authenticator2);
     }
 }

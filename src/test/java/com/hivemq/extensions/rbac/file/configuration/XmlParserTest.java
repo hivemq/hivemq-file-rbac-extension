@@ -16,64 +16,57 @@
 package com.hivemq.extensions.rbac.file.configuration;
 
 import com.hivemq.extensions.rbac.file.ExtensionConstants;
-import com.hivemq.extensions.rbac.file.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.file.configuration.entities.FileAuthConfig;
 import com.hivemq.extensions.rbac.file.configuration.entities.PasswordType;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
-import java.net.URL;
+import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class XmlParserTest {
 
-    private @NotNull File extensionFolder;
-
-    @BeforeEach
-    void setUp(@TempDir final @NotNull File extensionFolder) {
-        this.extensionFolder = extensionFolder;
-    }
-
+    @TempDir
+    private @NotNull Path extensionHome;
 
     @Test
     void test_marshal_directory() {
-        final XmlParser xmlParser = new XmlParser();
-        assertThrows(NotMarshallableException.class, () -> xmlParser.marshal(new FileAuthConfig(), extensionFolder));
+        final var xmlParser = new XmlParser();
+        assertThatThrownBy(() -> xmlParser.marshal(new FileAuthConfig(), extensionHome)).isInstanceOf(
+                NotMarshallableException.class);
     }
 
     @Test
     void test_marshal_file_exists() {
-        final XmlParser xmlParser = new XmlParser();
-        assertThrows(NotMarshallableException.class, () -> xmlParser.marshal(new FileAuthConfig(), extensionFolder));
+        final var xmlParser = new XmlParser();
+        assertThatThrownBy(() -> xmlParser.marshal(new FileAuthConfig(), extensionHome)).isInstanceOf(
+                NotMarshallableException.class);
     }
 
     @Test
     void test_marshal_unmarshal_credentials() throws Exception {
-        final XmlParser xmlParser = new XmlParser();
-        final URL resource = this.getClass().getClassLoader().getResource(ExtensionConstants.CREDENTIALS_LOCATION);
-        assertNotNull(resource);
-        final File file = new File(resource.toURI());
-        final FileAuthConfig config = xmlParser.unmarshalFileAuthConfig(file);
-        final File testFile = new File(extensionFolder, "test.xml");
+        final var xmlParser = new XmlParser();
+        final var resource = getClass().getClassLoader().getResource(ExtensionConstants.CREDENTIALS_LOCATION);
+        assertThat(resource).isNotNull();
+        final var configPath = Path.of(resource.toURI()).toAbsolutePath();
+        final var config = xmlParser.unmarshalFileAuthConfig(configPath);
+        final var testFile = extensionHome.resolve("test.xml");
         xmlParser.marshal(config, testFile);
-        final FileAuthConfig marshalledConfig = xmlParser.unmarshalFileAuthConfig(testFile);
-        assertEquals(config.toString().trim(), marshalledConfig.toString().trim());
+        final var marshalledConfig = xmlParser.unmarshalFileAuthConfig(testFile);
+        assertThat(marshalledConfig.toString().trim()).isEqualTo(config.toString().trim());
     }
 
     @Test
     void test_unmarshal_extension_config() throws Exception {
-        final XmlParser xmlParser = new XmlParser();
-        final URL resource = this.getClass().getClassLoader().getResource("test-extension-config.xml");
-        assertNotNull(resource);
-        final File file = new File(resource.toURI());
-        final ExtensionConfig config = xmlParser.unmarshalExtensionConfig(file);
-        assertEquals(PasswordType.HASHED, config.getPasswordType());
-        assertEquals(120, config.getReloadInterval());
+        final var xmlParser = new XmlParser();
+        final var resource = getClass().getClassLoader().getResource("test-extension-config.xml");
+        assertThat(resource).isNotNull();
+        final var configPath = Path.of(resource.toURI());
+        final var config = xmlParser.unmarshalExtensionConfig(configPath);
+        assertThat(config.getPasswordType()).isEqualTo(PasswordType.HASHED);
+        assertThat(config.getReloadInterval()).isEqualTo(120);
     }
 }

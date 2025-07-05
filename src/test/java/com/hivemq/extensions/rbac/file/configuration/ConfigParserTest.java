@@ -17,56 +17,51 @@ package com.hivemq.extensions.rbac.file.configuration;
 
 import com.hivemq.extensions.rbac.file.ExtensionConstants;
 import com.hivemq.extensions.rbac.file.configuration.entities.ExtensionConfig;
-import com.hivemq.extensions.rbac.file.configuration.entities.FileAuthConfig;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
-import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ConfigParserTest {
 
-    private @NotNull File extensionFolder;
+    @TempDir
+    private @NotNull Path extensionFolder;
+
     private @NotNull ConfigParser configParser;
 
     @BeforeEach
-    void setUp(@TempDir final @NotNull File extensionFolder) {
-        this.extensionFolder = extensionFolder;
+    void setUp() {
         configParser = new ConfigParser(new ExtensionConfig());
     }
 
     @Test
     void test_valid_config() throws Exception {
-        final URL resource = this.getClass().getClassLoader().getResource(ExtensionConstants.CREDENTIALS_LOCATION);
-        assertNotNull(resource);
-        final File file = new File(resource.toURI());
-        final FileAuthConfig fileAuthConfig = configParser.read(file);
-        assertNotNull(fileAuthConfig);
-        assertNotNull(fileAuthConfig.getRoles());
-        assertEquals(2, fileAuthConfig.getRoles().size());
-        assertNotNull(fileAuthConfig.getUsers());
-        assertEquals(2, fileAuthConfig.getUsers().size());
+        final var resource = getClass().getClassLoader().getResource(ExtensionConstants.CREDENTIALS_LOCATION);
+        assertThat(resource).isNotNull();
+        final var configPath = Path.of(resource.toURI());
+        final var fileAuthConfig = configParser.read(configPath);
+        assertThat(fileAuthConfig).isNotNull();
+        assertThat(fileAuthConfig.getUsers()).hasSize(2);
+        assertThat(fileAuthConfig.getRoles()).hasSize(2);
     }
 
     @Test
     void test_not_exising_file() {
-        final File file = new File(extensionFolder, "not-existing.xml");
-        final FileAuthConfig fileAuthConfig = configParser.read(file);
-        assertNull(fileAuthConfig);
+        final var configPath = extensionFolder.resolve("not-existing.xml");
+        final var fileAuthConfig = configParser.read(configPath);
+        assertThat(fileAuthConfig).isNull();
     }
 
     @Test
     void test_invalid_file() throws Exception {
-        final File file = new File(extensionFolder, "invalid.xml");
-        Files.writeString(file.toPath(), "<file-rbac></file-rbac>");
-        final FileAuthConfig fileAuthConfig = configParser.read(file);
-        assertNull(fileAuthConfig);
+        final var configPath = extensionFolder.resolve("invalid.xml");
+        Files.writeString(configPath, "<file-rbac></file-rbac>");
+        final var fileAuthConfig = configParser.read(configPath);
+        assertThat(fileAuthConfig).isNull();
     }
 }
