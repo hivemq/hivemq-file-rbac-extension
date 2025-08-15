@@ -10,7 +10,7 @@ jaxb-impl = "2.3.9"
 jcommander = "1.82"
 jetbrains-annotations = "26.0.2"
 junit-jupiter = "5.10.0"
-mockito = "5.18.0"
+mockito = "5.19.0"
 
 [libraries]
 assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
