@@ -23,6 +23,9 @@ hivemqExtension {
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(11)
+        // for maximum reproducibility, we can optionally specify vendor and version
+        // vendor = JvmVendorSpec.ADOPTIUM (or AZUL, AMAZON, etc.)
+        // this ensures the same JDK vendor is used across builds
     }
 }
 
@@ -30,6 +33,29 @@ tasks.hivemqExtensionJar {
     manifest {
         attributes["Main-Class"] = "com.hivemq.extensions.rbac.file.generator.PasswordGenerator"
     }
+}
+
+// configure reproducible builds
+tasks.withType<AbstractArchiveTask>().configureEach {
+    isPreserveFileTimestamps = false
+    isReproducibleFileOrder = true
+
+    // normalize file permissions for reproducibility
+    // files: 0644 (rw-r--r--), Directories: 0755 (rwxr-xr-x)
+    filePermissions {
+        unix("0644")
+    }
+    dirPermissions {
+        unix("0755")
+    }
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.encoding = "UTF-8"
+    // Ensure consistent compilation across different JDK versions
+    options.compilerArgs.addAll(listOf(
+        "-parameters" // Include parameter names for reflection (improves consistency)
+    ))
 }
 
 dependencies {
