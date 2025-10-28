@@ -1,7 +1,7 @@
 [versions]
 assertj = "3.27.6"
 bouncycastle = "1.82"
-caffeine = "3.2.2"
+caffeine = "3.2.3"
 commonsLang = "3.19.0"
 commonsText = "1.14.0"
 hivemq-extensionSdk = "4.4.0"
