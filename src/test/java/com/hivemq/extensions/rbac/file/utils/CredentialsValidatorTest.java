@@ -42,64 +42,70 @@ import static org.mockito.Mockito.when;
 
 class CredentialsValidatorTest {
 
-    private static final @NotNull String ROLES = "    <roles>\n" +
-            "        <role>\n" +
-            "            <id>role1</id>\n" +
-            "            <permissions>\n" +
-            "                <permission>\n" +
-            "                    <topic>data/${{clientid}}/personal</topic>\n" +
-            "                </permission>\n" +
-            "            </permissions>\n" +
-            "        </role>\n" +
-            "        <role>\n" +
-            "            <id>role2</id>\n" +
-            "            <permissions>\n" +
-            "                <permission>\n" +
-            "                    <topic>${{username}}/#</topic>\n" +
-            "                </permission>\n" +
-            "            </permissions>\n" +
-            "        </role>\n" +
-            "    </roles>\n";
-    private static final @NotNull String HASHED_CREDENTIALS = "<file-rbac>" +
-            "   <users>\n" +
-            "        <user>\n" +
-            "            <name>user1</name>\n" +
-            "            <password>c2FsdA==:100:MAK8JjJQh/c4uYbwkAm33TRXCbeuBC+meeK9ww3Mu4KTv08+8ywTKgF24MNHotOESjDmsutrEk+38PaZVX2TFA==</password>\n" +
-            "            <roles>\n" +
-            "                <id>role1</id>\n" +
-            "            </roles>\n" +
-            "        </user>\n" +
-            "        <user>\n" +
-            "            <name>user2</name>\n" +
-            "            <password>c2FsdA==:100:99RGrFfo+l2fQ+KTeSdM/5SZBAJlxj25jzwfAfNeqCe4+9ejGBSEue1w005Uq3+aoZKn89JXNQU8hgHKneu0Dw==</password>\n" +
-            "            <roles>\n" +
-            "                <id>role1</id>\n" +
-            "                <id>role2</id>\n" +
-            "            </roles>\n" +
-            "        </user>\n" +
-            "    </users>\n" +
-            ROLES +
-            "</file-rbac>";
-    private static final @NotNull String PLAIN_CREDENTIALS = "<file-rbac>" +
-            "   <users>\n" +
-            "        <user>\n" +
-            "            <name>user1</name>\n" +
-            "            <password>pass1</password>\n" +
-            "            <roles>\n" +
-            "                <id>role1</id>\n" +
-            "            </roles>\n" +
-            "        </user>\n" +
-            "        <user>\n" +
-            "            <name>user2</name>\n" +
-            "            <password>pass2</password>\n" +
-            "            <roles>\n" +
-            "                <id>role1</id>\n" +
-            "                <id>role2</id>\n" +
-            "            </roles>\n" +
-            "        </user>\n" +
-            "    </users>\n" +
-            ROLES +
-            "</file-rbac>";
+    private static final @NotNull String ROLES = """
+                <roles>
+                    <role>
+                        <id>role1</id>
+                        <permissions>
+                            <permission>
+                                <topic>data/${{clientid}}/personal</topic>
+                            </permission>
+                        </permissions>
+                    </role>
+                    <role>
+                        <id>role2</id>
+                        <permissions>
+                            <permission>
+                                <topic>${{username}}/#</topic>
+                            </permission>
+                        </permissions>
+                    </role>
+                </roles>
+            """;
+
+    private static final @NotNull String HASHED_CREDENTIALS = """
+            <file-rbac>
+               <users>
+                    <user>
+                        <name>user1</name>
+                        <password>c2FsdA==:100:MAK8JjJQh/c4uYbwkAm33TRXCbeuBC+meeK9ww3Mu4KTv08+8ywTKgF24MNHotOESjDmsutrEk+38PaZVX2TFA==</password>
+                        <roles>
+                            <id>role1</id>
+                        </roles>
+                    </user>
+                    <user>
+                        <name>user2</name>
+                        <password>c2FsdA==:100:99RGrFfo+l2fQ+KTeSdM/5SZBAJlxj25jzwfAfNeqCe4+9ejGBSEue1w005Uq3+aoZKn89JXNQU8hgHKneu0Dw==</password>
+                        <roles>
+                            <id>role1</id>
+                            <id>role2</id>
+                        </roles>
+                    </user>
+                </users>
+            """ + ROLES + """
+            </file-rbac>""";
+
+    private static final @NotNull String PLAIN_CREDENTIALS = """
+            <file-rbac>
+               <users>
+                    <user>
+                        <name>user1</name>
+                        <password>pass1</password>
+                        <roles>
+                            <id>role1</id>
+                        </roles>
+                    </user>
+                    <user>
+                        <name>user2</name>
+                        <password>pass2</password>
+                        <roles>
+                            <id>role1</id>
+                            <id>role2</id>
+                        </roles>
+                    </user>
+                </users>
+            """ + ROLES + """
+            </file-rbac>""";
 
     @TempDir
     private @NotNull Path extensionHome;
@@ -141,13 +147,11 @@ class CredentialsValidatorTest {
         try (final var ignored = mockStatic(Builders.class)) {
             when(Builders.topicPermission()).thenReturn(new TestTopicPermissionBuilder());
             final var permissions = validator.getPermissions("client1", "user1", List.of("role1"));
-            assertThat(permissions).singleElement().satisfies(permission -> {
-                assertThat(permission.getTopicFilter()).isEqualTo("data/client1/personal");
-            });
+            assertThat(permissions).singleElement()
+                    .satisfies(permission -> assertThat(permission.getTopicFilter()).isEqualTo("data/client1/personal"));
             final var permissions2 = validator.getPermissions("client2", "user2", List.of("role2"));
-            assertThat(permissions2).singleElement().satisfies(permission -> {
-                assertThat(permission.getTopicFilter()).isEqualTo("user2/#");
-            });
+            assertThat(permissions2).singleElement()
+                    .satisfies(permission -> assertThat(permission.getTopicFilter()).isEqualTo("user2/#"));
             final var permissions3 = validator.getPermissions("client3", "user3", List.of("role1", "role2"));
             assertThat(permissions3).satisfiesExactly( //
                     permission -> assertThat(permission.getTopicFilter()).isEqualTo("data/client3/personal"),
@@ -238,13 +242,7 @@ class CredentialsValidatorTest {
 
     }
 
-    private static class TestTopicPermission implements TopicPermission {
-
-        private final @NotNull String topicFilter;
-
-        public TestTopicPermission(final @NotNull String topicFilter) {
-            this.topicFilter = topicFilter;
-        }
+    private record TestTopicPermission(@NotNull String topicFilter) implements TopicPermission {
 
         @Override
         public @NotNull String getTopicFilter() {

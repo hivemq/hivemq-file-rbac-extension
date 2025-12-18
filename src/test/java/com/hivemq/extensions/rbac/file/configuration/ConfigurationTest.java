@@ -16,7 +16,6 @@
 package com.hivemq.extensions.rbac.file.configuration;
 
 import com.hivemq.extensions.rbac.file.ExtensionConstants;
-import com.hivemq.extensions.rbac.file.configuration.entities.ExtensionConfig;
 import com.hivemq.extensions.rbac.file.configuration.entities.PasswordType;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
@@ -39,8 +38,10 @@ class ConfigurationTest {
             ExtensionConstants.EXTENSION_CONFIG_LOCATION, ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
     void test_read_extension_configuration(final @NotNull String location) throws Exception {
         final var configFile = getTempConfig(location);
-        Files.writeString(configFile,
-                "<extension-configuration><credentials-reload-interval>999</credentials-reload-interval></extension-configuration>");
+        Files.writeString(configFile, """
+                <extension-configuration>
+                    <credentials-reload-interval>999</credentials-reload-interval>
+                </extension-configuration>""");
         final var extensionConfiguration = new ExtensionConfiguration(extensionHome);
         final var extensionConfig = extensionConfiguration.getExtensionConfig();
         assertThat(extensionConfig).isNotNull();
@@ -62,8 +63,10 @@ class ConfigurationTest {
             ExtensionConstants.EXTENSION_CONFIG_LOCATION, ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
     void test_read_extension_configuration_invalid_reload_interval(final @NotNull String location) throws Exception {
         final var configFile = getTempConfig(location);
-        Files.writeString(configFile,
-                "<extension-configuration><credentials-reload-interval>-1</credentials-reload-interval></extension-configuration>");
+        Files.writeString(configFile, """
+                <extension-configuration>
+                    <credentials-reload-interval>-1</credentials-reload-interval>
+                </extension-configuration>""");
         final var extensionConfiguration = new ExtensionConfiguration(extensionHome);
         final var extensionConfig = extensionConfiguration.getExtensionConfig();
         assertThat(extensionConfig).isNotNull();
@@ -75,10 +78,12 @@ class ConfigurationTest {
             ExtensionConstants.EXTENSION_CONFIG_LOCATION, ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
     void test_read_extension_configuration_invalid_pw_type(final @NotNull String location) throws Exception {
         final var configFile = getTempConfig(location);
-        Files.writeString(configFile,
-                "<extension-configuration><password-type>ABC</password-type></extension-configuration>");
-        final ExtensionConfiguration extensionConfiguration = new ExtensionConfiguration(extensionHome);
-        final ExtensionConfig extensionConfig = extensionConfiguration.getExtensionConfig();
+        Files.writeString(configFile, """
+                <extension-configuration>
+                    <password-type>ABC</password-type>
+                </extension-configuration>""");
+        final var extensionConfiguration = new ExtensionConfiguration(extensionHome);
+        final var extensionConfig = extensionConfiguration.getExtensionConfig();
         assertThat(extensionConfig).isNotNull();
         assertThat(extensionConfig.getPasswordType()).isEqualTo(PasswordType.HASHED);
         assertThat(extensionConfig.getListenerNames()).isNull();
@@ -89,8 +94,13 @@ class ConfigurationTest {
             ExtensionConstants.EXTENSION_CONFIG_LOCATION, ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
     void test_read_extension_configuration_existing_listener_names(final @NotNull String location) throws Exception {
         final var configFile = getTempConfig(location);
-        Files.writeString(configFile,
-                "<extension-configuration><listener-names><listener-name>listener-1</listener-name><listener-name>listener-2</listener-name></listener-names></extension-configuration>");
+        Files.writeString(configFile, """
+                <extension-configuration>
+                    <listener-names>
+                        <listener-name>listener-1</listener-name>
+                        <listener-name>listener-2</listener-name>
+                    </listener-names>
+                </extension-configuration>""");
         final var extensionConfiguration = new ExtensionConfiguration(extensionHome);
         final var extensionConfig = extensionConfiguration.getExtensionConfig();
         assertThat(extensionConfig).isNotNull();
