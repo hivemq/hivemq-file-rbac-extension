@@ -207,7 +207,7 @@ class FileAuthAuthenticatorTest {
         assertThat(modifiableDefaultPermissions.asList()).hasSize(2);
     }
 
-    private static class TestDefaultPermissions implements ModifiableDefaultPermissions {
+    private static final class TestDefaultPermissions implements ModifiableDefaultPermissions {
 
         private final @NotNull List<TopicPermission> permissions = new ArrayList<>();
 
@@ -246,32 +246,17 @@ class FileAuthAuthenticatorTest {
         }
     }
 
-    private static class TestInput implements SimpleAuthInput {
-
-        private final @NotNull String clientId;
-        private final @Nullable String userName;
-        private final @Nullable String password;
-        private final @NotNull String listenerName;
+    private record TestInput(
+            @NotNull String clientId,
+            @Nullable String userName,
+            @Nullable String password,
+            @NotNull String listenerName) implements SimpleAuthInput {
 
         private TestInput(
                 final @NotNull String clientId,
                 final @Nullable String userName,
                 final @Nullable String password) {
-            this.clientId = clientId;
-            this.userName = userName;
-            this.password = password;
-            this.listenerName = "testName";
-        }
-
-        private TestInput(
-                final @NotNull String clientId,
-                final @Nullable String userName,
-                final @Nullable String password,
-                final @NotNull String listenerName) {
-            this.clientId = clientId;
-            this.userName = userName;
-            this.password = password;
-            this.listenerName = listenerName;
+            this(clientId, userName, password, "testName");
         }
 
         @Override
@@ -290,13 +275,7 @@ class FileAuthAuthenticatorTest {
         }
     }
 
-    private static class TestConnectionInformation implements ConnectionInformation {
-
-        private final @NotNull String listenerName;
-
-        TestConnectionInformation(final @NotNull String listenerName) {
-            this.listenerName = listenerName;
-        }
+    private record TestConnectionInformation(@NotNull String listenerName) implements ConnectionInformation {
 
         @Override
         public @NotNull MqttVersion getMqttVersion() {
@@ -349,20 +328,10 @@ class FileAuthAuthenticatorTest {
         }
     }
 
-    private static class TestConnectPacket implements ConnectPacket {
-
-        private final @NotNull String clientId;
-        private final @Nullable String userName;
-        private final @Nullable String password;
-
-        private TestConnectPacket(
-                final @NotNull String clientId,
-                final @Nullable String userName,
-                final @Nullable String password) {
-            this.clientId = clientId;
-            this.userName = userName;
-            this.password = password;
-        }
+    private record TestConnectPacket(
+            @NotNull String clientId,
+            @Nullable String userName,
+            @Nullable String password) implements ConnectPacket {
 
         @Override
         public @NotNull MqttVersion getMqttVersion() {
@@ -441,10 +410,7 @@ class FileAuthAuthenticatorTest {
 
         @Override
         public @NotNull Optional<ByteBuffer> getPassword() {
-            if (password == null) {
-                return Optional.empty();
-            }
-            return Optional.of(ByteBuffer.wrap(password.getBytes()));
+            return Optional.ofNullable(password).map(p -> ByteBuffer.wrap(p.getBytes()));
         }
     }
 }
