@@ -1,5 +1,5 @@
 [versions]
-assertj = "3.27.6"
+assertj = "3.27.7"
 bouncycastle = "1.83"
 caffeine = "3.2.3"
 commonsLang = "3.20.0"
