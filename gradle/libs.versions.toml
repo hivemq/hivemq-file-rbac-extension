@@ -6,7 +6,7 @@ commonsLang = "3.20.0"
 commonsText = "1.15.0"
 hivemq-extensionSdk = "4.4.0"
 jaxb-api = "4.0.5"
-jaxb-impl = "2.3.9"
+jaxb-impl = "4.0.6"
 jcommander = "1.82"
 jetbrains-annotations = "26.0.2-1"
 junit-jupiter = "5.10.0"
@@ -19,7 +19,7 @@ caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "c
 commonsLang = { module = "org.apache.commons:commons-lang3", version.ref = "commonsLang" }
 commonsText = { module = "org.apache.commons:commons-text", version.ref = "commonsText" }
 jaxb-api = { module = "jakarta.xml.bind:jakarta.xml.bind-api", version.ref = "jaxb-api" }
-jaxb-impl = { module = "com.sun.xml.bind:jaxb-impl", version.ref = "jaxb-impl" }
+jaxb-impl = { module = "org.glassfish.jaxb:jaxb-runtime", version.ref = "jaxb-impl" }
 jcommander = { module = "com.beust:jcommander", version.ref = "jcommander" }
 jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
 mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
