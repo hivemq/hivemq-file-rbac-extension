@@ -25,9 +25,6 @@ import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-/**
- * @author Yannick Weber
- */
 public class ConfigResolver implements Supplier<Path> {
 
     private static final @NotNull Logger LOG = LoggerFactory.getLogger(ConfigResolver.class);

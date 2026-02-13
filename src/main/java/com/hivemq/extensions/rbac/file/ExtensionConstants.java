@@ -17,9 +17,6 @@ package com.hivemq.extensions.rbac.file;
 
 import org.jetbrains.annotations.NotNull;
 
-/**
- * @author Yannick Weber
- */
 public class ExtensionConstants {
 
     public static final @NotNull String EXTENSION_NAME = "HiveMQ File RBAC Extension";
