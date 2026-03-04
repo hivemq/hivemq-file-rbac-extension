@@ -75,9 +75,9 @@ public class CredentialsValidator {
     }
 
     /**
-     * @param userName the userName
-     * @param password the password
-     * @return a list of the users roles or null if the credentials are not valid
+     * @param  userName the userName
+     * @param  password the password
+     * @return          a list of the users roles or null if the credentials are not valid
      */
     public @Nullable List<String> getRoles(final @NotNull String userName, final @NotNull ByteBuffer password) {
         // if config is invalid do not allow clients to connect

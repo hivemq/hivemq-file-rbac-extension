@@ -100,21 +100,7 @@ public class Permission {
 
     @Override
     public @NotNull String toString() {
-        return "Permission{" +
-                "topic='" +
-                topic +
-                '\'' +
-                ", activity=" +
-                activity +
-                ", qos=" +
-                qos +
-                ", retain=" +
-                retain +
-                ", sharedSubscription=" +
-                sharedSubscription +
-                ", sharedGroup='" +
-                sharedGroup +
-                '\'' +
-                '}';
+        return "Permission{" + "topic='" + topic + '\'' + ", activity=" + activity + ", qos=" + qos + ", retain=" +
+                retain + ", sharedSubscription=" + sharedSubscription + ", sharedGroup='" + sharedGroup + '\'' + '}';
     }
 }

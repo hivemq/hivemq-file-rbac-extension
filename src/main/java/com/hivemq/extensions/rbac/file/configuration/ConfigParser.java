@@ -39,10 +39,11 @@ class ConfigParser {
     }
 
     /**
-     * @param file the new config file to read.
-     * @return the new config based on the file contents or null if the config is invalid
+     * @param  file the new config file to read.
+     * @return      the new config based on the file contents or null if the config is invalid
      */
-    @Nullable FileAuthConfig read(final @NotNull Path file) {
+    @Nullable
+    FileAuthConfig read(final @NotNull Path file) {
         if (!Files.isReadable(file)) {
             LOG.error("Unable to read configuration file {}", file);
             return null;
