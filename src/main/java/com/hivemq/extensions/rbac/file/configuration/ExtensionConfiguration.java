@@ -46,8 +46,8 @@ public class ExtensionConfiguration {
     }
 
     /**
-     * @param file the new config file to read.
-     * @return the new config based on the file contents or null if the config is invalid
+     * @param  file the new config file to read.
+     * @return      the new config based on the file contents or null if the config is invalid
      */
     private @NotNull ExtensionConfig read(final @NotNull Path file) {
         final var defaultConfig = new ExtensionConfig();

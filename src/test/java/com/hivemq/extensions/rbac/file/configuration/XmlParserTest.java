@@ -36,15 +36,15 @@ class XmlParserTest {
     @Test
     void test_marshal_directory() {
         final var xmlParser = new XmlParser();
-        assertThatThrownBy(() -> xmlParser.marshal(new FileAuthConfig(), extensionHome)).isInstanceOf(
-                NotMarshallableException.class);
+        assertThatThrownBy(() -> xmlParser.marshal(new FileAuthConfig(), extensionHome))
+                .isInstanceOf(NotMarshallableException.class);
     }
 
     @Test
     void test_marshal_file_exists() {
         final var xmlParser = new XmlParser();
-        assertThatThrownBy(() -> xmlParser.marshal(new FileAuthConfig(), extensionHome)).isInstanceOf(
-                NotMarshallableException.class);
+        assertThatThrownBy(() -> xmlParser.marshal(new FileAuthConfig(), extensionHome))
+                .isInstanceOf(NotMarshallableException.class);
     }
 
     @Test

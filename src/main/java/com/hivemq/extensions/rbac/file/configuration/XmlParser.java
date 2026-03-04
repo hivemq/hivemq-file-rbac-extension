@@ -53,8 +53,8 @@ class XmlParser {
      * <p>
      * The file must not exist, otherwise this method will fail
      *
-     * @param config the config to write to XML
-     * @param file   the file where the XML should be written to
+     * @param  config                   the config to write to XML
+     * @param  file                     the file where the XML should be written to
      * @throws NotMarshallableException if the XML cannot be marshalled
      */
     void marshal(final @NotNull FileAuthConfig config, final @NotNull Path file) throws NotMarshallableException {

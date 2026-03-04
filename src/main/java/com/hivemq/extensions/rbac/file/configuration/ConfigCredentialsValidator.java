@@ -86,8 +86,7 @@ class ConfigCredentialsValidator {
                     validationSuccessful = false;
                 }
                 if (permission.getSharedSubscription() == null) {
-                    errors.add("Invalid value for Shared Subscription in Permission for role with id '" +
-                            role.getId() +
+                    errors.add("Invalid value for Shared Subscription in Permission for role with id '" + role.getId() +
                             "'");
                     validationSuccessful = false;
                 }

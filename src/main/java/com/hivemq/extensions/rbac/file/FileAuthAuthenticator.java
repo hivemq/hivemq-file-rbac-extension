@@ -91,7 +91,7 @@ class FileAuthAuthenticator implements SimpleAuthenticator {
         // check if we have any roles for username/password combination
         final var roles = credentialsValidator.getRoles(userName, passwordOptional.get());
         if (roles == null || roles.isEmpty()) {
-            //username/password combination is unknown or has invalid roles
+            // username/password combination is unknown or has invalid roles
             if (nextExtensionInsteadOfFail) {
                 simpleAuthOutput.nextExtensionOrDefault();
                 return;
