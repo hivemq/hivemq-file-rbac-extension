@@ -49,7 +49,7 @@ class ConfigArchiver {
      * <p>
      * This method is thread safe
      *
-     * @param config the config to archive
+     * @param  config      the config to archive
      * @throws IOException if something bad happened and archival was not successful
      */
     synchronized void archive(final @Nullable FileAuthConfig config) throws IOException {

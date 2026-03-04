@@ -85,15 +85,7 @@ public class ExtensionConfig {
 
     @Override
     public @NotNull String toString() {
-        return "ExtensionConfig{" +
-                "reloadInterval=" +
-                reloadInterval +
-                ", listenerNames=" +
-                listenerNames +
-                ", passwordType=" +
-                passwordType +
-                ", nextExtensionInsteadOfFail=" +
-                nextExtensionInsteadOfFail +
-                '}';
+        return "ExtensionConfig{" + "reloadInterval=" + reloadInterval + ", listenerNames=" + listenerNames +
+                ", passwordType=" + passwordType + ", nextExtensionInsteadOfFail=" + nextExtensionInsteadOfFail + '}';
     }
 }

@@ -55,8 +55,7 @@ class CredentialsTest {
 
     @ParameterizedTest
     @ValueSource(strings = {ExtensionConstants.CREDENTIALS_LOCATION, ExtensionConstants.CREDENTIALS_LEGACY_LOCATION})
-    void test_create_file_before_it_does_not_exit(
-            final @NotNull String location) throws Exception {
+    void test_create_file_before_it_does_not_exit(final @NotNull String location) throws Exception {
         final var credentialsConfiguration =
                 new CredentialsConfiguration(extensionHome, executorService, extensionConfig);
         credentialsConfiguration.init();

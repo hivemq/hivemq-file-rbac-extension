@@ -203,8 +203,8 @@ class ConfigCredentialsValidatorTest {
         final var extensionConfig = new ExtensionConfig();
         final var result = ConfigCredentialsValidator.validateConfig(extensionConfig, config);
         assertThat(result.isValidationSuccessful()).isFalse();
-        assertThat(result.getErrors()).contains(
-                "Invalid value for Shared Subscription in Permission for role with id '1'");
+        assertThat(result.getErrors())
+                .contains("Invalid value for Shared Subscription in Permission for role with id '1'");
     }
 
     @Test

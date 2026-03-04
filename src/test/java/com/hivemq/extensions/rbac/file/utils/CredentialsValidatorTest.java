@@ -64,27 +64,29 @@ class CredentialsValidatorTest {
                 </roles>
             """;
 
-    private static final @NotNull String HASHED_CREDENTIALS = """
-            <file-rbac>
-               <users>
-                    <user>
-                        <name>user1</name>
-                        <password>c2FsdA==:100:MAK8JjJQh/c4uYbwkAm33TRXCbeuBC+meeK9ww3Mu4KTv08+8ywTKgF24MNHotOESjDmsutrEk+38PaZVX2TFA==</password>
-                        <roles>
-                            <id>role1</id>
-                        </roles>
-                    </user>
-                    <user>
-                        <name>user2</name>
-                        <password>c2FsdA==:100:99RGrFfo+l2fQ+KTeSdM/5SZBAJlxj25jzwfAfNeqCe4+9ejGBSEue1w005Uq3+aoZKn89JXNQU8hgHKneu0Dw==</password>
-                        <roles>
-                            <id>role1</id>
-                            <id>role2</id>
-                        </roles>
-                    </user>
-                </users>
-            """ + ROLES + """
-            </file-rbac>""";
+    private static final @NotNull String HASHED_CREDENTIALS =
+            """
+                    <file-rbac>
+                       <users>
+                            <user>
+                                <name>user1</name>
+                                <password>c2FsdA==:100:MAK8JjJQh/c4uYbwkAm33TRXCbeuBC+meeK9ww3Mu4KTv08+8ywTKgF24MNHotOESjDmsutrEk+38PaZVX2TFA==</password>
+                                <roles>
+                                    <id>role1</id>
+                                </roles>
+                            </user>
+                            <user>
+                                <name>user2</name>
+                                <password>c2FsdA==:100:99RGrFfo+l2fQ+KTeSdM/5SZBAJlxj25jzwfAfNeqCe4+9ejGBSEue1w005Uq3+aoZKn89JXNQU8hgHKneu0Dw==</password>
+                                <roles>
+                                    <id>role1</id>
+                                    <id>role2</id>
+                                </roles>
+                            </user>
+                        </users>
+                    """ +
+                    ROLES + """
+                            </file-rbac>""";
 
     private static final @NotNull String PLAIN_CREDENTIALS = """
             <file-rbac>
@@ -149,12 +151,13 @@ class CredentialsValidatorTest {
             when(Builders.topicPermission()).thenReturn(new TestTopicPermissionBuilder());
             final var permissions = validator.getPermissions("client1", "user1", List.of("role1"));
             assertThat(permissions).singleElement()
-                    .satisfies(permission -> assertThat(permission.getTopicFilter()).isEqualTo("data/client1/personal"));
+                    .satisfies(
+                            permission -> assertThat(permission.getTopicFilter()).isEqualTo("data/client1/personal"));
             final var permissions2 = validator.getPermissions("client2", "user2", List.of("role2"));
             assertThat(permissions2).singleElement()
                     .satisfies(permission -> assertThat(permission.getTopicFilter()).isEqualTo("user2/#"));
             final var permissions3 = validator.getPermissions("client3", "user3", List.of("role1", "role2"));
-            assertThat(permissions3).satisfiesExactly( //
+            assertThat(permissions3).satisfiesExactly(
                     permission -> assertThat(permission.getTopicFilter()).isEqualTo("data/client3/personal"),
                     permission -> assertThat(permission.getTopicFilter()).isEqualTo("user3/#"));
         }
@@ -227,7 +230,8 @@ class CredentialsValidatorTest {
         }
 
         @Override
-        public @NotNull TopicPermissionBuilder sharedSubscription(final TopicPermission.@NotNull SharedSubscription sharedSubscription) {
+        public @NotNull TopicPermissionBuilder sharedSubscription(
+                final TopicPermission.@NotNull SharedSubscription sharedSubscription) {
             return this;
         }
 
