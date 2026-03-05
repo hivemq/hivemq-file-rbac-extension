@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.hivemq.extensions.rbac.file.utils;
 
 import org.apache.commons.text.StringSubstitutor;
@@ -29,10 +30,10 @@ public class Substitution {
      * <p>
      * Can replace <code>${{clientid}}</code> and <code>${{username}}</code>
      *
-     * @param topic    topic pattern
-     * @param clientId actual clientId
-     * @param username actual username
-     * @return substituted string
+     * @param  topic    topic pattern
+     * @param  clientId actual clientId
+     * @param  username actual username
+     * @return          substituted string
      */
     public static @NotNull String substitute(
             final @NotNull String topic,

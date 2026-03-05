@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.hivemq.extensions.rbac.file.configuration;
 
 import com.hivemq.extensions.rbac.file.ExtensionConstants;
@@ -34,8 +35,8 @@ class ConfigurationTest {
     private @NotNull Path extensionHome;
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            ExtensionConstants.EXTENSION_CONFIG_LOCATION, ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
+    @ValueSource(strings = {ExtensionConstants.EXTENSION_CONFIG_LOCATION,
+            ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
     void test_read_extension_configuration(final @NotNull String location) throws Exception {
         final var configFile = getTempConfig(location);
         Files.writeString(configFile, """
@@ -59,8 +60,8 @@ class ConfigurationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            ExtensionConstants.EXTENSION_CONFIG_LOCATION, ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
+    @ValueSource(strings = {ExtensionConstants.EXTENSION_CONFIG_LOCATION,
+            ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
     void test_read_extension_configuration_invalid_reload_interval(final @NotNull String location) throws Exception {
         final var configFile = getTempConfig(location);
         Files.writeString(configFile, """
@@ -74,8 +75,8 @@ class ConfigurationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            ExtensionConstants.EXTENSION_CONFIG_LOCATION, ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
+    @ValueSource(strings = {ExtensionConstants.EXTENSION_CONFIG_LOCATION,
+            ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
     void test_read_extension_configuration_invalid_pw_type(final @NotNull String location) throws Exception {
         final var configFile = getTempConfig(location);
         Files.writeString(configFile, """
@@ -90,8 +91,8 @@ class ConfigurationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            ExtensionConstants.EXTENSION_CONFIG_LOCATION, ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
+    @ValueSource(strings = {ExtensionConstants.EXTENSION_CONFIG_LOCATION,
+            ExtensionConstants.EXTENSION_CONFIG_LEGACY_LOCATION})
     void test_read_extension_configuration_existing_listener_names(final @NotNull String location) throws Exception {
         final var configFile = getTempConfig(location);
         Files.writeString(configFile, """

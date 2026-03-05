@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.hivemq.extensions.rbac.file.configuration;
 
 import com.hivemq.extensions.rbac.file.ExtensionConstants;
@@ -35,15 +36,15 @@ class XmlParserTest {
     @Test
     void test_marshal_directory() {
         final var xmlParser = new XmlParser();
-        assertThatThrownBy(() -> xmlParser.marshal(new FileAuthConfig(), extensionHome)).isInstanceOf(
-                NotMarshallableException.class);
+        assertThatThrownBy(() -> xmlParser.marshal(new FileAuthConfig(), extensionHome))
+                .isInstanceOf(NotMarshallableException.class);
     }
 
     @Test
     void test_marshal_file_exists() {
         final var xmlParser = new XmlParser();
-        assertThatThrownBy(() -> xmlParser.marshal(new FileAuthConfig(), extensionHome)).isInstanceOf(
-                NotMarshallableException.class);
+        assertThatThrownBy(() -> xmlParser.marshal(new FileAuthConfig(), extensionHome))
+                .isInstanceOf(NotMarshallableException.class);
     }
 
     @Test

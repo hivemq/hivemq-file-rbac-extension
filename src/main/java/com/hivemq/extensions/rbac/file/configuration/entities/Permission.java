@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.hivemq.extensions.rbac.file.configuration.entities;
 
 import com.hivemq.extension.sdk.api.auth.parameter.TopicPermission;
@@ -99,21 +100,7 @@ public class Permission {
 
     @Override
     public @NotNull String toString() {
-        return "Permission{" +
-                "topic='" +
-                topic +
-                '\'' +
-                ", activity=" +
-                activity +
-                ", qos=" +
-                qos +
-                ", retain=" +
-                retain +
-                ", sharedSubscription=" +
-                sharedSubscription +
-                ", sharedGroup='" +
-                sharedGroup +
-                '\'' +
-                '}';
+        return "Permission{" + "topic='" + topic + '\'' + ", activity=" + activity + ", qos=" + qos + ", retain=" +
+                retain + ", sharedSubscription=" + sharedSubscription + ", sharedGroup='" + sharedGroup + '\'' + '}';
     }
 }

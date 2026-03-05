@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.hivemq.extensions.rbac.file;
 
 import com.hivemq.extension.sdk.api.auth.Authenticator;
@@ -34,7 +35,8 @@ class FileAuthenticatorProvider implements AuthenticatorProvider {
     }
 
     @Override
-    public @Nullable Authenticator getAuthenticator(final @NotNull AuthenticatorProviderInput authenticatorProviderInput) {
+    public @Nullable Authenticator getAuthenticator(
+            final @NotNull AuthenticatorProviderInput authenticatorProviderInput) {
         // always return the same authenticator, because it is thread-safe and can be shared between multiple clients
         return authenticator;
     }

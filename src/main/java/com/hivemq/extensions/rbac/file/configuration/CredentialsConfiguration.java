@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.hivemq.extensions.rbac.file.configuration;
 
 import com.hivemq.extension.sdk.api.annotations.ThreadSafe;
@@ -63,7 +64,7 @@ public class CredentialsConfiguration {
         this.credentialsResolver = new ConfigResolver(extensionHome, CREDENTIALS_LOCATION, CREDENTIALS_LEGACY_LOCATION);
         this.configParser = new ConfigParser(extensionConfig);
         final var reloadableTask = new ReloadConfigFileTask(//
-                unmodifiableList(callbacks) /* We don't want the task to modify the callbacks!*/,
+                unmodifiableList(callbacks) /* We don't want the task to modify the callbacks! */,
                 configParser,
                 new ConfigArchiver(extensionHome, new XmlParser()),
                 this,
@@ -112,8 +113,8 @@ public class CredentialsConfiguration {
      * <p>
      * A callback is guaranteed to not get executed concurrently.
      * <p>
-     * All callbacks are executed in a dedicated executor. Callbacks are not executed concurrently,
-     * so make sure they don't block for too long
+     * All callbacks are executed in a dedicated executor. Callbacks are not executed concurrently, so make sure they
+     * don't block for too long
      */
     public interface ReloadCallback {
 

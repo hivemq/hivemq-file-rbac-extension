@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.hivemq.extensions.rbac.file.configuration;
 
 import com.hivemq.extension.sdk.api.annotations.ThreadSafe;
@@ -52,8 +53,8 @@ class XmlParser {
      * <p>
      * The file must not exist, otherwise this method will fail
      *
-     * @param config the config to write to XML
-     * @param file   the file where the XML should be written to
+     * @param  config                   the config to write to XML
+     * @param  file                     the file where the XML should be written to
      * @throws NotMarshallableException if the XML cannot be marshalled
      */
     void marshal(final @NotNull FileAuthConfig config, final @NotNull Path file) throws NotMarshallableException {
@@ -75,7 +76,8 @@ class XmlParser {
         }
     }
 
-    @NotNull FileAuthConfig unmarshalFileAuthConfig(final @NotNull Path file) throws IOException {
+    @NotNull
+    FileAuthConfig unmarshalFileAuthConfig(final @NotNull Path file) throws IOException {
         try {
             final var unmarshaller = jaxb.createUnmarshaller();
             return (FileAuthConfig) unmarshaller.unmarshal(file.toFile());
@@ -84,7 +86,8 @@ class XmlParser {
         }
     }
 
-    @NotNull ExtensionConfig unmarshalExtensionConfig(final @NotNull Path file) throws IOException {
+    @NotNull
+    ExtensionConfig unmarshalExtensionConfig(final @NotNull Path file) throws IOException {
         try {
             final var unmarshaller = jaxb.createUnmarshaller();
             return (ExtensionConfig) unmarshaller.unmarshal(file.toFile());

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.hivemq.extensions.rbac.file.configuration;
 
 import com.hivemq.extensions.rbac.file.configuration.entities.ExtensionConfig;
@@ -85,8 +86,7 @@ class ConfigCredentialsValidator {
                     validationSuccessful = false;
                 }
                 if (permission.getSharedSubscription() == null) {
-                    errors.add("Invalid value for Shared Subscription in Permission for role with id '" +
-                            role.getId() +
+                    errors.add("Invalid value for Shared Subscription in Permission for role with id '" + role.getId() +
                             "'");
                     validationSuccessful = false;
                 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.hivemq.extensions.rbac.file;
 
 import com.hivemq.extension.sdk.api.auth.parameter.SimpleAuthInput;
@@ -67,8 +68,8 @@ class FileAuthAuthenticatorTest {
 
     @BeforeEach
     void before() {
-        when(credentialsValidator.getPermissions(anyString(), anyString(), anyList())).thenReturn(List.of(mock(
-                TopicPermission.class), mock(TopicPermission.class)));
+        when(credentialsValidator.getPermissions(anyString(), anyString(), anyList()))
+                .thenReturn(List.of(mock(TopicPermission.class), mock(TopicPermission.class)));
         when(simpleAuthOutput.getDefaultPermissions()).thenReturn(modifiableDefaultPermissions);
     }
 
@@ -246,10 +247,7 @@ class FileAuthAuthenticatorTest {
         }
     }
 
-    private record TestInput(
-            @NotNull String clientId,
-            @Nullable String userName,
-            @Nullable String password,
+    private record TestInput(@NotNull String clientId, @Nullable String userName, @Nullable String password,
             @NotNull String listenerName) implements SimpleAuthInput {
 
         private TestInput(
@@ -290,6 +288,7 @@ class FileAuthAuthenticatorTest {
         @Override
         public @NotNull Optional<Listener> getListener() {
             return Optional.of(new Listener() {
+
                 @Override
                 public int getPort() {
                     return 0;
@@ -328,9 +327,7 @@ class FileAuthAuthenticatorTest {
         }
     }
 
-    private record TestConnectPacket(
-            @NotNull String clientId,
-            @Nullable String userName,
+    private record TestConnectPacket(@NotNull String clientId, @Nullable String userName,
             @Nullable String password) implements ConnectPacket {
 
         @Override

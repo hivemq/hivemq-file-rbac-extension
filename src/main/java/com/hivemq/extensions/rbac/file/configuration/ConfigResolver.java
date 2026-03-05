@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.hivemq.extensions.rbac.file.configuration;
 
 import com.hivemq.extensions.rbac.file.ExtensionConstants;
@@ -51,7 +52,8 @@ public class ConfigResolver implements Supplier<Path> {
         // The only way the config could be present at the legacy location is when it was deliberately placed there.
         if (Files.exists(extensionXmlLegacyPath)) {
             if (!legacyWarningAlreadyLogged.getAndSet(true)) {
-                LOG.warn("{}: The configuration file is placed at the legacy location '{}'. " +
+                LOG.warn(
+                        "{}: The configuration file is placed at the legacy location '{}'. " +
                                 "Please move the configuration file to the new location '{}'. " +
                                 "Support for the legacy location will be removed in a future release.",
                         ExtensionConstants.EXTENSION_NAME,

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.hivemq.extensions.rbac.file.configuration;
 
 import com.hivemq.extensions.rbac.file.configuration.entities.ExtensionConfig;
@@ -45,8 +46,8 @@ public class ExtensionConfiguration {
     }
 
     /**
-     * @param file the new config file to read.
-     * @return the new config based on the file contents or null if the config is invalid
+     * @param  file the new config file to read.
+     * @return      the new config based on the file contents or null if the config is invalid
      */
     private @NotNull ExtensionConfig read(final @NotNull Path file) {
         final var defaultConfig = new ExtensionConfig();

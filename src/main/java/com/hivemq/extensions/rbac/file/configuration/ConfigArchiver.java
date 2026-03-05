@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.hivemq.extensions.rbac.file.configuration;
 
 import com.hivemq.extension.sdk.api.annotations.ThreadSafe;
@@ -48,7 +49,7 @@ class ConfigArchiver {
      * <p>
      * This method is thread safe
      *
-     * @param config the config to archive
+     * @param  config      the config to archive
      * @throws IOException if something bad happened and archival was not successful
      */
     synchronized void archive(final @Nullable FileAuthConfig config) throws IOException {
