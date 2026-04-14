@@ -1,6 +1,6 @@
 [versions]
 assertj = "3.27.7"
-bouncycastle = "1.83"
+bouncycastle = "1.84"
 caffeine = "3.2.3"
 commonsLang = "3.20.0"
 commonsText = "1.15.0"
