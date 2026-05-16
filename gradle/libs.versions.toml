@@ -27,5 +27,5 @@ mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 [plugins]
 defaults = { id = "io.github.sgtsilvio.gradle.defaults", version = "0.3.0" }
 hivemq-extension = { id = "com.hivemq.extension", version = "5.0.0" }
-spotless = { id = "com.diffplug.spotless", version = "8.4.0" }
+spotless = { id = "com.diffplug.spotless", version = "8.5.1" }
 oci = { id = "io.github.sgtsilvio.gradle.oci", version = "0.27.0" }
