@@ -10,6 +10,7 @@ jaxb-impl = "4.0.9"
 jcommander = "1.82"
 jetbrains-annotations = "26.1.0"
 junit-jupiter = "5.10.0"
+logback = "1.6.1"
 mockito = "5.23.0"
 
 [libraries]
@@ -22,6 +23,7 @@ jaxb-api = { module = "jakarta.xml.bind:jakarta.xml.bind-api", version.ref = "ja
 jaxb-impl = { module = "org.glassfish.jaxb:jaxb-runtime", version.ref = "jaxb-impl" }
 jcommander = { module = "com.beust:jcommander", version.ref = "jcommander" }
 jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 
 [plugins]
