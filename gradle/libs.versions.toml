@@ -1,8 +1,8 @@
 [versions]
 assertj = "3.27.7"
-bouncycastle = "1.86"
+bouncycastle = "1.87"
 caffeine = "3.3.1"
-commonsLang = "3.21.0"
+commonsLang = "3.22.0"
 commonsText = "1.15.0"
 hivemq-extensionSdk = "4.4.0"
 jaxb-api = "4.0.5"
